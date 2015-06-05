@@ -39,14 +39,57 @@ namespace gvr {
 
 static int numberDrawCalls;
 static int numberTriangles;
+static float drawTime;
+static float avgDrawTime;
+static bool monoscopic = false;
+static bool disjointTimerSupported = false;
+static int currentFrameQuery;
+static int lastFrameQuery;
+static GLuint queries[2][2];
+static GLuint queriesAvailable;
+static GLint queriesDisjointOccurred;
+static GLuint64 timeElapsed;
+static GLuint64 frameCount;
+
+#ifndef GL_TIME_ELAPSED_EXT
+#define GL_TIME_ELAPSED_EXT 0x88BF
+#define GL_GPU_DISJOINT_EXT 0x8FBB
+extern "C" {
+typedef void (*PFNGLGETQUERYOBJECTUI64VEXTPROC) (GLuint id, GLenum pname, GLuint64 *params);
+PFNGLGETQUERYOBJECTUI64VEXTPROC glGetQueryObjectui64vEXT__;
+}
+#endif
 
 void Renderer::initializeStats(){
-    // TODO: this function will be filled in once we add draw time stats
+    currentFrameQuery = 0;
+    lastFrameQuery = 0;
+    timeElapsed = 0;
+    frameCount = 0;
+    drawTime = 0.0f;
+    avgDrawTime = 0.0f;
+
+    const GLubyte *extensions = glGetString(GL_EXTENSIONS);
+    char *exist = strstr((char *)extensions, "GL_EXT_disjoint_timer_query");
+    if(!strncmp(exist, "GL_EXT_disjoint_timer_query", 26)) {
+        disjointTimerSupported = true;
+    }
+
+    if(disjointTimerSupported) {
+        glGenQueries(2, queries[0]);
+        glGenQueries(2, queries[1]);
+
+        glGetQueryObjectui64vEXT__ = (PFNGLGETQUERYOBJECTUI64VEXTPROC) eglGetProcAddress("glGetQueryObjectui64vEXT");
+    }
 }
 
 void Renderer::resetStats(){
     numberDrawCalls = 0;
     numberTriangles = 0;
+    queriesAvailable = 0;
+    queriesDisjointOccurred = 0;
+    if(disjointTimerSupported) {
+        glGetIntegerv(GL_GPU_DISJOINT_EXT, &queriesDisjointOccurred);
+    }
 }
 
 int Renderer::getNumberDrawCalls(){
@@ -55,6 +98,62 @@ int Renderer::getNumberDrawCalls(){
 
 int Renderer::getNumberTriangles(){
     return numberTriangles;
+}
+
+void swapFrameQueries() {
+    lastFrameQuery = currentFrameQuery;
+    currentFrameQuery = !currentFrameQuery;
+}
+
+void Renderer::startGpuTimer(int eye) {
+    if(!disjointTimerSupported) {
+        return;
+    }
+    glBeginQuery(GL_TIME_ELAPSED_EXT, queries[eye][currentFrameQuery]);
+}
+
+void Renderer::stopGpuTimer(int eye) {
+    if(!disjointTimerSupported) {
+        return;
+    }
+
+    glEndQuery(GL_TIME_ELAPSED_EXT);
+    if(eye == 0 && !monoscopic) {
+        return;
+    }
+
+    drawTime += getGpuTimerResult(0);
+    if(!monoscopic) {
+        drawTime += getGpuTimerResult(1);
+    }
+
+    swapFrameQueries();
+
+    frameCount++;
+    if((frameCount % 10) == 0) {
+        avgDrawTime = drawTime / 10.0f;
+        drawTime = 0.0f;
+    }
+}
+
+float Renderer::getGpuTimerResult(int eye) {
+    float gpuTime = 0.0f;
+    glGetQueryObjectuiv(queries[eye][lastFrameQuery], GL_QUERY_RESULT_AVAILABLE, &queriesAvailable);
+    if(queriesAvailable == 0) {
+        return gpuTime;
+    }
+
+    glGetIntegerv(GL_GPU_DISJOINT_EXT, &queriesDisjointOccurred);
+    if(!queriesDisjointOccurred) {
+        glGetQueryObjectui64vEXT__(queries[eye][lastFrameQuery], GL_QUERY_RESULT, &timeElapsed);
+        gpuTime = (float) ((double)timeElapsed / 1000000.0);
+    }
+    return  gpuTime;
+}
+
+
+float Renderer::getDrawTime() {
+    return avgDrawTime;
 }
 
 
@@ -73,6 +172,11 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
 
     numberDrawCalls = 0;
     numberTriangles = 0;
+
+    int currentEye = camera->render_mask() - 1;
+    if(scene->get_stats_enabled()) {
+        startGpuTimer(currentEye);
+    }
 
     if (scene->getSceneDirtyFlag()) {
 
@@ -165,6 +269,10 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
             renderPostEffectData(camera, texture_render_texture,
                     post_effects.back(), post_effect_shader_manager);
         }
+
+    if(scene->get_stats_enabled()) {
+        stopGpuTimer(currentEye);
+    }
 
     } // flag checking
 
@@ -480,6 +588,7 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int viewportX,
         RenderTexture* post_effect_render_texture_a,
         RenderTexture* post_effect_render_texture_b) {
 
+    monoscopic = true;
     renderCamera(scene, camera, 0, viewportX, viewportY, viewportWidth,
             viewportHeight, shader_manager, post_effect_shader_manager,
             post_effect_render_texture_a, post_effect_render_texture_b);
