@@ -43,9 +43,11 @@ static float drawTime;
 static float avgDrawTime;
 static bool monoscopic = false;
 static bool disjointTimerSupported = false;
-static int currentFrameQuery;
-static int lastFrameQuery;
-static GLuint queries[2][2];
+static int beginCurrentFrameQuery;
+static int endCurrentFrameQuery;
+static int beginLastFrameQuery;
+static int endLastFrameQuery;
+static GLuint queries[2][4];
 static GLuint queriesAvailable;
 static GLint queriesDisjointOccurred;
 static GLuint64 timeElapsed;
@@ -54,15 +56,20 @@ static GLuint64 frameCount;
 #ifndef GL_TIME_ELAPSED_EXT
 #define GL_TIME_ELAPSED_EXT 0x88BF
 #define GL_GPU_DISJOINT_EXT 0x8FBB
+#define GL_TIMESTAMP_EXT 0x8E28
 extern "C" {
 typedef void (*PFNGLGETQUERYOBJECTUI64VEXTPROC) (GLuint id, GLenum pname, GLuint64 *params);
+typedef void (*PFNGLQUERYCOUNTEREXTPROC)(GLuint id, GLenum target);
 PFNGLGETQUERYOBJECTUI64VEXTPROC glGetQueryObjectui64vEXT__;
+PFNGLQUERYCOUNTEREXTPROC glQueryCounterEXT__;
 }
 #endif
 
 void Renderer::initializeStats(){
-    currentFrameQuery = 0;
-    lastFrameQuery = 0;
+    beginCurrentFrameQuery = 0;
+    endCurrentFrameQuery = 1;
+    beginLastFrameQuery = 2;
+    endLastFrameQuery = 3;
     timeElapsed = 0;
     frameCount = 0;
     drawTime = 0.0f;
@@ -75,10 +82,11 @@ void Renderer::initializeStats(){
     }
 
     if(disjointTimerSupported) {
-        glGenQueries(2, queries[0]);
-        glGenQueries(2, queries[1]);
+        glGenQueries(4, queries[0]);
+        glGenQueries(4, queries[1]);
 
         glGetQueryObjectui64vEXT__ = (PFNGLGETQUERYOBJECTUI64VEXTPROC) eglGetProcAddress("glGetQueryObjectui64vEXT");
+        glQueryCounterEXT__ = (PFNGLQUERYCOUNTEREXTPROC) eglGetProcAddress("glQueryCounterEXT");
     }
 }
 
@@ -101,15 +109,23 @@ int Renderer::getNumberTriangles(){
 }
 
 void swapFrameQueries() {
-    lastFrameQuery = currentFrameQuery;
-    currentFrameQuery = !currentFrameQuery;
+    int swapTemporaryForBegin = beginLastFrameQuery;
+    int swapTemporaryForEnd = endLastFrameQuery;
+
+    beginLastFrameQuery = beginCurrentFrameQuery;
+    endLastFrameQuery = endCurrentFrameQuery;
+
+    beginCurrentFrameQuery = swapTemporaryForBegin;
+    endCurrentFrameQuery = swapTemporaryForEnd;
 }
 
 void Renderer::startGpuTimer(int eye) {
     if(!disjointTimerSupported) {
         return;
     }
-    glBeginQuery(GL_TIME_ELAPSED_EXT, queries[eye][currentFrameQuery]);
+    //glBeginQuery(GL_TIME_ELAPSED_EXT, queries[eye][currentFrameQuery]);
+    glQueryCounterEXT__(queries[eye][beginCurrentFrameQuery], GL_TIMESTAMP_EXT);
+    //LOGD("startGpuTimer: [%d][%d]\n", eye, beginCurrentFrameQuery);
 }
 
 void Renderer::stopGpuTimer(int eye) {
@@ -117,7 +133,10 @@ void Renderer::stopGpuTimer(int eye) {
         return;
     }
 
-    glEndQuery(GL_TIME_ELAPSED_EXT);
+    //glEndQuery(GL_TIME_ELAPSED_EXT);
+    glQueryCounterEXT__(queries[eye][endCurrentFrameQuery], GL_TIMESTAMP_EXT);
+    //LOGD("stopGpuTimer: [%d][%d]\n", eye, endCurrentFrameQuery);
+
     if(eye == 0 && !monoscopic) {
         return;
     }
@@ -137,16 +156,43 @@ void Renderer::stopGpuTimer(int eye) {
 }
 
 float Renderer::getGpuTimerResult(int eye) {
-    float gpuTime = 0.0f;
-    glGetQueryObjectuiv(queries[eye][lastFrameQuery], GL_QUERY_RESULT_AVAILABLE, &queriesAvailable);
+    float gpuTime = 1000.0f;
+    LOGD("getGpuTimerResult: checking [%d][%d]\n", eye, endLastFrameQuery);
+
+    /*
+    glGetQueryObjectuiv(queries[eye][endLastFrameQuery], GL_QUERY_RESULT_AVAILABLE, &queriesAvailable);
     if(queriesAvailable == 0) {
+        LOGD("getGpuTimerResult: [%d][%d] query not available at this time\n", eye, endLastFrameQuery);
+
         return gpuTime;
+    }
+    */
+    if(frameCount < 2) {
+        return 0.0f;
+    }
+    queriesAvailable = 0;
+    while(!queriesAvailable) {
+        glGetQueryObjectuiv(queries[eye][endLastFrameQuery], GL_QUERY_RESULT_AVAILABLE, &queriesAvailable);
     }
 
     glGetIntegerv(GL_GPU_DISJOINT_EXT, &queriesDisjointOccurred);
     if(!queriesDisjointOccurred) {
-        glGetQueryObjectui64vEXT__(queries[eye][lastFrameQuery], GL_QUERY_RESULT, &timeElapsed);
-        gpuTime = (float) ((double)timeElapsed / 1000000.0);
+        GLuint64 beginTimestamp;
+        GLuint64 endTimestamp;
+        glGetQueryObjectui64vEXT__(queries[eye][beginLastFrameQuery], GL_QUERY_RESULT, &beginTimestamp);
+        glGetQueryObjectui64vEXT__(queries[eye][endLastFrameQuery], GL_QUERY_RESULT, &endTimestamp);
+        LOGD("getGpuTimerResult: [%d][%d] begin timestamp = %lld\n", eye, beginLastFrameQuery, beginTimestamp);
+        LOGD("getGpuTimerResult: [%d][%d]   end timestamp = %lld\n", eye, endLastFrameQuery, endTimestamp);
+
+
+        //gpuTime = (float) ((double)timeElapsed / 1000000.0);
+        gpuTime = (endTimestamp - beginTimestamp) * 0.000001;
+        if(endTimestamp == 0 || beginTimestamp == 0) {
+            LOGD("getGpuTimerResult: either begin or end was 0\n");
+
+            gpuTime = 250.0f;
+        }
+
     }
     return  gpuTime;
 }
