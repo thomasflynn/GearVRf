@@ -26,6 +26,7 @@ public class DogFightScript extends GVRScript
     private GVRCubeSceneObject mSkyBox;
     private GVRCameraRig mCamera;
     private static final String TAG = "DogFightScript";
+    private Aircraft myAircraft = new Aircraft();
 
     @Override
     public void onInit(GVRContext gvrContext) {
@@ -64,23 +65,44 @@ public class DogFightScript extends GVRScript
 
     @Override
     public void onStep() {
+    	
+    	myAircraft.step(16.67f);
+    	
+    	float[] pos = myAircraft.getPos();
+    	float[] hpr = myAircraft.getHpr();
+    	
+    	mCamera.getTransform().rotateByAxis(hpr[2], 0, 0, 1);
+    	mCamera.getTransform().rotateByAxis(-hpr[1], 1, 0, 0);
+    	mCamera.getTransform().rotateByAxis(hpr[0], 0, 1, 0);
+    	mCamera.getTransform().rotateByAxis(-90.0f, 1, 0, 0);
+    	mCamera.getTransform().translate(pos[2], pos[0], -pos[1]);
+    	/*
+    	android.util.Log.d(TAG, "pos[0]="+pos[0]);
+    	android.util.Log.d(TAG, "pos[1]="+pos[1]);
+    	android.util.Log.d(TAG, "pos[2]="+pos[2]);
+        */
+    	android.util.Log.d(TAG, "hpr[0]="+hpr[0]);
+    	android.util.Log.d(TAG, "hpr[1]="+hpr[1]);
+    	android.util.Log.d(TAG, "hpr[2]="+hpr[2]);
     }
 
     public void processKeyEvent(int keyCode) {
     	android.util.Log.d(TAG, "got keyCode: " + keyCode);
 
     	 switch(keyCode) {
-    	 	case KeyEvent.KEYCODE_BUTTON_X:
-    	 		android.util.Log.d(TAG, "button X");
+    	 	case KeyEvent.KEYCODE_BUTTON_X:  
+    	 		android.util.Log.d(TAG, "button ...");
+    	 		myAircraft.decThrust();
     	 		break;
-    	 	case KeyEvent.KEYCODE_BUTTON_Y:
-    	 		android.util.Log.d(TAG, "button Y");
+    	 	case KeyEvent.KEYCODE_BUTTON_Y:  
+    	 		android.util.Log.d(TAG, "button ....");
     	 		break;
-    	 	case KeyEvent.KEYCODE_BUTTON_A:
-    	 		android.util.Log.d(TAG, "button A");
+    	 	case KeyEvent.KEYCODE_BUTTON_A:  
+    	 		android.util.Log.d(TAG, "button .");
+    	 		myAircraft.incThrust();
     	 		break;
-    	 	case KeyEvent.KEYCODE_BUTTON_B:
-    	 		android.util.Log.d(TAG, "button B");
+    	 	case KeyEvent.KEYCODE_BUTTON_B:  
+    	 		android.util.Log.d(TAG, "button ..");
     	 		break;
     	 	case KeyEvent.KEYCODE_BUTTON_R1:
     	 		android.util.Log.d(TAG, "button R1");
@@ -150,6 +172,23 @@ public class DogFightScript extends GVRScript
         float rz = getCenteredAxis(event, mInputDevice,
                     MotionEvent.AXIS_RY, historyPos);
         
+        if(x > 0) {
+        	myAircraft.rollRight(x);
+        } else if(x < 0) {
+        	myAircraft.rollLeft(x);
+        } else {
+        	myAircraft.zeroAilerons();
+        }
+        
+        if(y > 0) {
+        	myAircraft.pitchDown(y);
+        } else if(y < 0) {
+        	myAircraft.pitchUp(y);
+        } else {
+        	myAircraft.zeroElevators();
+        }
+        
+        /*
         android.util.Log.d(TAG, "x = " + x);
         android.util.Log.d(TAG, "hatx = " + hatx);
         android.util.Log.d(TAG, "rz = " + z);
@@ -157,7 +196,7 @@ public class DogFightScript extends GVRScript
         android.util.Log.d(TAG, "y = " + y);
         android.util.Log.d(TAG, "haty = " + haty);
         android.util.Log.d(TAG, "ry = " + rz);
-
+        */
     }
 
 }
