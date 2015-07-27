@@ -18,6 +18,7 @@ import org.gearvrf.GVRScene;
 import org.gearvrf.GVRSceneObject;
 import org.gearvrf.GVRScript;
 import org.gearvrf.GVRTexture;
+import org.gearvrf.GVRTransform;
 import org.gearvrf.scene_objects.GVRCubeSceneObject;
 
 
@@ -27,6 +28,7 @@ public class DogFightScript extends GVRScript
     private GVRCameraRig mCamera;
     private static final String TAG = "DogFightScript";
     private Aircraft myAircraft = new Aircraft();
+    private GVRTransform mCameraTransform;
 
     @Override
     public void onInit(GVRContext gvrContext) {
@@ -60,30 +62,46 @@ public class DogFightScript extends GVRScript
         lPersp.setFarClippingDistance(100000);
         rPersp.setFarClippingDistance(100000);
 
-        mCamera.getTransform().setPosition(0, 0,  0);
+        mCameraTransform = mCamera.getTransform();
+        mCameraTransform.setPosition(0, 0,  0);
     }
 
     @Override
     public void onStep() {
     	
-    	myAircraft.step(16.67f);
+    	myAircraft.step(.011667f);
     	
     	float[] pos = myAircraft.getPos();
     	float[] hpr = myAircraft.getHpr();
     	
-    	mCamera.getTransform().rotateByAxis(hpr[2], 0, 0, 1);
-    	mCamera.getTransform().rotateByAxis(-hpr[1], 1, 0, 0);
-    	mCamera.getTransform().rotateByAxis(hpr[0], 0, 1, 0);
-    	mCamera.getTransform().rotateByAxis(-90.0f, 1, 0, 0);
-    	mCamera.getTransform().translate(pos[2], pos[0], -pos[1]);
+    	float []identity = { 1.0f, 0.0f, 0.0f, 0.0f,
+    	                0.0f, 1.0f, 0.0f, 0.0f,
+    	                0.0f, 0.0f, 1.0f, 0.0f,
+    	                0.0f, 0.0f, 0.0f, 1.0f
+    	};
+
+    	mCameraTransform.setModelMatrix(identity);
+    	//mCameraTransform.reset();
+    	mCameraTransform.rotateByAxis(-hpr[2], 0, 0, 1);
+    	mCameraTransform.rotateByAxis(hpr[1], 1, 0, 0);
+    	mCameraTransform.rotateByAxis(-hpr[0], 0, 1, 0);
+        
+    	//mCameraTransform.rotateByAxis(-90.0f, 1, 0, 0);
+    	mCameraTransform.translate(pos[2], pos[0], -pos[1]);
+  
+        
+        float yaw = mCameraTransform.getRotationYaw();
+        float pitch = mCameraTransform.getRotationPitch();
+        float roll = mCameraTransform.getRotationRoll();
+            	
     	/*
     	android.util.Log.d(TAG, "pos[0]="+pos[0]);
     	android.util.Log.d(TAG, "pos[1]="+pos[1]);
     	android.util.Log.d(TAG, "pos[2]="+pos[2]);
         */
-    	android.util.Log.d(TAG, "hpr[0]="+hpr[0]);
-    	android.util.Log.d(TAG, "hpr[1]="+hpr[1]);
-    	android.util.Log.d(TAG, "hpr[2]="+hpr[2]);
+    	android.util.Log.d(TAG, "hpr[0]="+hpr[0]+", hpr[1]="+hpr[1]+", hpr[2]="+hpr[2]);
+        android.util.Log.d(TAG, "yaw   ="+yaw+   ", pitch ="+pitch+ ", roll  ="+roll);
+
     }
 
     public void processKeyEvent(int keyCode) {

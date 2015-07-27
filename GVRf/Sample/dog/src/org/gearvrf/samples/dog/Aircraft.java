@@ -30,19 +30,21 @@ class Aircraft {
     }
 
     void rollLeft(float value) {
-        aileron = (value + 00000) * (60.0f / 32767.0f);
+        aileron = (value + 00000) * (60.0f / 1.0f);
+        android.util.Log.d(TAG, "rollLeft("+value+"), aileron="+aileron);
 	}
 
     void rollRight(float value) {
-        aileron = (value - 00000) * (60.0f / 32767.0f);
+        aileron = (value - 00000) * (60.0f / 1.0f);
+        android.util.Log.d(TAG, "rollRight("+value+"), aileron="+aileron);
 	}
 
     void pitchUp(float value) {
-        elev = (value - 00000) * (60.0f / 32767.0f);
+        elev = (value - 00000) * (60.0f / 1.0f);
 	}
 
     void pitchDown(float value) {
-        elev = (value - 00000) * (60.0f / 32767.0f);
+        elev = (value - 00000) * (60.0f / 1.0f);
 	}
 
     void zeroAilerons() {
@@ -190,10 +192,10 @@ class Aircraft {
         // define roll rate
         float roll_rate = 90 * dt; // 90 degrees per second
 
-        //fprintf(stderr, "aileron = %f, bank = %f\n", aileron, bank);
+        //android.util.Log.d(TAG, "aileron="+aileron+", bank="+bank);
 
         // find direction of roll
-        if(aileron > -0.5 && aileron < 0.5)
+        if(aileron > -0.1 && aileron < 0.1)
         {
             if(bank > -0.1 && bank < 0.1)
             {
@@ -203,28 +205,28 @@ class Aircraft {
             {
                 roll_rate = bank * dt * 2;
                 // 90 degrees per second
-                //fprintf(stderr, "> 0.1, roll_rate = %f\n", roll_rate);
+                //android.util.Log.d(TAG, "> 0.1, roll_rate="+roll_rate);
                 bank -= roll_rate;
             }
             else if(bank < -0.1)
             {
                 roll_rate = bank * dt * 2;
-                //fprintf(stderr, "< -0.1, roll_rate = %f\n", roll_rate);
+                //android.util.Log.d(TAG, "< -0.1, roll_rate="+roll_rate);
                 bank -= roll_rate;
             }
         }
         else if(aileron - bank < -0.1)
         {
             // add roll rate to bank angle 
-            //fprintf(stderr, "< -0.1\n");
+            android.util.Log.d(TAG, "< -0.1");
             roll_rate = (90 + bank) * dt; 
             if((aileron < -5 && bank > 5) ||
                 aileron > 5 && bank < -5)
             {
-                //fprintf(stderr, "< -5 && > 5\n");
+                //android.util.Log.d(TAG, "< -5 && > 5");
                 roll_rate *= 2;
             }
-            //fprintf(stderr, "roll_rate = %f\n", roll_rate);
+            //android.util.Log.d(TAG, "roll_rate="+roll_rate);
             bank -= roll_rate;
             if(bank < aileron)
             {
@@ -234,15 +236,15 @@ class Aircraft {
         else if(aileron - bank > 0.1)
         {
             // add roll rate to bank angle 
-            //fprintf(stderr, "> 0.1\n");
+            //android.util.Log.d(TAG, "> 0.1");
             roll_rate = (90 - bank) * dt; 
             if((aileron < -5 && bank > 5) ||
                 aileron > 5 && bank < -5)
             {
-                //fprintf(stderr, "< -5 && > 5\n");
+                //android.util.Log.d(TAG, "< -5 && > 5");
                 roll_rate *= 2;
             }
-            //fprintf(stderr, "roll_rate = %f\n", roll_rate);
+            //android.util.Log.d(TAG, "roll_rate="+roll_rate);
             bank += roll_rate; 
             if(bank > aileron)
             {
@@ -381,7 +383,8 @@ class Aircraft {
         // add y to position
         pos[1] += y;
 
-        //fprintf(stderr, "heading: %f, pitch: %f, roll: %f, altitude: %f\n", heading, elev, roll, alt);
+        //android.util.Log.d(TAG, "heading: "+heading+", pitch: "+pitch+", roll: "+roll+", altitude: "+alt);
+        android.util.Log.d(TAG, "heading: "+euler_angles[0]+", pitch: "+euler_angles[1]+", roll: "+euler_angles[2]);
         //fprintf(stderr, "x: %f, y: %f, z: %f\n", pos[0], pos[1], pos[2]);
 
     }
