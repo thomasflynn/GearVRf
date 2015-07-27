@@ -20,11 +20,12 @@ import org.gearvrf.GVRScript;
 import org.gearvrf.GVRTexture;
 import org.gearvrf.GVRTransform;
 import org.gearvrf.scene_objects.GVRCubeSceneObject;
+import org.gearvrf.scene_objects.GVRCylinderSceneObject;
 
 
 public class DogFightScript extends GVRScript
 {
-    private GVRCubeSceneObject mSkyBox;
+    private GVRCylinderSceneObject mSkyBox;
     private GVRCameraRig mCamera;
     private static final String TAG = "DogFightScript";
     private Aircraft myAircraft = new Aircraft();
@@ -43,15 +44,16 @@ public class DogFightScript extends GVRScript
 
         ArrayList<Future<GVRTexture>> futureTextureList = new ArrayList<Future<GVRTexture>>(6);
 
-        futureTextureList.add(futureTexture);
-        futureTextureList.add(futureTexture);
-        futureTextureList.add(futureTexture);
-        futureTextureList.add(futureTexture);
+        //futureTextureList.add(futureTexture);
+        //futureTextureList.add(futureTexture);
+        //futureTextureList.add(futureTexture);
         futureTextureList.add(futureTextureTop);
+        futureTextureList.add(futureTexture);
         futureTextureList.add(futureTextureBottom);
 
 
-        mSkyBox = new GVRCubeSceneObject(gvrContext, false, futureTextureList);
+        //mSkyBox = new GVRCubeSceneObject(gvrContext, false, futureTextureList);
+        mSkyBox = new GVRCylinderSceneObject(gvrContext, false, futureTextureList);
         mSkyBox.getTransform().setScale(100000, 100000, 100000);
         mSkyBox.getTransform().setPosition(0, 40000, 0);
 
