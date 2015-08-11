@@ -27,11 +27,9 @@
 #include <string>
 
 #include "glm/glm.hpp"
-#include "glm/geometric.hpp"
-
 
 namespace gvr {
-class BoundingVolume {
+class BoundingVolume: {
 public:
     BoundingVolume();
 
@@ -40,12 +38,11 @@ public:
 
     void expand(const glm::vec3 point);
     void expand(const BoundingVolume &volume);
-
+    
     const glm::vec3& center() const { return center_; }
     float radius() const { return radius_; }
     const glm::vec3& min_corner() const { return min_corner_; }
     const glm::vec3& max_corner() const { return max_corner_; }
-
 private:
     // bounding volume info
     bool dirty = true;
