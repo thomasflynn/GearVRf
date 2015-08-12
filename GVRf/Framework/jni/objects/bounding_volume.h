@@ -27,12 +27,12 @@
 #include <string>
 
 #include "glm/glm.hpp"
+#include "glm/geometric.hpp"
 
 namespace gvr {
-class BoundingVolume: {
+class BoundingVolume {
 public:
     BoundingVolume();
-
     ~BoundingVolume() {
     }
 
