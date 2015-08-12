@@ -470,5 +470,4 @@ bool SceneObject::is_cube_in_frustum(float frustum[6][4],
     return true;
 }
 
-
 }
