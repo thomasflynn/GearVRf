@@ -260,4 +260,78 @@ BoundingVolume& SceneObject::getBoundingVolume() {
 
     return bounding_volume_;
 }
+
+bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
+    if (!visible_) {
+        return true;
+    }
+
+    if (render_data == NULL || render_data->pass(0)->material() == 0) {
+        return true;
+    }
+
+    if (render_data->mesh() == NULL) {
+        return true;
+    }
+
+    if(render_data->render_mask() == 0) {
+        return true;
+    }
+
+    // is in frustum?
+    glm::mat4 model_matrix_tmp(transform()->getModelMatrix());
+    glm::mat4 mvp_matrix_tmp(vp_matrix * model_matrix_tmp);
+
+    // Frustum
+    float frustum[6][4];
+
+    // Matrix to array
+    float mvp_matrix_array[16] = { 0.0 };
+    const float *mat_to_array = (const float*) glm::value_ptr(mvp_matrix_tmp);
+    memcpy(mvp_matrix_array, mat_to_array, sizeof(float) * 16);
+
+    // Build the frustum
+    build_frustum(frustum, mvp_matrix_array);
+
+    const float* bounding_box_info = render_data->mesh()->getBoundingBoxInfo();
+    if (bounding_box_info == NULL) {
+        return true;
+    }
+
+    // Check for being inside or outside frustum
+    bool is_inside = is_cube_in_frustum(frustum, bounding_box_info);
+
+    // Only push those scene objects that are inside of the frustum
+    if (!is_inside) {
+        set_in_frustum(false);
+        return true;
+    }
+
+    // check LOD
+    // Transform the bounding sphere
+    glm::vec4 sphere_center(bounding_volume_.center(), 1.0f);
+    glm::vec4 transformed_sphere_center = mvp_matrix_tmp * sphere_center;
+
+    // Calculate distance from camera
+    glm::vec3 camera_position =
+            camera->owner_object()->transform()->position();
+    glm::vec4 position(camera_position, 1.0f);
+    glm::vec4 difference = transformed_sphere_center - position;
+    float distance = glm::dot(difference, difference);
+
+    // this distance will be used when sorting transparent objects
+    render_data_->set_camera_distance(distance);
+
+    // Check if this is the correct LOD level
+    if (!inLODRange(distance)) {
+        // not in range, cull me out
+        return true;
+    }
+
+    set_in_frustum();
+
+    return false;
+}
+
+
 }

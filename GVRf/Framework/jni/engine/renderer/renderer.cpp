@@ -70,10 +70,6 @@ void Renderer::cull(Scene *scene, Camera *camera, ShaderManager* shader_manager)
     // do occlusion culling, if enabled
     occlusion_cull(scene, scene_objects);
 
-    // do frustum culling, if enabled
-    frustum_cull(scene, camera, scene_objects, render_data_vector,
-            vp_matrix, shader_manager);
-
     // do sorting based on render order
     std::sort(render_data_vector.begin(), render_data_vector.end(),
             compareRenderData);
@@ -175,7 +171,8 @@ void Renderer::occlusion_cull(Scene* scene,
     }
 
     for (auto it = scene_objects.begin(); it != scene_objects.end(); ++it) {
-        RenderData* render_data = (*it)->render_data();
+        SceneObject *scene_object = (*it);
+        RenderData* render_data = scene_object->render_data();
         if (render_data == 0) {
             continue;
         }
@@ -186,9 +183,43 @@ void Renderer::occlusion_cull(Scene* scene,
 
         //If a query was issued on an earlier or same frame and if results are
         //available, then update the same. If results are unavailable, do nothing
-        if (!(*it)->is_query_issued()) {
+        if (!scene_object->is_query_issued()) {
             continue;
         }
+
+#if _GVRF_USE_GLES3_
+        //If a previous query is active, do not issue a new query.
+        //This avoids overloading the GPU with too many queries
+        //Queries may span multiple frames
+
+        bool is_query_issued = scene_object->is_query_issued();
+        if (!is_query_issued) {
+            //Setup basic bounding box and material
+            RenderData* bounding_box_render_data(new RenderData());
+            Mesh* bounding_box_mesh = render_data->mesh()->getBoundingBox();
+            bounding_box_render_data->set_mesh(bounding_box_mesh);
+
+            GLuint *query = scene_object->get_occlusion_array();
+
+            glDepthFunc (GL_LEQUAL);
+            glEnable (GL_DEPTH_TEST);
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+            //Issue the query only with a bounding box
+            glBeginQuery(GL_ANY_SAMPLES_PASSED, query[0]);
+            shader_manager->getBoundingBoxShader()->render(mvp_matrix_tmp,
+                    bounding_box_render_data,
+                    bounding_box_render_data->pass(0)->material());
+            glEndQuery (GL_ANY_SAMPLES_PASSED);
+            scene_object->set_query_issued(true);
+
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+            //Delete the generated bounding box mesh
+            bounding_box_mesh->cleanUp();
+            delete bounding_box_render_data;
+        }
+#endif
 
         GLuint query_result = GL_FALSE;
         GLuint *query = (*it)->get_occlusion_array();
