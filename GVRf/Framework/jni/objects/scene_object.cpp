@@ -61,6 +61,7 @@ void SceneObject::detachTransform() {
     if (transform_) {
         transform_->removeOwnerObject();
         transform_ = NULL;
+        dirtyBoundingVolume();
     }
     dirtyBoundingVolume();
 }
@@ -82,6 +83,7 @@ void SceneObject::detachRenderData() {
     if (render_data_) {
         render_data_->removeOwnerObject();
         render_data_ = NULL;
+        dirtyBoundingVolume();
     }
     dirtyBoundingVolume();
 }
@@ -165,6 +167,7 @@ void SceneObject::removeChildObject(SceneObject* child) {
         children_.erase(std::remove(children_.begin(), children_.end(), child),
                 children_.end());
         child->parent_ = NULL;
+        dirtyBoundingVolume();
     }
     dirtyBoundingVolume();
 }
