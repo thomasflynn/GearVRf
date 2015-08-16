@@ -58,6 +58,23 @@ int Renderer::getNumberTriangles() {
 }
 
 static std::vector<RenderData*> render_data_vector;
+static std::vector<SceneObject*> scene_object_vector;
+
+void traverse(SceneObject *object, glm::mat4 vp_matrix) {
+    if(object->cull(vp_matrix)) {
+        return;
+    }
+
+    scene_object_vector.push_back(object);
+
+    const std::vector<SceneObject*> children = object.children();
+    int numKids = children.size();
+    for(int i=0; i<numKids; i++) {
+        SceneObject *kid = children[i];
+        traverse(kid, vp_matrix);
+    }
+
+}
 
 void Renderer::cull(Scene *scene, Camera *camera, ShaderManager* shader_manager) {
     glm::mat4 view_matrix = camera->getViewMatrix();
@@ -65,10 +82,17 @@ void Renderer::cull(Scene *scene, Camera *camera, ShaderManager* shader_manager)
     glm::mat4 vp_matrix = glm::mat4(projection_matrix * view_matrix);
 
     render_data_vector.clear();
-    std::vector<SceneObject*> scene_objects = scene->getWholeSceneObjects();
+    scene_object_vector.clear();
+    std::vector<SceneObject*> root_objects = scene->scene_objects();
+    int root_object_size = root_objects.size();
+    for(int i=0; i<root_object_size; i++) {
+        SceneObject *object = root_objects[i];
+        traverse(object);
+    }
+
 
     // do occlusion culling, if enabled
-    occlusion_cull(scene, scene_objects);
+    occlusion_cull(scene, scene_object_vector);
 
     // do sorting based on render order
     std::sort(render_data_vector.begin(), render_data_vector.end(),
@@ -163,21 +187,36 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
     }
 }
 
-void Renderer::occlusion_cull(Scene* scene,
-        std::vector<SceneObject*> scene_objects) {
-#if _GVRF_USE_GLES3_
-    if (!scene->get_occlusion_culling()) {
+void addRenderData(RenderData *render_data) {
+    if (render_data == 0 ||
+        render_data->pass(0)->material() == 0) {
         return;
     }
 
+    render_data_vector.push_back(render_data);
+    return;
+}
+
+void Renderer::occlusion_cull(Scene* scene,
+        std::vector<SceneObject*> scene_objects) {
+
+    bool do_culling = scene->get_occlusion_culling();
+#if _GVRF_USE_GLES3_
+    do_culling = false;
+#endif
+
+    if (!do_culling) {
+        RenderData* render_data = scene_object->render_data();
+        addRenderData(render_data);
+        return;
+    }
+
+#if _GVRF_USE_GLES3_
     for (auto it = scene_objects.begin(); it != scene_objects.end(); ++it) {
         SceneObject *scene_object = (*it);
         RenderData* render_data = scene_object->render_data();
-        if (render_data == 0) {
-            continue;
-        }
-
-        if (render_data->pass(0)->material() == 0) {
+        if (render_data == 0 ||
+            render_data->pass(0)->material() == 0) {
             continue;
         }
 
@@ -187,7 +226,6 @@ void Renderer::occlusion_cull(Scene* scene,
             continue;
         }
 
-#if _GVRF_USE_GLES3_
         //If a previous query is active, do not issue a new query.
         //This avoids overloading the GPU with too many queries
         //Queries may span multiple frames
@@ -219,7 +257,6 @@ void Renderer::occlusion_cull(Scene* scene,
             bounding_box_mesh->cleanUp();
             delete bounding_box_render_data;
         }
-#endif
 
         GLuint query_result = GL_FALSE;
         GLuint *query = (*it)->get_occlusion_array();
@@ -232,6 +269,7 @@ void Renderer::occlusion_cull(Scene* scene,
 
             (*it)->set_visible(visibility);
             (*it)->set_query_issued(false);
+            addRenderData((*it)->render_data());
         }
     }
 #endif
