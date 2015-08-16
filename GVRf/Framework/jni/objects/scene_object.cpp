@@ -16,6 +16,8 @@
 /***************************************************************************
  * Objects in a scene.
  ***************************************************************************/
+#include <string.h>
+#include <math.h>
 
 #include "scene_object.h"
 
@@ -269,15 +271,15 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
         return true;
     }
 
-    if (render_data == NULL || render_data->pass(0)->material() == 0) {
+    if (render_data_ == NULL || render_data_->pass(0)->material() == 0) {
         return true;
     }
 
-    if (render_data->mesh() == NULL) {
+    if (render_data_->mesh() == NULL) {
         return true;
     }
 
-    if(render_data->render_mask() == 0) {
+    if(render_data_->render_mask() == 0) {
         return true;
     }
 
@@ -296,13 +298,8 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
     // Build the frustum
     build_frustum(frustum, mvp_matrix_array);
 
-    const float* bounding_box_info = render_data->mesh()->getBoundingBoxInfo();
-    if (bounding_box_info == NULL) {
-        return true;
-    }
-
     // Check for being inside or outside frustum
-    bool is_inside = is_cube_in_frustum(frustum, bounding_box_info);
+    bool is_inside = is_cube_in_frustum(frustum, bounding_volume_);
 
     // Only push those scene objects that are inside of the frustum
     if (!is_inside) {
@@ -334,6 +331,143 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
     set_in_frustum();
 
     return false;
+}
+
+void SceneObject::build_frustum(float frustum[6][4], float mvp_matrix[16]) {
+    float t;
+
+    /* Extract the numbers for the RIGHT plane */
+    frustum[0][0] = mvp_matrix[3] - mvp_matrix[0];
+    frustum[0][1] = mvp_matrix[7] - mvp_matrix[4];
+    frustum[0][2] = mvp_matrix[11] - mvp_matrix[8];
+    frustum[0][3] = mvp_matrix[15] - mvp_matrix[12];
+
+    /* Normalize the result */
+    t = sqrt(
+            frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1]
+                    + frustum[0][2] * frustum[0][2]);
+    frustum[0][0] /= t;
+    frustum[0][1] /= t;
+    frustum[0][2] /= t;
+    frustum[0][3] /= t;
+
+    /* Extract the numbers for the LEFT plane */
+    frustum[1][0] = mvp_matrix[3] + mvp_matrix[0];
+    frustum[1][1] = mvp_matrix[7] + mvp_matrix[4];
+    frustum[1][2] = mvp_matrix[11] + mvp_matrix[8];
+    frustum[1][3] = mvp_matrix[15] + mvp_matrix[12];
+
+    /* Normalize the result */
+    t = sqrt(
+            frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1]
+                    + frustum[1][2] * frustum[1][2]);
+    frustum[1][0] /= t;
+    frustum[1][1] /= t;
+    frustum[1][2] /= t;
+    frustum[1][3] /= t;
+
+    /* Extract the BOTTOM plane */
+    frustum[2][0] = mvp_matrix[3] + mvp_matrix[1];
+    frustum[2][1] = mvp_matrix[7] + mvp_matrix[5];
+    frustum[2][2] = mvp_matrix[11] + mvp_matrix[9];
+    frustum[2][3] = mvp_matrix[15] + mvp_matrix[13];
+
+    /* Normalize the result */
+    t = sqrt(
+            frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1]
+                    + frustum[2][2] * frustum[2][2]);
+    frustum[2][0] /= t;
+    frustum[2][1] /= t;
+    frustum[2][2] /= t;
+    frustum[2][3] /= t;
+
+    /* Extract the TOP plane */
+    frustum[3][0] = mvp_matrix[3] - mvp_matrix[1];
+    frustum[3][1] = mvp_matrix[7] - mvp_matrix[5];
+    frustum[3][2] = mvp_matrix[11] - mvp_matrix[9];
+    frustum[3][3] = mvp_matrix[15] - mvp_matrix[13];
+
+    /* Normalize the result */
+    t = sqrt(
+            frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1]
+                    + frustum[3][2] * frustum[3][2]);
+    frustum[3][0] /= t;
+    frustum[3][1] /= t;
+    frustum[3][2] /= t;
+    frustum[3][3] /= t;
+
+    /* Extract the FAR plane */
+    frustum[4][0] = mvp_matrix[3] - mvp_matrix[2];
+    frustum[4][1] = mvp_matrix[7] - mvp_matrix[6];
+    frustum[4][2] = mvp_matrix[11] - mvp_matrix[10];
+    frustum[4][3] = mvp_matrix[15] - mvp_matrix[14];
+
+    /* Normalize the result */
+    t = sqrt(
+            frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1]
+                    + frustum[4][2] * frustum[4][2]);
+    frustum[4][0] /= t;
+    frustum[4][1] /= t;
+    frustum[4][2] /= t;
+    frustum[4][3] /= t;
+
+    /* Extract the NEAR plane */
+    frustum[5][0] = mvp_matrix[3] + mvp_matrix[2];
+    frustum[5][1] = mvp_matrix[7] + mvp_matrix[6];
+    frustum[5][2] = mvp_matrix[11] + mvp_matrix[10];
+    frustum[5][3] = mvp_matrix[15] + mvp_matrix[14];
+
+    /* Normalize the result */
+    t = sqrt(
+            frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1]
+                    + frustum[5][2] * frustum[5][2]);
+    frustum[5][0] /= t;
+    frustum[5][1] /= t;
+    frustum[5][2] /= t;
+    frustum[5][3] /= t;
+}
+
+bool SceneObject::is_cube_in_frustum(float frustum[6][4],
+        const BoundingVolume &bounding_volume) {
+    int p;
+    glm::vec3 min_corner = bounding_volume.min_corner();
+    glm::vec3 max_corner = bounding_volume.max_corner();
+
+    float Xmin = min_corner[0];
+    float Ymin = min_corner[1];
+    float Zmin = min_corner[2];
+    float Xmax = max_corner[0];
+    float Ymax = max_corner[1];
+    float Zmax = max_corner[2];
+
+    for (p = 0; p < 6; p++) {
+        if (frustum[p][0] * (Xmin) + frustum[p][1] * (Ymin)
+                + frustum[p][2] * (Zmin) + frustum[p][3] > 0)
+            continue;
+        if (frustum[p][0] * (Xmax) + frustum[p][1] * (Ymin)
+                + frustum[p][2] * (Zmin) + frustum[p][3] > 0)
+            continue;
+        if (frustum[p][0] * (Xmin) + frustum[p][1] * (Ymax)
+                + frustum[p][2] * (Zmin) + frustum[p][3] > 0)
+            continue;
+        if (frustum[p][0] * (Xmax) + frustum[p][1] * (Ymax)
+                + frustum[p][2] * (Zmin) + frustum[p][3] > 0)
+            continue;
+        if (frustum[p][0] * (Xmin) + frustum[p][1] * (Ymin)
+                + frustum[p][2] * (Zmax) + frustum[p][3] > 0)
+            continue;
+        if (frustum[p][0] * (Xmax) + frustum[p][1] * (Ymin)
+                + frustum[p][2] * (Zmax) + frustum[p][3] > 0)
+            continue;
+        if (frustum[p][0] * (Xmin) + frustum[p][1] * (Ymax)
+                + frustum[p][2] * (Zmax) + frustum[p][3] > 0)
+            continue;
+        if (frustum[p][0] * (Xmax) + frustum[p][1] * (Ymax)
+                + frustum[p][2] * (Zmax) + frustum[p][3] > 0)
+            continue;
+        return false;
+    }
+    return true;
 }
 
 
