@@ -149,12 +149,17 @@ public:
 
     void dirtyBoundingVolume();
     BoundingVolume& getBoundingVolume();
+    bool cull(Camera *camera, glm::mat4 vp_matrix);
 
 private:
     SceneObject(const SceneObject& scene_object);
     SceneObject(SceneObject&& scene_object);
     SceneObject& operator=(const SceneObject& scene_object);
     SceneObject& operator=(SceneObject&& scene_object);
+
+    void build_frustum(float frustum[6][4], float mvp_matrix[16]);
+    bool is_cube_in_frustum(float frustum[6][4],
+        const BoundingVolume &bounding_volume);
 
 private:
     std::string name_;
