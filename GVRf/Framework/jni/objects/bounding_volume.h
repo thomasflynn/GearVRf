@@ -33,6 +33,7 @@ namespace gvr {
 class BoundingVolume {
 public:
     BoundingVolume();
+
     ~BoundingVolume() {
     }
 
