@@ -271,21 +271,8 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
         return true;
     }
 
-    if (render_data_ == NULL || render_data_->pass(0)->material() == 0) {
-        return true;
-    }
-
-    if (render_data_->mesh() == NULL) {
-        return true;
-    }
-
-    if(render_data_->render_mask() == 0) {
-        return true;
-    }
-
     // is in frustum?
-    glm::mat4 model_matrix_tmp(transform()->getModelMatrix());
-    glm::mat4 mvp_matrix_tmp(vp_matrix * model_matrix_tmp);
+    glm::mat4 mvp_matrix_tmp(vp_matrix * transform_->getModelMatrix());
 
     // Frustum
     float frustum[6][4];
@@ -320,7 +307,9 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
     float distance = glm::dot(difference, difference);
 
     // this distance will be used when sorting transparent objects
-    render_data_->set_camera_distance(distance);
+    if(render_data_) {
+        render_data_->set_camera_distance(distance);
+    }
 
     // Check if this is the correct LOD level
     if (!inLODRange(distance)) {

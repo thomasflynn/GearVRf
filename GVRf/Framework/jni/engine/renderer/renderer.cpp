@@ -93,10 +93,15 @@ void Renderer::cull(Scene *scene, Camera *camera, ShaderManager* shader_manager)
     // do occlusion culling, if enabled
     occlusion_cull(scene, scene_object_vector, shader_manager, vp_matrix);
 
-    // do sorting based on render order
-    std::sort(render_data_vector.begin(), render_data_vector.end(),
-            compareRenderData);
-
+    if(scene->get_frustum_culling()) {
+        // do sorting based on render order and camera distance
+        std::sort(render_data_vector.begin(), render_data_vector.end(),
+                compareRenderDataWithFrustumCulling);
+    } else {
+        // do sorting based on render order
+        std::sort(render_data_vector.begin(), render_data_vector.end(),
+                compareRenderData);
+    }
 }
 
 void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
@@ -191,6 +196,15 @@ void addRenderData(RenderData *render_data) {
         render_data->pass(0)->material() == 0) {
         return;
     }
+
+    if (render_data->mesh() == NULL) {
+        return;
+    }
+
+    if(render_data->render_mask() == 0) {
+        return;
+    }
+
 
     render_data_vector.push_back(render_data);
     return;
