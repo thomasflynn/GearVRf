@@ -39,17 +39,20 @@ public:
 
     void expand(const glm::vec3 point);
     void expand(const BoundingVolume &volume);
-    
+    void expand(const glm::vec4 &in_center, float in_radius);
+    void transform(const BoundingVolume &volume, glm::mat4 matrix);
+
+    void reset();
     const glm::vec3& center() const { return center_; }
     float radius() const { return radius_; }
     const glm::vec3& min_corner() const { return min_corner_; }
     const glm::vec3& max_corner() const { return max_corner_; }
 private:
     // bounding volume info
-    bool dirty = true;
+    bool dirty;
 
     glm::vec3 center_;
-    float radius_ = 0.0f;
+    float radius_;
     glm::vec3 min_corner_;
     glm::vec3 max_corner_;
 };

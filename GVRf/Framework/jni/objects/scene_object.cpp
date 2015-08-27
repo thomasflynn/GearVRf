@@ -251,19 +251,26 @@ void SceneObject::dirtyBoundingVolume() {
 
 BoundingVolume& SceneObject::getBoundingVolume() {
     if(!bounding_volume_dirty_) {
-        return bounding_volume_;
+        glm::vec3 center = transformed_bounding_volume_.center();
+        return transformed_bounding_volume_;
     }
 
+    transformed_bounding_volume_.reset();
     if(render_data_ && render_data_->mesh()) {
         bounding_volume_.expand(render_data_->mesh()->getBoundingVolume());
+        transformed_bounding_volume_.transform(bounding_volume_, transform()->getModelMatrix());
     }
+
+    glm::vec3 center = transformed_bounding_volume_.center();
 
     for(int i=0; i<children_.size(); i++) {
         SceneObject *child = children_[i];
-        bounding_volume_.expand(child->getBoundingVolume());
+        transformed_bounding_volume_.expand(child->getBoundingVolume());
     }
 
-    return bounding_volume_;
+    center = transformed_bounding_volume_.center();
+
+    return transformed_bounding_volume_;
 }
 
 bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
@@ -286,7 +293,8 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
     build_frustum(frustum, mvp_matrix_array);
 
     // Check for being inside or outside frustum
-    bool is_inside = is_cube_in_frustum(frustum, bounding_volume_);
+    BoundingVolume volume = getBoundingVolume();
+    bool is_inside = is_cube_in_frustum(frustum, volume);
 
     // Only push those scene objects that are inside of the frustum
     if (!is_inside) {

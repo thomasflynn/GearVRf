@@ -174,6 +174,7 @@ private:
     float lod_max_range_;
     bool using_lod_;
     BoundingVolume bounding_volume_;
+    BoundingVolume transformed_bounding_volume_;
     bool bounding_volume_dirty_;
 
     //Flags to check for visibility of a node and
