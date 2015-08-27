@@ -18,11 +18,18 @@
  ***************************************************************************/
 
 #include "bounding_volume.h"
+#include "util/gvr_log.h"
 
 namespace gvr {
 
 BoundingVolume::BoundingVolume() {
+    reset();
+}
+
+void BoundingVolume::reset() {
     center_ = glm::vec3(0.0f, 0.0f, 0.0f);
+    radius_ = 0.0f;
+    dirty = true;
     min_corner_ = glm::vec3(
            std::numeric_limits<float>::infinity(), 
            std::numeric_limits<float>::infinity(), 
@@ -58,18 +65,16 @@ void BoundingVolume::expand(const glm::vec3 point) {
     }
 
     center_ = (min_corner_ + max_corner_)*0.5f;
-    radius_ = (max_corner_ - center_).length();
+    radius_ = glm::length(max_corner_ - center_);
 }
 
 /* 
- * expand the volume by the incoming volume
+ * expand the volume by the incoming center and radius
  */
-void BoundingVolume::expand(const BoundingVolume &volume) {
-    const glm::vec3 in_center = volume.center();
-    float in_radius = volume.radius();
-
-    glm::vec3 v = in_center - center_;
-    float length = v.length();
+void BoundingVolume::expand(const glm::vec4 &in_center4, float in_radius) {
+    glm::vec3 in_center(in_center4.x, in_center4.y, in_center4.z);
+    glm::vec3 center_distance = in_center - center_;
+    float length = glm::length(center_distance);
 
     // if the center is the same and incoming radius is
     // bigger, use that.
@@ -80,11 +85,11 @@ void BoundingVolume::expand(const BoundingVolume &volume) {
         // between the two outer ends of the two spheres.
         // the radius is the distance between the two points
         // divided by two.
-        glm::normalize(v);
-        glm::vec3 c1 = in_center + (v * in_radius);
-        glm::vec3 c0 = center_ - (v * radius_);
-        center_ = (c0 + c1) * 0.5f;
-        radius_ = (c1 - c0).length() * 0.5f;
+        glm::normalize(center_distance);
+        glm::vec3 outer_point_of_incoming_sphere = in_center + (in_radius);
+        glm::vec3 outer_point_of_current_sphere = center_ - (radius_);
+        center_ = (outer_point_of_current_sphere + outer_point_of_incoming_sphere) * 0.5f;
+        radius_ = glm::length(outer_point_of_incoming_sphere - outer_point_of_current_sphere) * 0.5f;
     }
 
     // define the bounding box inside the sphere
@@ -114,6 +119,52 @@ void BoundingVolume::expand(const BoundingVolume &volume) {
                             center_[1] + side,
                             center_[2] + side);
 }
+
+/*
+ * expand the volume by the incoming volume
+*/
+void BoundingVolume::expand(const BoundingVolume &volume) {
+    const glm::vec4 in_center(volume.center(), 1.0f);
+    float in_radius = volume.radius();
+
+    expand(in_center, in_radius);
+}
+
+/*
+ * make this volume the incoming volume transformed by the matrix
+*/
+void BoundingVolume::transform(const BoundingVolume &in_volume, glm::mat4 matrix) {
+    glm::vec4 center(in_volume.center(), 1.0f);
+
+    // calculate new center
+    glm::vec4 transformed_center = center * matrix;
+
+    // calculate new radius
+    float radius = in_volume.radius();
+
+    // find the maximum extends of the bounding sphere
+    glm::vec4 max_radius_x(transformed_center.x+radius, transformed_center.y, transformed_center.z, 1.0f);
+    glm::vec4 max_radius_y(transformed_center.x, transformed_center.y+radius, transformed_center.z, 1.0f);
+    glm::vec4 max_radius_z(transformed_center.x, transformed_center.y, transformed_center.z+radius, 1.0f);
+
+    // transform by the matrix
+    glm::vec4 transformed_radius_x = max_radius_x * matrix;
+    glm::vec4 transformed_radius_y = max_radius_y * matrix;
+    glm::vec4 transformed_radius_z = max_radius_z * matrix;
+
+    // calculate distance from the center
+    float rx = glm::length(transformed_center - transformed_radius_x);
+    float ry = glm::length(transformed_center - transformed_radius_y);
+    float rz = glm::length(transformed_center - transformed_radius_z);
+
+    // the new radius is the largest distance from the center
+    radius = fmaxf(rx, ry);
+    radius = fmaxf(radius, rz);
+
+    // calculate new bounding sphere and bounding box
+    expand(transformed_center, radius);
+}
+
 
 } // namespace
 
