@@ -86,13 +86,19 @@ public class GVRCameraRig extends GVRComponent {
 
         setOwnerObject(new GVRSceneObject(gvrContext));
         getOwnerObject().attachCameraRig(this);
+        getOwnerObject().setName("GVRCameraRig");
 
         headTransformObject = new GVRSceneObject(gvrContext);
         getOwnerObject().addChildObject(headTransformObject);
+        headTransformObject.setName("GVRCameraRig.headTransform");
 
         leftCameraObject = new GVRSceneObject(gvrContext);
         rightCameraObject = new GVRSceneObject(gvrContext);
         centerCameraObject = new GVRSceneObject(gvrContext);
+
+        leftCameraObject.setName("GVRCameraRig.leftCamera");
+        rightCameraObject.setName("GVRCameraRig.rightCamera");
+        centerCameraObject.setName("GVRCameraRig.centerCamera");
 
         headTransformObject.addChildObject(leftCameraObject);
         headTransformObject.addChildObject(rightCameraObject);

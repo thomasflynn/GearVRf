@@ -85,9 +85,15 @@ void BoundingVolume::expand(const glm::vec4 &in_center4, float in_radius) {
         // between the two outer ends of the two spheres.
         // the radius is the distance between the two points
         // divided by two.
-        glm::normalize(center_distance);
-        glm::vec3 outer_point_of_incoming_sphere = in_center + (in_radius);
-        glm::vec3 outer_point_of_current_sphere = center_ - (radius_);
+        // start by normalizing the center_distance
+        float distance = sqrt((center_distance[0]*center_distance[0])+
+                (center_distance[1]*center_distance[1])+
+                (center_distance[2]*center_distance[2]));
+        center_distance[0] /= distance;
+        center_distance[1] /= distance;
+        center_distance[2] /= distance;
+        glm::vec3 outer_point_of_incoming_sphere = in_center + (in_radius*center_distance);
+        glm::vec3 outer_point_of_current_sphere = center_ - (radius_*center_distance);
         center_ = (outer_point_of_current_sphere + outer_point_of_incoming_sphere) * 0.5f;
         radius_ = glm::length(outer_point_of_incoming_sphere - outer_point_of_current_sphere) * 0.5f;
     }

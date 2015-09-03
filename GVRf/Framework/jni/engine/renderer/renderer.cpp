@@ -60,8 +60,8 @@ int Renderer::getNumberTriangles() {
 static std::vector<RenderData*> render_data_vector;
 static std::vector<SceneObject*> scene_object_vector;
 
-void traverse(Camera *camera, SceneObject *object, glm::mat4 vp_matrix) {
-    if(object->cull(camera, vp_matrix)) {
+void traverse(Camera *camera, SceneObject *object, glm::mat4 vp_matrix, bool do_culling) {
+    if(do_culling && object->cull(camera, vp_matrix)) {
         return;
     }
 
@@ -71,7 +71,7 @@ void traverse(Camera *camera, SceneObject *object, glm::mat4 vp_matrix) {
     int numKids = children.size();
     for(int i=0; i<numKids; i++) {
         SceneObject *kid = children[i];
-        traverse(camera, kid, vp_matrix);
+        traverse(camera, kid, vp_matrix, do_culling);
     }
 
 }
@@ -81,19 +81,20 @@ void Renderer::cull(Scene *scene, Camera *camera, ShaderManager* shader_manager)
     glm::mat4 projection_matrix = camera->getProjectionMatrix();
     glm::mat4 vp_matrix = glm::mat4(projection_matrix * view_matrix);
 
+    bool do_culling = scene->get_frustum_culling();
     render_data_vector.clear();
     scene_object_vector.clear();
     std::vector<SceneObject*> root_objects = scene->scene_objects();
     int root_object_size = root_objects.size();
     for(int i=0; i<root_object_size; i++) {
         SceneObject *object = root_objects[i];
-        traverse(camera, object, vp_matrix);
+        traverse(camera, object, vp_matrix, do_culling);
     }
 
     // do occlusion culling, if enabled
     occlusion_cull(scene, scene_object_vector, shader_manager, vp_matrix);
 
-    if(scene->get_frustum_culling()) {
+    if(do_culling) {
         // do sorting based on render order and camera distance
         std::sort(render_data_vector.begin(), render_data_vector.end(),
                 compareRenderDataWithFrustumCulling);

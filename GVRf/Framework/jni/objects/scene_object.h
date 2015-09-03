@@ -46,6 +46,11 @@ public:
 
     void set_name(std::string name) {
         name_ = name;
+        // XXX
+        if(!strncmp("GVRCameraRig", name_.c_str(), 12)) {
+            do_cull_me = false;
+        }
+
     }
 
     void set_in_frustum(bool in_frustum = true) {
@@ -176,6 +181,7 @@ private:
     BoundingVolume bounding_volume_;
     BoundingVolume transformed_bounding_volume_;
     bool bounding_volume_dirty_;
+    bool do_cull_me; // XXX
 
     //Flags to check for visibility of a node and
     //whether there are any pending occlusion queries on it

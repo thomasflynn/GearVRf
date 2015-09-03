@@ -33,6 +33,8 @@ SceneObject::SceneObject() :
         HybridObject(), name_(""), transform_(), render_data_(), camera_(), camera_rig_(), eye_pointee_holder_(), parent_(), children_(), visible_(
                 true), in_frustum_(false), query_currently_issued_(false), vis_count_(0), lod_min_range_(0), lod_max_range_(MAXFLOAT), using_lod_(false), bounding_volume_dirty_(true) {
 
+    // XXX
+    do_cull_me = true;
     // Occlusion query setup
 #if _GVRF_USE_GLES3_
     queries_ = new GLuint[1];
@@ -251,24 +253,23 @@ void SceneObject::dirtyBoundingVolume() {
 
 BoundingVolume& SceneObject::getBoundingVolume() {
     if(!bounding_volume_dirty_) {
-        glm::vec3 center = transformed_bounding_volume_.center();
         return transformed_bounding_volume_;
     }
 
     transformed_bounding_volume_.reset();
+    /*
+    glm::vec4 center(transformed_bounding_volume_.center(), 1.0f);
+    transformed_bounding_volume_.expand(center, 17.425493f);
+    */
     if(render_data_ && render_data_->mesh()) {
         bounding_volume_.expand(render_data_->mesh()->getBoundingVolume());
         transformed_bounding_volume_.transform(bounding_volume_, transform()->getModelMatrix());
     }
 
-    glm::vec3 center = transformed_bounding_volume_.center();
-
     for(int i=0; i<children_.size(); i++) {
         SceneObject *child = children_[i];
         transformed_bounding_volume_.expand(child->getBoundingVolume());
     }
-
-    center = transformed_bounding_volume_.center();
 
     return transformed_bounding_volume_;
 }
@@ -276,6 +277,11 @@ BoundingVolume& SceneObject::getBoundingVolume() {
 bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
     if (!visible_) {
         return true;
+    }
+
+    // XXX
+    if(!do_cull_me) {
+        return false;
     }
 
     // is in frustum?
