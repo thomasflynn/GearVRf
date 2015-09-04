@@ -266,12 +266,59 @@ BoundingVolume& SceneObject::getBoundingVolume() {
         transformed_bounding_volume_.transform(bounding_volume_, transform()->getModelMatrix());
     }
 
+    glm::vec3 center = bounding_volume_.center();
+    float radius = bounding_volume_.radius();
+    glm::vec3 min = bounding_volume_.min_corner();
+    glm::vec3 max = bounding_volume_.max_corner();
+    LOGD("name: %s\n", name_.c_str());
+    LOGD("b4 center: %f, %f, %f\n", center[0], center[1], center[2]);
+    LOGD("b4 radius: %f\n", radius);
+    LOGD("b4 min: %f, %f, %f\n", min[0], min[1], min[2]);
+    LOGD("b4 max: %f, %f, %f\n", max[0], max[1], max[2]);
+
+    /* XXX with this code commented out, things work.  with it in, doesn't work.
     for(int i=0; i<children_.size(); i++) {
         SceneObject *child = children_[i];
-        transformed_bounding_volume_.expand(child->getBoundingVolume());
+        // XXX transformed_bounding_volume_.expand(child->getBoundingVolume());
+        bounding_volume_.expand(child->getBoundingVolume());
+    }
+    */
+
+    LOGD("after kids\n");
+    center = bounding_volume_.center();
+    radius = bounding_volume_.radius();
+    LOGD("af center: %f, %f, %f\n", center[0], center[1], center[2]);
+    LOGD("af radius: %f\n", radius);
+    LOGD("af min: %f, %f, %f\n", min[0], min[1], min[2]);
+    LOGD("af max: %f, %f, %f\n", max[0], max[1], max[2]);
+
+    // XXX return transformed_bounding_volume_;
+    return bounding_volume_;
+}
+
+float planeDistanceToPoint(float plane[4], glm::vec3 &compare_point) {
+    glm::vec3 normal = glm::vec3(plane[0], plane[1], plane[2]);
+    glm::normalize(normal);
+    float distance_to_origin = plane[3];
+    float distance = glm::dot(compare_point, normal) + distance_to_origin;
+
+    return distance;
+}
+
+bool sphereInFrustum(float frustum[6][4], BoundingVolume &sphere) {
+    glm::vec3 center = sphere.center();
+    float radius = sphere.radius();
+
+    for(int i=0; i<6; i++) {
+        float distance = planeDistanceToPoint(frustum[i], center);
+        if(distance < -radius) {
+            return false; // outside
+        } else if(distance < radius) {
+            return true; // intersect
+        }
     }
 
-    return transformed_bounding_volume_;
+    return true; // fully inside
 }
 
 bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
@@ -284,6 +331,12 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
         return false;
     }
 
+    /*
+    if(render_data_ == NULL || render_data_->mesh() == NULL) {
+        return false;
+    }
+    */
+
     // is in frustum?
     glm::mat4 mvp_matrix_tmp(vp_matrix * transform_->getModelMatrix());
 
@@ -293,14 +346,19 @@ bool SceneObject::cull(Camera *camera, glm::mat4 vp_matrix) {
     // Matrix to array
     float mvp_matrix_array[16] = { 0.0 };
     const float *mat_to_array = (const float*) glm::value_ptr(mvp_matrix_tmp);
+    //const float *mat_to_array = (const float*) glm::value_ptr(vp_matrix);
     memcpy(mvp_matrix_array, mat_to_array, sizeof(float) * 16);
 
     // Build the frustum
     build_frustum(frustum, mvp_matrix_array);
 
-    // Check for being inside or outside frustum
+    // Calculate current transformed bounding volume
     BoundingVolume volume = getBoundingVolume();
+    //const BoundingVolume& volume = render_data_->mesh()->getBoundingVolume();
+
+    // Check for being inside or outside frustum
     bool is_inside = is_cube_in_frustum(frustum, volume);
+    //bool is_inside = sphereInFrustum(frustum, volume);
 
     // Only push those scene objects that are inside of the frustum
     if (!is_inside) {

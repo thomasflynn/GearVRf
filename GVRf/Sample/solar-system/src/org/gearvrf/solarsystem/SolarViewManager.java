@@ -82,10 +82,14 @@ public class SolarViewManager extends GVRScript {
         sunMeshObject.getTransform().setPosition(0.0f, 0.0f, 0.0f);
         sunMeshObject.getTransform().setScale(10.0f, 10.0f, 10.0f);
         sunRotationObject.addChildObject(sunMeshObject);
+        solarSystemObject.setName("solarSystem");
+        sunRotationObject.setName("sunRotation");
+        sunMeshObject.setName("sunMesh");
 
+        
         GVRSceneObject mercuryRevolutionObject = new GVRSceneObject(gvrContext);
         mercuryRevolutionObject.getTransform().setPosition(14.0f, 0.0f, 0.0f);
-        solarSystemObject.addChildObject(mercuryRevolutionObject);
+        //solarSystemObject.addChildObject(mercuryRevolutionObject);
 
         GVRSceneObject mercuryRotationObject = new GVRSceneObject(gvrContext);
         mercuryRevolutionObject.addChildObject(mercuryRotationObject);
@@ -97,7 +101,7 @@ public class SolarViewManager extends GVRScript {
 
         GVRSceneObject venusRevolutionObject = new GVRSceneObject(gvrContext);
         venusRevolutionObject.getTransform().setPosition(17.0f, 0.0f, 0.0f);
-        solarSystemObject.addChildObject(venusRevolutionObject);
+        //solarSystemObject.addChildObject(venusRevolutionObject);
 
         GVRSceneObject venusRotationObject = new GVRSceneObject(gvrContext);
         venusRevolutionObject.addChildObject(venusRotationObject);
@@ -109,7 +113,7 @@ public class SolarViewManager extends GVRScript {
 
         GVRSceneObject earthRevolutionObject = new GVRSceneObject(gvrContext);
         earthRevolutionObject.getTransform().setPosition(22.0f, 0.0f, 0.0f);
-        solarSystemObject.addChildObject(earthRevolutionObject);
+        //solarSystemObject.addChildObject(earthRevolutionObject);
 
         GVRSceneObject earthRotationObject = new GVRSceneObject(gvrContext);
         earthRevolutionObject.addChildObject(earthRotationObject);
@@ -126,7 +130,7 @@ public class SolarViewManager extends GVRScript {
 
         GVRSceneObject marsRevolutionObject = new GVRSceneObject(gvrContext);
         marsRevolutionObject.getTransform().setPosition(30.0f, 0.0f, 0.0f);
-        solarSystemObject.addChildObject(marsRevolutionObject);
+        //solarSystemObject.addChildObject(marsRevolutionObject);
 
         GVRSceneObject marsRotationObject = new GVRSceneObject(gvrContext);
         marsRevolutionObject.addChildObject(marsRotationObject);
@@ -153,6 +157,7 @@ public class SolarViewManager extends GVRScript {
 
         counterClockwise(marsRevolutionObject, 1200f);
         counterClockwise(marsRotationObject, 200f);
+        
     }
 
     @Override
