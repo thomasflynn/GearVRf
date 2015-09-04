@@ -276,13 +276,11 @@ BoundingVolume& SceneObject::getBoundingVolume() {
     LOGD("b4 min: %f, %f, %f\n", min[0], min[1], min[2]);
     LOGD("b4 max: %f, %f, %f\n", max[0], max[1], max[2]);
 
-    /* XXX with this code commented out, things work.  with it in, doesn't work.
     for(int i=0; i<children_.size(); i++) {
         SceneObject *child = children_[i];
         // XXX transformed_bounding_volume_.expand(child->getBoundingVolume());
         bounding_volume_.expand(child->getBoundingVolume());
     }
-    */
 
     LOGD("after kids\n");
     center = bounding_volume_.center();

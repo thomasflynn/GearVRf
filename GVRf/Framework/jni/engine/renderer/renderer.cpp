@@ -217,10 +217,6 @@ void Renderer::occlusion_cull(Scene* scene,
         glm::mat4 vp_matrix) {
 
     bool do_culling = scene->get_occlusion_culling();
-#if _GVRF_USE_GLES3_
-    do_culling = false;
-#endif
-
     if (!do_culling) {
         for (auto it = scene_objects.begin(); it != scene_objects.end(); ++it) {
             SceneObject *scene_object = (*it);
@@ -254,7 +250,12 @@ void Renderer::occlusion_cull(Scene* scene,
             //Setup basic bounding box and material
             RenderData* bounding_box_render_data(new RenderData());
             Mesh* bounding_box_mesh = render_data->mesh()->getBoundingBox();
+            Material *bbox_material = new Material(Material::BOUNDING_BOX_SHADER);
+            RenderPass *pass = new RenderPass();
+            pass->set_material(bbox_material);
             bounding_box_render_data->set_mesh(bounding_box_mesh);
+            bounding_box_render_data->add_pass(pass);
+
 
             GLuint *query = scene_object->get_occlusion_array();
 
@@ -277,6 +278,8 @@ void Renderer::occlusion_cull(Scene* scene,
 
             //Delete the generated bounding box mesh
             bounding_box_mesh->cleanUp();
+            delete bbox_material;
+            delete pass;
             delete bounding_box_render_data;
         }
 
