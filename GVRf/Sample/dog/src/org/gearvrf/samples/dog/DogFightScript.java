@@ -31,6 +31,7 @@ public class DogFightScript extends GVRScript
     private Aircraft myAircraft = new Aircraft();
     private GVRTransform mCameraTransform;
 
+
     @Override
     public void onInit(GVRContext gvrContext) {
 
