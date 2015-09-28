@@ -41,6 +41,7 @@ public:
     void expand(const BoundingVolume &volume);
     void expand(const glm::vec4 &in_center, float in_radius);
     void transform(const BoundingVolume &volume, glm::mat4 matrix);
+    void transform(const glm::mat4 &matrix);
 
     void reset();
     const glm::vec3& center() const { return center_; }

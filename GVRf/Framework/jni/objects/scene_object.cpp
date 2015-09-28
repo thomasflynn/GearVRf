@@ -266,29 +266,17 @@ BoundingVolume& SceneObject::getBoundingVolume() {
         transformed_bounding_volume_.transform(bounding_volume_, transform()->getModelMatrix());
     }
 
-    glm::vec3 center = bounding_volume_.center();
-    float radius = bounding_volume_.radius();
-    glm::vec3 min = bounding_volume_.min_corner();
-    glm::vec3 max = bounding_volume_.max_corner();
-    LOGD("name: %s\n", name_.c_str());
-    LOGD("b4 center: %f, %f, %f\n", center[0], center[1], center[2]);
-    LOGD("b4 radius: %f\n", radius);
-    LOGD("b4 min: %f, %f, %f\n", min[0], min[1], min[2]);
-    LOGD("b4 max: %f, %f, %f\n", max[0], max[1], max[2]);
-
     for(int i=0; i<children_.size(); i++) {
         SceneObject *child = children_[i];
         // XXX transformed_bounding_volume_.expand(child->getBoundingVolume());
-        bounding_volume_.expand(child->getBoundingVolume());
+        BoundingVolume child_volume = child->getBoundingVolume();
+        if ((child_volume.min_corner().x == std::numeric_limits<float>::infinity()) &&
+                (child_volume.min_corner().x == -std::numeric_limits<float>::infinity()))
+        {
+            child_volume.transform(child->transform()->getModelMatrix());
+            bounding_volume_.expand(child_volume);
+        }
     }
-
-    LOGD("after kids\n");
-    center = bounding_volume_.center();
-    radius = bounding_volume_.radius();
-    LOGD("af center: %f, %f, %f\n", center[0], center[1], center[2]);
-    LOGD("af radius: %f\n", radius);
-    LOGD("af min: %f, %f, %f\n", min[0], min[1], min[2]);
-    LOGD("af max: %f, %f, %f\n", max[0], max[1], max[2]);
 
     // XXX return transformed_bounding_volume_;
     return bounding_volume_;

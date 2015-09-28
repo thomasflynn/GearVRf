@@ -171,6 +171,35 @@ void BoundingVolume::transform(const BoundingVolume &in_volume, glm::mat4 matrix
     expand(transformed_center, radius);
 }
 
+//Transform existing bounding volume by matrix.
+void BoundingVolume::transform(const glm::mat4 &matrix) {
+
+    glm::vec3 min = glm::vec3(matrix[3][0], matrix[3][1], matrix[3][2]);
+    glm::vec3 max = glm::vec3(matrix[3][0], matrix[3][1], matrix[3][2]);
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            float val1 = matrix[i][j] * min_corner_[j];
+            float val2 = matrix[i][j] * max_corner_[j];
+            if (val1 < val2)
+            {
+                min[i] += val1;
+                max[i] += val2;
+            }
+            else
+            {
+                min[i] += val2;
+                max[i] += val1;
+            }
+        }
+    }
+    min_corner_ = min;
+    max_corner_ = max;
+    center_ = (min_corner_ + max_corner_)*0.5f;
+    radius_ = glm::length(max_corner_ - center_);
+}
+
 
 } // namespace
 
