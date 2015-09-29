@@ -171,7 +171,23 @@ void BoundingVolume::transform(const BoundingVolume &in_volume, glm::mat4 matrix
     expand(transformed_center, radius);
 }
 
-//Transform existing bounding volume by matrix.
+//Transform existing axis aligned bounding volume by matrix.
+//Implementation of Arvo, James, Transforming Axis-Aligned Bounding Boxes, Graphics Gems
+// A - the untransformed box (originalBox)
+// B - the transformed box
+// M - the rotation + scale
+// T - the translation (matrix.Offset?)
+//
+// for i = 1 ... 3
+//     Bmin_i = Bmax_i = T_i
+//         for j = 1 ... 3
+//             a = M_ij * Amin_j
+//             b = M_ij * Amax_j
+//             Bmin_i += min(a, b)
+//             Bmax_i += max(a, b)
+//
+
+
 void BoundingVolume::transform(const glm::mat4 &matrix) {
 
     glm::vec3 min = glm::vec3(matrix[3][0], matrix[3][1], matrix[3][2]);
