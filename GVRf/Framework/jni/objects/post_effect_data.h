@@ -39,7 +39,7 @@ public:
         COLOR_BLEND_SHADER = 0, HORIZONTAL_FLIP_SHADER = 1,
     };
 
-    PostEffectData(ShaderType shader_type) :
+    PostEffectData(int shader_type) :
             shader_type_(shader_type), textures_(), floats_(), vec2s_(), vec3s_(), vec4s_(), mat4s_() {
         switch (shader_type) {
         case COLOR_BLEND_SHADER:
@@ -54,11 +54,11 @@ public:
     ~PostEffectData() {
     }
 
-    ShaderType shader_type() {
+    int shader_type() {
         return shader_type_;
     }
 
-    void set_shader_type(ShaderType shader_type) {
+    void set_shader_type(int shader_type) {
         shader_type_ = shader_type;
     }
 
@@ -159,7 +159,7 @@ private:
     PostEffectData& operator=(PostEffectData&& post_effect_data);
 
 private:
-    ShaderType shader_type_;
+    int shader_type_;
     std::map<std::string, Texture*> textures_;
     std::map<std::string, float> floats_;
     std::map<std::string, glm::vec2> vec2s_;

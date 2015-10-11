@@ -40,6 +40,55 @@ namespace gvr {
 static int numberDrawCalls;
 static int numberTriangles;
 
+class OverdrawPostEffectData : public PostEffectData {
+    public:
+        OverdrawPostEffectData() : PostEffectData(COLOR_BLEND_SHADER) {
+        }
+
+        ~OverdrawPostEffectData() {
+        }
+};
+
+OverdrawPostEffectData *overdraw_quad_post_effect_data;
+
+static int overdraw_quad_custom_shader;
+static RenderTexture *overdraw_quad_render_texture;
+static const std::string overdraw_quad_vs = 
+    "attribute vec4 a_position;\n"
+    "void main(void)\n"
+    "{\n"
+    "    gl_Position = a_position;\n"
+    "}\n";
+static const std::string overdraw_quad_fs = 
+    "uniform lowp float red;\n"
+    "uniform lowp float green;\n"
+    "uniform lowp float blue;\n"
+    "uniform lowp float alpha;\n"
+    "void main(void)\n"
+    "{\n"
+    "    gl_FragColor = vec4(red, green, blue, alpha);\n"
+    "}\n";
+
+static bool overdrawQuadInitted = false;
+
+void Renderer::initOverdrawQuad(PostEffectShaderManager *post_effect_shader_manager) {
+    overdraw_quad_custom_shader = post_effect_shader_manager->addCustomPostEffectShader(overdraw_quad_vs, overdraw_quad_fs);
+    overdraw_quad_render_texture = new RenderTexture(1, 1);
+    overdraw_quad_post_effect_data = new OverdrawPostEffectData();
+    overdraw_quad_post_effect_data->set_shader_type(overdraw_quad_custom_shader);
+    CustomPostEffectShader *overdraw_shader = post_effect_shader_manager->getCustomPostEffectShader(overdraw_quad_custom_shader);
+    overdraw_shader->addFloatKey("red", "red");
+    overdraw_shader->addFloatKey("green", "green");
+    overdraw_shader->addFloatKey("blue", "blue");
+    overdraw_shader->addFloatKey("alpha", "alpha");
+}
+
+void Renderer::drawOverdrawQuad(Camera *camera, PostEffectShaderManager *post_effect_shader_manager) {
+    Renderer::renderPostEffectData(camera, overdraw_quad_render_texture,
+                overdraw_quad_post_effect_data, post_effect_shader_manager);
+}
+
+
 void Renderer::initializeStats() {
     // TODO: this function will be filled in once we add draw time stats
 }
@@ -90,6 +139,11 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
     numberDrawCalls = 0;
     numberTriangles = 0;
 
+    if(!overdrawQuadInitted) {
+        overdrawQuadInitted = true;
+        initOverdrawQuad(post_effect_shader_manager);
+    }
+
     glm::mat4 view_matrix = camera->getViewMatrix();
     glm::mat4 projection_matrix = camera->getProjectionMatrix();
     glm::mat4 vp_matrix = glm::mat4(projection_matrix * view_matrix);
@@ -106,14 +160,26 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glDisable (GL_POLYGON_OFFSET_FILL);
 
+    bool showOverdraw = true; // need to make sure we even have stencil
+    if(showOverdraw) {
+        glEnable(GL_STENCIL_TEST);
+        glStencilFunc(GL_ALWAYS, 0, 0);
+        glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
+        glClear(GL_STENCIL_BUFFER_BIT);
+    }
+
+
     if (post_effects.size() == 0) {
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
         glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
 
-        glClearColor(camera->background_color_r(),
-                camera->background_color_g(), camera->background_color_b(),
-                camera->background_color_a());
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        if(!showOverdraw) {
+            glClearColor(camera->background_color_r(),
+                    camera->background_color_g(), camera->background_color_b(),
+                    camera->background_color_a());
+        }
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         for (auto it = render_data_vector.begin();
                 it != render_data_vector.end(); ++it) {
@@ -132,7 +198,7 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
         glClearColor(camera->background_color_r(),
                 camera->background_color_g(), camera->background_color_b(),
                 camera->background_color_a());
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         for (auto it = render_data_vector.begin();
                 it != render_data_vector.end(); ++it) {
@@ -164,6 +230,41 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         renderPostEffectData(camera, texture_render_texture,
                 post_effects.back(), post_effect_shader_manager);
+
+    }
+
+    if(showOverdraw) {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+        // blue
+        glStencilFunc(GL_NOTEQUAL, 0, 0xf8 | 0x01);
+        overdraw_quad_post_effect_data->setFloat("red", 0.0f);
+        overdraw_quad_post_effect_data->setFloat("green", 0.0f);
+        overdraw_quad_post_effect_data->setFloat("blue", 1.0f);
+        overdraw_quad_post_effect_data->setFloat("alpha", 0.0f);
+        drawOverdrawQuad(camera, post_effect_shader_manager);
+
+        // red
+        glStencilFunc(GL_NOTEQUAL, 0, 0xf8 | 0x02);
+        overdraw_quad_post_effect_data->setFloat("red", 1.0f);
+        overdraw_quad_post_effect_data->setFloat("green", 0.0f);
+        overdraw_quad_post_effect_data->setFloat("blue", 0.0f);
+        overdraw_quad_post_effect_data->setFloat("alpha", 0.0f);
+        drawOverdrawQuad(camera, post_effect_shader_manager);
+        
+        // green
+        glStencilFunc(GL_NOTEQUAL, 0, 0xf8 | 0x04);
+        overdraw_quad_post_effect_data->setFloat("red", 0.0f);
+        overdraw_quad_post_effect_data->setFloat("green", 1.0f);
+        overdraw_quad_post_effect_data->setFloat("blue", 0.0f);
+        overdraw_quad_post_effect_data->setFloat("alpha", 0.0f);
+        drawOverdrawQuad(camera, post_effect_shader_manager);
+        
+        // reset state
+        glDisable(GL_STENCIL_TEST);
     }
 }
 

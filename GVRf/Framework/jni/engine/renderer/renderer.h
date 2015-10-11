@@ -108,6 +108,9 @@ private:
 
     static void set_face_culling(int cull_face);
 
+    static void initOverdrawQuad(PostEffectShaderManager *post_effect_shader_manager);
+    static void drawOverdrawQuad(Camera *camera, PostEffectShaderManager *post_effect_shader_manager);
+
     Renderer(const Renderer& render_engine);
     Renderer(Renderer&& render_engine);
     Renderer& operator=(const Renderer& render_engine);
