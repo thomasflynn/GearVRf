@@ -24,7 +24,7 @@
 namespace gvr {
 Scene::Scene() :
         HybridObject(), scene_objects_(), main_camera_rig_(), frustum_flag_(
-                false), dirtyFlag_(0), occlusion_flag_(false) {
+                false), dirtyFlag_(0), occlusion_flag_(false), overdraw_(false) {
 }
 
 Scene::~Scene() {

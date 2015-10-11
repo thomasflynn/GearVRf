@@ -184,6 +184,13 @@ public class GVRScene extends GVRHybridObject {
         NativeScene.setOcclusionQuery(getNative(), flag);
     }
 
+    /**
+     * Sets whether to display overdraw in the {@link GVRScene}.
+     */
+    public void setDisplayOverdraw(boolean flag) {
+        NativeScene.setDisplayOverdraw(getNative(), flag);
+    }
+
     private GVRConsole mStatsConsole = null;
     private boolean mStatsEnabled = false;
     private boolean pendingStats = false;
@@ -281,6 +288,8 @@ class NativeScene {
     public static native void setFrustumCulling(long scene, boolean flag);
 
     public static native void setOcclusionQuery(long scene, boolean flag);
+
+    public static native void setDisplayOverdraw(long scene, boolean flag);
 
     static native void setMainCameraRig(long scene, long cameraRig);
 

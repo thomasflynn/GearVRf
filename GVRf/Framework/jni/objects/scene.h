@@ -58,6 +58,10 @@ public:
     void set_occlusion_culling( bool occlusion_flag){ occlusion_flag_ = occlusion_flag; }
     bool get_occlusion_culling(){ return occlusion_flag_; }
 
+    void set_display_overdraw(bool overdraw) { overdraw_ = overdraw; }
+    bool get_display_overdraw(){ return overdraw_; }
+
+
     void resetStats() {
         if (!statsInitialized) {
             Renderer::initializeStats();
@@ -85,6 +89,7 @@ private:
     int dirtyFlag_;
     bool frustum_flag_;
     bool occlusion_flag_;
+    bool overdraw_;
     bool statsInitialized = false;
 
 };

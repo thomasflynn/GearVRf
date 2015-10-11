@@ -45,6 +45,10 @@ Java_org_gearvrf_NativeScene_setOcclusionQuery(JNIEnv * env,
         jobject obj, jlong jscene, jboolean flag);
 
 JNIEXPORT void JNICALL
+Java_org_gearvrf_NativeScene_setDisplayOverdraw(JNIEnv * env,
+        jobject obj, jlong jscene, jboolean flag);
+
+JNIEXPORT void JNICALL
 Java_org_gearvrf_NativeScene_resetStats(JNIEnv * env,
         jobject obj, jlong jscene);
 
@@ -99,6 +103,13 @@ Java_org_gearvrf_NativeScene_setOcclusionQuery(JNIEnv * env,
         jobject obj, jlong jscene, jboolean flag) {
     Scene* scene = reinterpret_cast<Scene*>(jscene);
     scene->set_occlusion_culling(static_cast<bool>(flag));
+}
+
+JNIEXPORT void JNICALL
+Java_org_gearvrf_NativeScene_setDisplayOverdraw(JNIEnv * env,
+        jobject obj, jlong jscene, jboolean flag) {
+    Scene* scene = reinterpret_cast<Scene*>(jscene);
+    scene->set_display_overdraw(static_cast<bool>(flag));
 }
 
 JNIEXPORT void JNICALL

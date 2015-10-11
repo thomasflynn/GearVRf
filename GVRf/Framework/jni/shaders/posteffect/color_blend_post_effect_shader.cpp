@@ -44,7 +44,7 @@ static const char FRAGMENT_SHADER[] = "precision highp float;\n"
         "  vec4 tex = texture2D(u_texture, v_tex_coord);\n"
         "  vec3 color = tex.rgb * (1.0 - u_factor) + u_color * u_factor;\n"
         "  float alpha = tex.a;\n"
-        "  gl_FragColor = vec4(color, alpha);\n"
+        "  gl_FragColor = vec4(color, 1.0);\n"
         "}\n";
 
 ColorBlendPostEffectShader::ColorBlendPostEffectShader() :

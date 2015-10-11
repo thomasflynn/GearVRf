@@ -33,7 +33,7 @@ RenderTexture::RenderTexture(int width, int height) :
     glBindTexture(TARGET, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, gl_render_buffer_->id());
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, width, height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, gl_frame_buffer_->id());
@@ -42,6 +42,9 @@ RenderTexture::RenderTexture(int width, int height) :
             gl_texture_->id(), 0);
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+            GL_RENDERBUFFER, gl_render_buffer_->id());
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
             GL_RENDERBUFFER, gl_render_buffer_->id());
 }
 
@@ -56,7 +59,7 @@ RenderTexture::RenderTexture(int width, int height, int sample_count) :
 
     glBindRenderbuffer(GL_RENDERBUFFER, gl_render_buffer_->id());
     MSAA::glRenderbufferStorageMultisample(GL_RENDERBUFFER, sample_count,
-            GL_DEPTH_COMPONENT16, width, height);
+            GL_DEPTH24_STENCIL8_OES, width, height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, gl_frame_buffer_->id());
@@ -65,6 +68,9 @@ RenderTexture::RenderTexture(int width, int height, int sample_count) :
             GL_COLOR_ATTACHMENT0, TARGET, gl_texture_->id(), 0, sample_count);
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+            GL_RENDERBUFFER, gl_render_buffer_->id());
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
             GL_RENDERBUFFER, gl_render_buffer_->id());
 }
 

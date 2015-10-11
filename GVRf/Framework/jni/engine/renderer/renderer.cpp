@@ -160,7 +160,7 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glDisable (GL_POLYGON_OFFSET_FILL);
 
-    bool showOverdraw = true; // need to make sure we even have stencil
+    bool showOverdraw = scene->get_display_overdraw();
     if(showOverdraw) {
         glEnable(GL_STENCIL_TEST);
         glStencilFunc(GL_ALWAYS, 0, 0);
@@ -168,7 +168,6 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
         glClear(GL_STENCIL_BUFFER_BIT);
     }
-
 
     if (post_effects.size() == 0) {
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
@@ -195,9 +194,11 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
         glViewport(0, 0, texture_render_texture->width(),
                 texture_render_texture->height());
 
-        glClearColor(camera->background_color_r(),
-                camera->background_color_g(), camera->background_color_b(),
-                camera->background_color_a());
+        if(!showOverdraw) {
+            glClearColor(camera->background_color_r(),
+                    camera->background_color_g(), camera->background_color_b(),
+                    camera->background_color_a());
+        }
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         for (auto it = render_data_vector.begin();
