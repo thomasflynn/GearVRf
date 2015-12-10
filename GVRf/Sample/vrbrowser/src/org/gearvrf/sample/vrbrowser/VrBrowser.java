@@ -15,6 +15,7 @@
 
 package org.gearvrf.sample.vrbrowser;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -45,11 +46,17 @@ public class VrBrowser extends GVRActivity
         setScript(mViewManager, "gvr.xml");
     }
 
-    private void createWebView() {
+    @SuppressLint("SetJavaScriptEnabled")
+	private void createWebView() {
         webView = new GVRWebView(this);
         webView.setInitialScale(100);
-        webView.measure(2000, 1000);
-        webView.layout(0, 0, 2000, 1000);
+                
+        int width = 900;
+        int height = 900;
+        
+        webView.measure(width, height);
+        webView.layout(0, 0, width, height);
+        
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webView.loadUrl("http://gearvrf.org");
