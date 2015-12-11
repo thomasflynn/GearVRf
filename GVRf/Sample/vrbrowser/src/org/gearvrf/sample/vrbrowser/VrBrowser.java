@@ -49,7 +49,7 @@ public class VrBrowser extends GVRActivity
     @SuppressLint("SetJavaScriptEnabled")
 	private void createWebView() {
         webView = new GVRWebView(this);
-        webView.setInitialScale(100);
+        webView.setInitialScale(300);
                 
         int width = 900;
         int height = 900;

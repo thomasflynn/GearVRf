@@ -73,8 +73,6 @@ public class VrBrowserViewManager extends GVRScript {
         mContainer = new GVRSceneObject(gvrContext);
         mScene.addSceneObject(mContainer);
         
-        mWebView = (GVRWebView)mActivity.getWebView();
-
         GVRViewSceneObject webViewObject = createWebViewObject(gvrContext);
 
         GVRSceneObject floor = new GVRSceneObject(mGVRContext,
@@ -111,12 +109,10 @@ public class VrBrowserViewManager extends GVRScript {
     private void addCursorPosition() {
 
         GVRSceneObject headTracker = new GVRSceneObject(mGVRContext,
-                mGVRContext.createQuad(0.5f, 0.5f), mGVRContext.loadTexture(new GVRAndroidResource(
-                        mGVRContext, R.drawable.head_tracker)));
+                mGVRContext.createQuad(0.10f, 0.10f), mGVRContext.loadTexture(new GVRAndroidResource(mGVRContext, R.raw.gaze_cursor_dot2)));
 
         headTracker.getTransform().setPositionZ(-mScreenDistance);
-        headTracker.getRenderData().setRenderingOrder(
-                GVRRenderData.GVRRenderingOrder.OVERLAY);
+        headTracker.getRenderData().setRenderingOrder(GVRRenderData.GVRRenderingOrder.OVERLAY);
         headTracker.getRenderData().setDepthTest(false);
         headTracker.getRenderData().setRenderingOrder(100000);
         mScene.getMainCameraRig().getRightCamera().addChildObject(headTracker);
@@ -126,14 +122,17 @@ public class VrBrowserViewManager extends GVRScript {
 
     private GVRViewSceneObject createWebViewObject(GVRContext gvrContext) {
         
+        mWebView = (GVRWebView)mActivity.getWebView();
+
         float aspect = (float)mWebView.getView().getWidth() / mWebView.getView().getHeight();
         float size = 2f;
         
-        GVRViewSceneObject webObject = new GVRViewSceneObject(gvrContext, mWebView, size, size);
+        GVRViewSceneObject webObject = new GVRViewSceneObject(gvrContext, mWebView, 4.0f, 3.0f);
         webObject.setName("webview");
         webObject.getRenderData().getMaterial().setOpacity(1.0f);
         
-        webObject.getTransform().setPosition(0.0f, 0.0f, -mScreenDistance);
+        //webObject.getTransform().setPosition(0.0f, 0.0f, -mScreenDistance);
+        webObject.getTransform().setPosition(0.0f, 0.0f, -3.0f);
 
         attachDefaultEyePointee(webObject);
         
@@ -143,7 +142,8 @@ public class VrBrowserViewManager extends GVRScript {
     private void addButtons() {
         // add buttons to container
         GVRSceneObject uiContainerObject = new GVRSceneObject(mGVRContext);
-        uiContainerObject.getTransform().setPosition(-1.3f, 0f, -mScreenDistance);
+        //uiContainerObject.getTransform().setPosition(-1.3f, 0f, -mScreenDistance);
+        uiContainerObject.getTransform().setPosition(-2.3f, 0f, -3.0f);
         uiContainerObject.getTransform().rotateByAxis(20f, 0f, 1f, 0f);
         mContainer.addChildObject(uiContainerObject);
 
