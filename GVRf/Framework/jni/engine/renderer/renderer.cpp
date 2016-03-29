@@ -225,6 +225,68 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
 
 }
 
+class Batch {
+    public:
+        Batch() { 
+            renderdata_vector.clear(); 
+        }
+
+        void add(RenderData *render_data) {
+            renderdata_vector.push_back(render_data);
+        }
+
+    private:
+        std::vector<RenderData*> renderdata_vector;
+};
+
+static std::vector<Batch*> batch_vector;
+
+void Renderer::renderBatches(Camera *camera, glm::mat4 &view_matrix, glm::mat4 &projection_matrix, int render_mask, ShaderManager *shader_manager, int modeShadow) {
+    // XXX
+}
+
+bool do_batching = true;
+
+void Renderer::renderRenderDataVector(Camera *camera, glm::mat4 &view_matrix, glm::mat4 &projection_matrix, int render_mask, ShaderManager *shader_manager, int modeShadow) {
+    if(!do_batching) {
+        for (auto it = render_data_vector.begin(); it != render_data_vector.end(); ++it) {
+            GL(renderRenderData(*it, view_matrix, projection_matrix, camera->render_mask(), shader_manager, modeShadow));
+        }
+    } else {
+        int size = render_data_vector.size();
+        for(int i=0; i<size; i++) {
+            int pass_count = render_data_vector[i]->pass_count();
+            if(size == 1 || pass_count > 1) {
+                GL(renderRenderData(render_data_vector[i], view_matrix, projection_matrix, camera->render_mask(), shader_manager, modeShadow));
+                return;
+            }
+
+            int current = render_data_vector[i]->pass(0)->material()->shader_type();
+            int previous = -1;
+            if(i-1 >= 0) {
+                previous = render_data_vector[i-1]->pass(0)->material()->shader_type();
+            }
+            int next = -1;
+            if(i+1 < size) {
+                next = render_data_vector[i+1]->pass(0)->material()->shader_type();
+            }
+
+            if(current != previous && current == next) {
+                Batch *batch = new Batch();
+                batch->add(render_data_vector[i]);
+                batch_vector.push_back(batch);
+            } else if(current == previous || current == next) {
+                Batch *batch = batch_vector.back();
+                batch->add(render_data_vector[i]);
+            } else {
+                GL(renderRenderData(render_data_vector[i], view_matrix, projection_matrix, camera->render_mask(), shader_manager, modeShadow));
+            }
+        }
+
+        renderBatches(camera, view_matrix, projection_matrix, render_mask, shader_manager, modeShadow);
+    }
+}
+
 void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
         int viewportX, int viewportY, int viewportWidth, int viewportHeight,
         ShaderManager* shader_manager,
@@ -261,11 +323,8 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
                 camera->background_color_a()));
         GL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
 
-        for (auto it = render_data_vector.begin();
-                it != render_data_vector.end(); ++it) {
-            GL(renderRenderData(*it, view_matrix, projection_matrix,
-                    camera->render_mask(), shader_manager, modeShadow));
-        }
+        renderRenderDataVector(camera, view_matrix, projection_matrix, camera->render_mask(), shader_manager, modeShadow);
+
     } else {
         RenderTexture* texture_render_texture = post_effect_render_texture_a;
         RenderTexture* target_render_texture;
@@ -279,11 +338,7 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
                 camera->background_color_g(), camera->background_color_b(), camera->background_color_a()));
         GL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
 
-        for (auto it = render_data_vector.begin();
-                it != render_data_vector.end(); ++it) {
-            GL(renderRenderData(*it, view_matrix, projection_matrix,
-                    camera->render_mask(), shader_manager, modeShadow));
-        }
+        renderRenderDataVector(camera, view_matrix, projection_matrix, camera->render_mask(), shader_manager, modeShadow);
 
         GL(glDisable(GL_DEPTH_TEST));
         GL(glDisable(GL_CULL_FACE));
