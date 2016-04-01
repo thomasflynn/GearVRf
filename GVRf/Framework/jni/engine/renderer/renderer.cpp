@@ -228,21 +228,100 @@ void Renderer::renderCamera(Scene* scene, Camera* camera, int framebufferId,
 class Batch {
     public:
         Batch() { 
+            vertices_.clear();
+            normals_.clear();
+            tex_coords_.clear();
+            indices_.clear();
+            matrices_.clear();
+            matrix_indices.clear();
             renderdata_vector.clear(); 
+            draw_count = 0;
+            mesh = new Mesh(); // should perhaps have a pool of meshes of a certain size
+        }
+
+        ~Batch() { 
+            vertices_.clear();
+            normals_.clear();
+            tex_coords_.clear();
+            indices_.clear();
+            matrices_.clear();
+            matrix_indices.clear();
+            renderdata_vector.clear(); 
+            delete mesh;
         }
 
         void add(RenderData *render_data) {
             renderdata_vector.push_back(render_data);
+            Mesh *render_mesh = render_data->mesh();
+            std::vector<glm::vec3> vertices = render_mesh->vertices();
+            std::vector<glm::vec3> normals = render_mesh->normals();
+            std::vector<glm::vec2> tex_coords = render_mesh->tex_coords();
+            std::vector<unsigned short> indices = render_mesh->indices();
+            Transform* const t = render_data->owner_object()->transform();
+            glm::mat4 model_matrix;
+            if(t!=NULL) {
+                model_matrix = glm::mat4(t->getModelMatrix());
+            }
+            matrices_.push_back(model_matrix);
+            matrix_indices.push_back((float)draw_count);
+            draw_count++;
+
+            int size = 0;
+            size = vertices.size();
+            for(int i=0; i<size; i++) {
+                vertices_.push_back(vertices[i]);
+            }
+
+            size = normals.size();
+            for(int i=0; i<size; i++) {
+                normals_.push_back(normals[i]);
+            }
+
+            size = tex_coords.size();
+            for(int i=0; i<size; i++) {
+                tex_coords_.push_back(tex_coords[i]);
+            }
+
+            size = indices.size();
+            for(int i=0; i<size; i++) {
+                indices_.push_back(indices[i]);
+            }
+        }
+
+        void update() {
+            mesh->set_vertices(vertices_);
+            mesh->set_normals(normals_);
+            mesh->set_tex_coords(tex_coords_);
+            mesh->set_indices(indices_);
+            mesh->setVertexAttribLocF(3, "matrix_index"); // 3 is picked since 0, 1, and 2 are reserved
+            mesh->setFloatVector("matrix_index", matrix_indices);
+            mesh->updateVAO(); // XXX
+        }
+
+        const std::vector<glm::mat4>& get_matrices() {
+            return matrices_;
         }
 
     private:
         std::vector<RenderData*> renderdata_vector;
+        Mesh *mesh;
+        std::vector<glm::vec3> vertices_;
+        std::vector<glm::vec3> normals_;
+        std::vector<glm::vec2> tex_coords_;
+        std::vector<unsigned short> indices_;
+        std::vector<glm::mat4> matrices_;
+        std::vector<float> vector matrix_indices;
+        int draw_count;
 };
 
 static std::vector<Batch*> batch_vector;
 
 void Renderer::renderBatches(Camera *camera, glm::mat4 &view_matrix, glm::mat4 &projection_matrix, int render_mask, ShaderManager *shader_manager, int modeShadow) {
     // XXX
+                shader_manager->getTextureShader()->render(
+                        mv_matrix,
+                        glm::inverseTranspose(mv_matrix),
+                        mvp_matrix, render_data, curr_material);
 }
 
 bool do_batching = true;
@@ -261,21 +340,27 @@ void Renderer::renderRenderDataVector(Camera *camera, glm::mat4 &view_matrix, gl
                 return;
             }
 
-            int current = render_data_vector[i]->pass(0)->material()->shader_type();
-            int previous = -1;
+            Material *current = render_data_vector[i]->pass(0)->material();
+            Material *previous = NULL;
             if(i-1 >= 0) {
-                previous = render_data_vector[i-1]->pass(0)->material()->shader_type();
+                previous = render_data_vector[i-1]->pass(0)->material();
             }
-            int next = -1;
+            Material *next = NULL;
             if(i+1 < size) {
-                next = render_data_vector[i+1]->pass(0)->material()->shader_type();
+                next = render_data_vector[i+1]->pass(0)->material();
             }
 
-            if(current != previous && current == next) {
+            int currentShaderType = render_data_vector[i]->pass(0)->material()->shader_type();
+            bool batchable = false;
+            if(currentShaderType != Material::ShaderType::TEXTURE_SHADER) {
+                batchable = true;
+            }
+
+            if(batchable && (current != previous) && (current == next)) {
                 Batch *batch = new Batch();
                 batch->add(render_data_vector[i]);
                 batch_vector.push_back(batch);
-            } else if(current == previous || current == next) {
+            } else if(batchable && (current == previous) || (current == next)) {
                 Batch *batch = batch_vector.back();
                 batch->add(render_data_vector[i]);
             } else {

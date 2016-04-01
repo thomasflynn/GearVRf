@@ -274,6 +274,7 @@ public:
 
     // generate VAO
     void generateVAO();
+    void updateVAO();
 
     const GLuint getVAOId(Material::ShaderType key) const {
     	return vaoID_;

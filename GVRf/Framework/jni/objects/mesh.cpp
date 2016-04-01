@@ -326,4 +326,8 @@ void Mesh::generateBoneArrayBuffers() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+// update
+void Mesh::updateVAO() {
+}
+
 }
