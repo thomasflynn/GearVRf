@@ -250,7 +250,8 @@ class Batch {
             delete mesh;
         }
 
-        void add(RenderData *render_data) {
+        void add(RenderData *render_data, Material *material) {
+            material_ = material;
             renderdata_vector.push_back(render_data);
             Mesh *render_mesh = render_data->mesh();
             std::vector<glm::vec3> vertices = render_mesh->vertices();
@@ -266,6 +267,7 @@ class Batch {
             matrix_indices.push_back((float)draw_count);
             draw_count++;
 
+            int vertex_count = vertices_.size();
             int size = 0;
             size = vertices.size();
             for(int i=0; i<size; i++) {
@@ -284,7 +286,9 @@ class Batch {
 
             size = indices.size();
             for(int i=0; i<size; i++) {
-                indices_.push_back(indices[i]);
+                unsigned short index = indices[i];
+                index += vertex_count;
+                indices_.push_back(index);
             }
         }
 
@@ -293,18 +297,27 @@ class Batch {
             mesh->set_normals(normals_);
             mesh->set_tex_coords(tex_coords_);
             mesh->set_indices(indices_);
-            mesh->setVertexAttribLocF(3, "matrix_index"); // 3 is picked since 0, 1, and 2 are reserved
-            mesh->setFloatVector("matrix_index", matrix_indices);
-            mesh->updateVAO(); // XXX
+            mesh->setVertexAttribLocF(3, "a_matrix_index"); // 3 is picked since 0, 1, and 2 are reserved
+            mesh->setFloatVector("a_matrix_index", matrix_indices);
+            mesh->updateVAO();
         }
 
         const std::vector<glm::mat4>& get_matrices() {
             return matrices_;
         }
 
+        const std::vector<RenderData *>& get_renderdata() {
+            return renderdata_vector;
+        }
+
+        const Material *get_material() {
+            return material_;
+        }
+
     private:
         std::vector<RenderData*> renderdata_vector;
         Mesh *mesh;
+        Material *material_;
         std::vector<glm::vec3> vertices_;
         std::vector<glm::vec3> normals_;
         std::vector<glm::vec2> tex_coords_;
@@ -317,11 +330,17 @@ class Batch {
 static std::vector<Batch*> batch_vector;
 
 void Renderer::renderBatches(Camera *camera, glm::mat4 &view_matrix, glm::mat4 &projection_matrix, int render_mask, ShaderManager *shader_manager, int modeShadow) {
-    // XXX
-                shader_manager->getTextureShader()->render(
-                        mv_matrix,
-                        glm::inverseTranspose(mv_matrix),
-                        mvp_matrix, render_data, curr_material);
+    glm::mat4 vp_matrix = glm::mat4(projection_matrix * view_matrix);
+    int batch_size = batch_vector.size();
+    for(int i=0; i<batch_size; i++) {
+        Batch batch = batch_vector[i];
+        shader_manager->getTextureShader()->render_batch( //XXX
+                batch.get_matrices(),
+                view_matrix, 
+                vp_matrix, 
+                batch.get_renderdata(), 
+                batch.get_material());
+    }
 }
 
 bool do_batching = true;
@@ -358,11 +377,11 @@ void Renderer::renderRenderDataVector(Camera *camera, glm::mat4 &view_matrix, gl
 
             if(batchable && (current != previous) && (current == next)) {
                 Batch *batch = new Batch();
-                batch->add(render_data_vector[i]);
+                batch->add(render_data_vector[i], current);
                 batch_vector.push_back(batch);
             } else if(batchable && (current == previous) || (current == next)) {
                 Batch *batch = batch_vector.back();
-                batch->add(render_data_vector[i]);
+                batch->add(render_data_vector[i], current);
             } else {
                 GL(renderRenderData(render_data_vector[i], view_matrix, projection_matrix, camera->render_mask(), shader_manager, modeShadow));
             }

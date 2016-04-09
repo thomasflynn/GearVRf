@@ -32,29 +32,53 @@
 namespace gvr {
 static const char USE_LIGHT[] = "#define USE_LIGHT\n";
 static const char NOT_USE_LIGHT[] = "#undef USE_LIGHT\n";
+static const char USE_BATCHING[] = "#define USE_BATCHING\n";
+static const char NOT_USE_BATCHING[] = "#undef USE_BATCHING\n";
 static const char VERTEX_SHADER[] =
         "attribute vec4 a_position;\n"
                 "attribute vec4 a_tex_coord;\n"
+                "#ifndef USE_BATCHING\n"
                 "uniform mat4 u_mvp;\n"
+                "#endif\n"
                 "varying vec2 v_tex_coord;\n"
                 "#ifdef USE_LIGHT\n"
                 "attribute vec3 a_normal;\n"
+                "#ifndef USE_BATCHING\n"
                 "uniform mat4 u_mv;\n"
                 "uniform mat4 u_mv_it;\n"
+                "#endif\n"
                 "uniform vec3 u_light_pos;\n"
                 "varying vec3 v_viewspace_normal;\n"
                 "varying vec3 v_viewspace_light_direction;\n"
                 "#endif\n"
+                "#ifdef USE_BATCHING\n"
+                "attribute float a_matrix_index;\n"
+                "uniform mat4 u_vp;\n"
+                "uniform mat4 u_matrices[512];\n"
+                "uniform mat4 u_view;\n"
+                "#endif\n"
                 "\n"
                 "void main() {\n"
+                "mat4 mv;\n"
+                "mat4 mv_it;\n"
+                "mat4 mvp;\n"
+                "#ifdef USE_BATCHING\n"
+                "mv = u_view * u_matrices[a_matrix_index];\n"
+                "mv_it = glm::inverseTranspose(mv);\n"
+                "mvp = u_vp * mv;\n"
+                "#else\n"
+                "mv = u_mv;\n"
+                "mv_it = u_mv_it;\n"
+                "mvp = u_mvp;\n"
+                "#endif\n"
                 "#ifdef USE_LIGHT\n"
-                "  vec4 v_viewspace_position_vec4 = u_mv * a_position;\n"
+                "  vec4 v_viewspace_position_vec4 = mv * a_position;\n"
                 "  vec3 v_viewspace_position = v_viewspace_position_vec4.xyz / v_viewspace_position_vec4.w;\n"
                 "  v_viewspace_light_direction = u_light_pos - v_viewspace_position;\n"
-                "  v_viewspace_normal = (u_mv_it * vec4(a_normal, 1.0)).xyz;\n"
+                "  v_viewspace_normal = (mv_it * vec4(a_normal, 1.0)).xyz;\n"
                 "#endif\n"
                 "  v_tex_coord = a_tex_coord.xy;\n"
-                "  gl_Position = u_mvp * a_position;\n"
+                "  gl_Position = mvp * a_position;\n"
                 "}\n";
 
 static const char FRAGMENT_SHADER[] =
@@ -110,13 +134,12 @@ TextureShader::TextureShader() :
                 0), u_material_diffuse_color_(0), u_material_specular_color_(0), u_material_specular_exponent_(
                 0), u_light_ambient_intensity_(0), u_light_diffuse_intensity_(
                 0), u_light_specular_intensity_(0) {
-    const char* vertex_shader_light_strings[2] = { USE_LIGHT, VERTEX_SHADER };
-    GLint vertex_shader_light_string_lengths[2] = { (GLint) strlen(USE_LIGHT),
+    const char* vertex_shader_light_strings[3] = { NOT_USE_BATCHING, USE_LIGHT, VERTEX_SHADER };
+    GLint vertex_shader_light_string_lengths[3] = { (GLint) strlen(NOT_USE_BATCHING), (GLint) strlen(USE_LIGHT),
             (GLint) strlen(VERTEX_SHADER) };
-    const char* vertex_shader_no_light_strings[2] = { NOT_USE_LIGHT,
+    const char* vertex_shader_no_light_strings[3] = { NOT_USE_BATCHING, NOT_USE_LIGHT,
             VERTEX_SHADER };
-    GLint vertex_shader_no_light_string_lengths[2] = { (GLint) strlen(
-            NOT_USE_LIGHT), (GLint) strlen(VERTEX_SHADER) };
+    GLint vertex_shader_no_light_string_lengths[3] = { (GLint) strlen(NOT_USE_BATCHING), (GLint) strlen(NOT_USE_LIGHT), (GLint) strlen(VERTEX_SHADER) };
     const char* fragment_shader_light_strings[2] =
             { USE_LIGHT, FRAGMENT_SHADER };
     GLint fragment_shader_light_string_lengths[2] = { (GLint) strlen(USE_LIGHT),
@@ -126,6 +149,13 @@ TextureShader::TextureShader() :
     GLint fragment_shader_no_light_string_lengths[2] = { (GLint) strlen(
             NOT_USE_LIGHT), (GLint) strlen(FRAGMENT_SHADER) };
 
+    const char* vertex_shader_light_batch_strings[3] = { USE_BATCHING, USE_LIGHT, VERTEX_SHADER };
+    GLint vertex_shader_light_batch_string_lengths[3] = { (GLint) strlen(USE_BATCHING), (GLint) strlen(USE_LIGHT),
+            (GLint) strlen(VERTEX_SHADER) };
+    const char* vertex_shader_no_light_batch_strings[3] = { USE_BATCHING, NOT_USE_LIGHT,
+            VERTEX_SHADER };
+    GLint vertex_shader_no_light_batch_string_lengths[3] = { (GLint) strlen(USE_BATCHING), (GLint) strlen(NOT_USE_LIGHT), (GLint) strlen(VERTEX_SHADER) };
+
     program_light_ = new GLProgram(vertex_shader_light_strings,
             vertex_shader_light_string_lengths, fragment_shader_light_strings,
             fragment_shader_light_string_lengths, 2);
@@ -134,6 +164,20 @@ TextureShader::TextureShader() :
             fragment_shader_no_light_strings,
             fragment_shader_no_light_string_lengths, 2);
 
+    program_light_batching_ = new GLProgram(vertex_shader_light_batch_strings,
+            vertex_shader_light_batch_string_lengths, fragment_shader_light_strings,
+            fragment_shader_light_string_lengths, 2);
+    program_no_light_batching_ = new GLProgram(vertex_shader_no_light_batch_strings,
+            vertex_shader_no_light_batch_string_lengths,
+            fragment_shader_no_light_strings,
+            fragment_shader_no_light_string_lengths, 2);
+
+    u_vp_no_light_batching = glGetUniformLocation(program_no_light_batching->id(), "u_vp");
+    u_matrices_no_light_batching = glGetUniformLocation(program_no_light_batching->id(), "u_matrices");
+    u_view_no_light_batching = glGetUniformLocation(program_no_light_batching->id(), "u_view");
+    u_vp_light_batching = glGetUniformLocation(program_light_batching->id(), "u_vp");
+    u_matrices_light_batching = glGetUniformLocation(program_light_batching->id(), "u_matrices");
+    u_view_light_batching = glGetUniformLocation(program_light_batching->id(), "u_view");
     u_mvp_no_light_ = glGetUniformLocation(program_no_light_->id(), "u_mvp");
     u_texture_no_light_ = glGetUniformLocation(program_no_light_->id(),
             "u_texture");
@@ -262,6 +306,99 @@ void TextureShader::render(const glm::mat4& mv_matrix,
     GL(glBindVertexArray(0));
 
     checkGlError("TextureShader::render");
+}
+
+void TextureShader::render_batch(const glm::mat4& mv_matrix,
+        const glm::mat4& mv_it_matrix, const glm::mat4& mvp_matrix,
+        RenderData* render_data, Material* material) {
+    Mesh* mesh = render_data->mesh();
+    Texture* texture = material->getTexture("main_texture");
+    glm::vec3 color = material->getVec3("color");
+    float opacity = material->getFloat("opacity");
+    glm::vec4 material_ambient_color = material->getVec4("ambient_color");
+    glm::vec4 material_diffuse_color = material->getVec4("diffuse_color");
+    glm::vec4 material_specular_color = material->getVec4("specular_color");
+    float material_specular_exponent = material->getFloat("specular_exponent");
+
+    if (texture->getTarget() != GL_TEXTURE_2D) {
+        std::string error = "TextureShader::render : texture with wrong target.";
+        throw error;
+    }
+
+    bool use_light = false;
+    Light* light;
+    if (render_data->light_enabled()) {
+        light = render_data->light();
+        if (light->enabled()) {
+            use_light = true;
+        }
+    }
+
+    mesh->generateVAO();
+
+    if (use_light) {
+        GL(glUseProgram(program_light_->id()));
+    } else {
+        GL(glUseProgram(program_no_light_->id()));
+    }
+
+    GL(glActiveTexture (GL_TEXTURE0));
+    GL(glBindTexture(texture->getTarget(), texture->getId()));
+
+    if (use_light) {
+        glm::vec3 light_position = light->getVec3("position");
+        glm::vec4 light_ambient_intensity = light->getVec4("ambient_intensity");
+        glm::vec4 light_diffuse_intensity = light->getVec4("diffuse_intensity");
+        glm::vec4 light_specular_intensity = light->getVec4(
+                "specular_intensity");
+
+        glUniformMatrix4fv(u_mvp_, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
+        glUniformMatrix4fv(u_mv_, 1, GL_FALSE, glm::value_ptr(mv_matrix));
+        glUniformMatrix4fv(u_mv_it_, 1, GL_FALSE, glm::value_ptr(mv_it_matrix));
+        glUniform3f(u_light_pos_, light_position.x, light_position.y,
+                light_position.z);
+
+        glUniform1i(u_texture_, 0);
+        glUniform3f(u_color_, color.r, color.g, color.b);
+        glUniform1f(u_opacity_, opacity);
+
+        glUniform4f(u_material_ambient_color_, material_ambient_color.r,
+                material_ambient_color.g, material_ambient_color.b,
+                material_ambient_color.a);
+        glUniform4f(u_material_diffuse_color_, material_diffuse_color.r,
+                material_diffuse_color.g, material_diffuse_color.b,
+                material_diffuse_color.a);
+        glUniform4f(u_material_specular_color_, material_specular_color.r,
+                material_specular_color.g, material_specular_color.b,
+                material_specular_color.a);
+        glUniform1f(u_material_specular_exponent_, material_specular_exponent);
+        glUniform4f(u_light_ambient_intensity_, light_ambient_intensity.r,
+                light_ambient_intensity.g, light_ambient_intensity.b,
+                light_ambient_intensity.a);
+        glUniform4f(u_light_diffuse_intensity_, light_diffuse_intensity.r,
+                light_diffuse_intensity.g, light_diffuse_intensity.b,
+                light_diffuse_intensity.a);
+        glUniform4f(u_light_specular_intensity_, light_specular_intensity.r,
+                light_specular_intensity.g, light_specular_intensity.b,
+                light_specular_intensity.a);
+
+        glBindVertexArray(mesh->getVAOId(Material::TEXTURE_SHADER));
+    } else {
+        glUniformMatrix4fv(u_mvp_no_light_, 1, GL_FALSE,
+                glm::value_ptr(mvp_matrix));
+
+        glUniform1i(u_texture_no_light_, 0);
+        glUniform3f(u_color_no_light_, color.r, color.g, color.b);
+        glUniform1f(u_opacity_no_light_, opacity);
+
+        glBindVertexArray(mesh->getVAOId(Material::TEXTURE_SHADER_NOLIGHT));
+    }
+
+    GL(glDrawElements(render_data->draw_mode(), mesh->indices().size(), GL_UNSIGNED_SHORT,
+            0));
+    GL(glBindVertexArray(0));
+
+    checkGlError("TextureShader::render_batch");
 }
 
 }

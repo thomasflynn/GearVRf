@@ -328,6 +328,101 @@ void Mesh::generateBoneArrayBuffers() {
 
 // update
 void Mesh::updateVAO() {
-}
+    if (!vao_dirty_) {
+         return;
+    }
+    obtainDeleter();
+
+    if (vertices_.size() == 0 && normals_.size() == 0
+            && tex_coords_.size() == 0) {
+        std::string error = "no vertex data yet, shouldn't call here. ";
+        throw error;
+        return;
+    }
+
+    glBindVertexArray(vaoID_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangle_vboID_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+            sizeof(unsigned short) * indices_.size(), &indices_[0],
+            GL_STATIC_DRAW);
+    numTriangles_ = indices_.size() / 3;
+ 
+    if (vertices_.size()) {
+        glBindBuffer(GL_ARRAY_BUFFER, vert_vboID_);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices_.size(),
+                &vertices_[0], GL_STATIC_DRAW);
+        GLuint vertexLoc = GLProgram::POSITION_ATTRIBUTE_LOCATION;
+        glEnableVertexAttribArray(vertexLoc);
+        glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, 0, 0, 0);
+    }
+
+    if (normals_.size()) {
+        glBindBuffer(GL_ARRAY_BUFFER, norm_vboID_);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals_.size(),
+                &normals_[0], GL_STATIC_DRAW);
+        GLuint normalLoc = GLProgram::NORMAL_ATTRIBUTE_LOCATION;
+        glEnableVertexAttribArray(normalLoc);
+        glVertexAttribPointer(normalLoc, 3, GL_FLOAT, 0, 0, 0);
+    }
+
+    if (tex_coords_.size()) {
+        glBindBuffer(GL_ARRAY_BUFFER, tex_vboID_);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * tex_coords_.size(),
+                &tex_coords_[0], GL_STATIC_DRAW);
+        GLuint texCoordLoc = GLProgram::TEXCOORD_ATTRIBUT_LOCATION;
+        glEnableVertexAttribArray(texCoordLoc);
+        glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, 0, 0, 0);
+    }
+
+    for (auto it = attribute_float_keys_.begin();
+            it != attribute_float_keys_.end(); ++it) {
+        glGenBuffers(1, &tmpID); // XXX this is horrible that it is allocated every time and not stored anywhere.
+        glBindBuffer(GL_ARRAY_BUFFER, tmpID);
+        glBufferData(GL_ARRAY_BUFFER,
+                sizeof(GLfloat) * getFloatVector(it->second).size(),
+                getFloatVector(it->second).data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(it->first);
+        glVertexAttribPointer(it->first, 1, GL_FLOAT, 0, 0, 0);
+    }
+
+    for (auto it = attribute_vec2_keys_.begin();
+            it != attribute_vec2_keys_.end(); ++it) {
+        glGenBuffers(1, &tmpID); // XXX this is horrible that it is allocated every time and not stored anywhere.
+        glBindBuffer(GL_ARRAY_BUFFER, tmpID);
+        glBufferData(GL_ARRAY_BUFFER,
+                sizeof(glm::vec2) * getVec2Vector(it->second).size(),
+                getVec2Vector(it->second).data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(it->first);
+        glVertexAttribPointer(it->first, 2, GL_FLOAT, 0, 0, 0);
+    }
+
+    for (auto it = attribute_vec3_keys_.begin();
+            it != attribute_vec3_keys_.end(); ++it) {
+        glGenBuffers(1, &tmpID); // XXX this is horrible that it is allocated every time and not stored anywhere.
+        glBindBuffer(GL_ARRAY_BUFFER, tmpID);
+        glBufferData(GL_ARRAY_BUFFER,
+                sizeof(glm::vec3) * getVec3Vector(it->second).size(),
+                getVec3Vector(it->second).data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(it->first);
+        glVertexAttribPointer(it->first, 3, GL_FLOAT, 0, 0, 0);
+    }
+
+    for (auto it = attribute_vec4_keys_.begin();
+            it != attribute_vec4_keys_.end(); ++it) {
+        glGenBuffers(1, &tmpID); // XXX this is horrible that it is allocated every time and not stored anywhere.
+        glBindBuffer(GL_ARRAY_BUFFER, tmpID);
+        glBufferData(GL_ARRAY_BUFFER,
+                sizeof(glm::vec4) * getVec4Vector(it->second).size(),
+                getVec4Vector(it->second).data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(it->first);
+        glVertexAttribPointer(it->first, 4, GL_FLOAT, 0, 0, 0);
+    }
+
+    // done generation
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    vao_dirty_ = false;
 
 }

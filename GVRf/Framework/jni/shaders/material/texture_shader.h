@@ -50,6 +50,8 @@ private:
 private:
     GLProgram* program_light_;
     GLProgram* program_no_light_;
+    GLProgram* program_light_batching_;
+    GLProgram* program_no_light_batchint_;
 
     GLuint u_mvp_no_light_;
     GLuint u_texture_no_light_;
@@ -70,6 +72,13 @@ private:
     GLuint u_light_ambient_intensity_;
     GLuint u_light_diffuse_intensity_;
     GLuint u_light_specular_intensity_;
+
+    GLuint u_vp_no_light_batching;
+    GLuint u_matrices_no_light_batching;
+    GLuint u_view_no_light_batching;
+    GLuint u_vp_light_batching;
+    GLuint u_matrices_light_batching;
+    GLuint u_view_light_batching;
 };
 
 }
