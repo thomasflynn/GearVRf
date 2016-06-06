@@ -104,6 +104,7 @@ public abstract class GVRAnimation {
     private int mRepeatMode = GVRRepeatMode.ONCE;
     private int mRepeatCount = DEFAULT_REPEAT_COUNT;
     private GVROnFinish mOnFinish = null;
+    private GVROnStart mOnStart = null;
 
     /**
      * This is derived from {@link #mOnFinish}. Doing the {@code instanceof}
@@ -247,6 +248,35 @@ public abstract class GVRAnimation {
     }
 
     /**
+     * Set the on-start callback.
+     * 
+     * The basic {@link GVROnStart} callback will notify you when the animation
+     * runs to completion. This is a good time to do things like removing
+     * now-invisible objects from the scene graph.
+     * 
+     * <p>
+     * The extended {@link GVROnRepeat} callback will be called after every
+     * iteration of an indefinite (repeat count less than 0) animation, giving
+     * you a way to stop the animation when it's not longer appropriate.
+     * 
+     * @param callback
+     *            A {@link GVROnStart} or {@link GVROnRepeat} implementation.
+     *            <p>
+     *            <em>Note</em>: Supplying a {@link GVROnRepeat} callback will
+     *            {@linkplain #setRepeatCount(int) set the repeat count} to a
+     *            negative number. Calling {@link #setRepeatCount(int)} with a
+     *            non-negative value after setting a {@link GVROnRepeat}
+     *            callback will effectively convert the callback to a
+     *            {@link GVROnStart}.
+     * @return {@code this}, so you can chain setProperty() calls.
+     */
+    public GVRAnimation setOnStart(GVROnStart callback) {
+        mOnStart = callback;
+
+        return this;
+    }
+
+    /**
      * Set the on-finish callback.
      * 
      * The basic {@link GVROnFinish} callback will notify you when the animation
@@ -312,6 +342,9 @@ public abstract class GVRAnimation {
      *         of calls
      */
     public GVRAnimation start(GVRAnimationEngine engine) {
+        if (mOnStart != null) {
+            mOnStart.started(this);
+        }
         engine.start(this);
         return this;
     }
