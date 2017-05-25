@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include "base_texture.h"
+#include "bitmap_transparency.h"
 #include "util/gvr_jni.h"
 #include "util/gvr_java_stack_trace.h"
 #include "android/asset_manager_jni.h"
@@ -60,6 +61,13 @@ Java_org_gearvrf_NativeBaseTexture_update(JNIEnv * env, jobject obj,
     env->ReleaseByteArrayElements(jdata, data, 0);
     return result;
 }
+
+JNIEXPORT jboolean JNICALL
+Java_org_gearvrf_NativeBaseTexture_hasTransparency(JNIEnv * env, jobject obj, jlong jtexture, jobject jbitmap) {
+    jboolean result = bitmap_has_transparency(env, jbitmap);
+    return result;
+}
+
 
 extern "C"
 JNIEXPORT jboolean JNICALL

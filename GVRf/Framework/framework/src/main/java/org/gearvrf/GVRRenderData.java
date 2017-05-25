@@ -396,6 +396,7 @@ public class GVRRenderData extends GVRComponent implements PrettyPrint {
      */
     public void setMaterial(GVRMaterial material) {
         setMaterial(material, 0);
+        adjustRenderingOrderForTransparency(material);
     }
 
     /**
@@ -410,12 +411,25 @@ public class GVRRenderData extends GVRComponent implements PrettyPrint {
     public void setMaterial(GVRMaterial material, int passIndex) {
         if (passIndex < mRenderPassList.size()) {
             mRenderPassList.get(passIndex).setMaterial(material);
+            adjustRenderingOrderForTransparency(material);
         } else {
             Log.e(TAG, "Trying to set material from invalid pass. Pass " + passIndex + " was not created.");
         }
         
     }
     
+    private void adjustRenderingOrderForTransparency(GVRMaterial material) {
+        GVRTexture texture = material.getMainTexture();
+        if(!texture.hasTransparency()) {
+            return;
+        }
+
+        int renderingOrder = getRenderingOrder();
+        if(renderingOrder < GVRRenderingOrder.TRANSPARENT) {
+            setRenderingOrder(GVRRenderingOrder.TRANSPARENT);
+        }
+    }
+
     /**
      * Set the shader template to use for rendering the mesh.
      * 

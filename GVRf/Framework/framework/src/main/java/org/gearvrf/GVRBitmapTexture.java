@@ -70,6 +70,11 @@ public class GVRBitmapTexture extends GVRTexture {
         super(gvrContext, NativeBaseTexture.bareConstructor(textureParameters.getCurrentValuesArray()));
         NativeBaseTexture.setJavaOwner(getNative(), this);
         mBitmap = bitmap;
+
+        // check for transparency
+        if(mBitmap.hasAlpha()) {
+            mHasTransparency = NativeBaseTexture.hasTransparency(getNative(), bitmap);
+        }
     }
 
     /**
@@ -388,4 +393,5 @@ final class NativeBaseTexture {
             byte[] grayscaleData);
 
     static native boolean updateFromBuffer(long pointer, int width, int height, int format, int type, Buffer pixels);
+    static native boolean hasTransparency(long pointer, Bitmap bitmap);
 }
