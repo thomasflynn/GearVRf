@@ -74,6 +74,13 @@ public class GVRBitmapTexture extends GVRTexture {
         // check for transparency
         if(mBitmap.hasAlpha()) {
             mHasTransparency = NativeBaseTexture.hasTransparency(getNative(), bitmap);
+            // Warn if the image is actually opaque, but has an alpha channel.
+            if(!mHasTransparency) {
+                Log.i(TAG, "Bitmap " + 
+                        mBitmap.getWidth() + "x" + mBitmap.getHeight() + 
+                        "has an alpha channel with no translucent/transparent pixels.");
+                Log.i(TAG, "It would be better to encode this Bitmap with no alpha channel.  It would be faster to decode and more efficient as well.");
+            }
         }
     }
 
@@ -119,6 +126,9 @@ public class GVRBitmapTexture extends GVRTexture {
     public GVRBitmapTexture(GVRContext gvrContext, String pngAssetFilename,
             GVRTextureParameters textureParameters) {
         this(gvrContext, getBitmap(gvrContext, pngAssetFilename), textureParameters);
+        if(mBitmap.hasAlpha() && !mHasTransparency) {
+            Log.i(TAG, "Consider removing the alpha channel from: " + pngAssetFilename);
+        }
     }
 
     /**
