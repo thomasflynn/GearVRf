@@ -422,8 +422,10 @@ public class GVRRenderData extends GVRComponent implements PrettyPrint {
         int renderingOrder = getRenderingOrder();
 
         GVRTexture mainTexture = material.getMainTexture();
-        // TODO check "diffuseTexture" as well
-        if(!mainTexture.hasTransparency()) {
+        GVRTexture diffuseTexture = material.getTexture("diffuseTexture");
+
+        if((mainTexture != null && !mainTexture.hasTransparency()) ||
+            diffuseTexture != null && !diffuseTexture.hasTransparency()) {
             // had transparency before, but is now opaque
             if(renderingOrder > GVRRenderingOrder.GEOMETRY) {
                 setRenderingOrder(GVRRenderingOrder.GEOMETRY);
