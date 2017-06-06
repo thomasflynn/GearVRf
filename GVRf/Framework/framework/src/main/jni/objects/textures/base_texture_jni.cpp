@@ -36,6 +36,9 @@ extern "C" {
     JNIEXPORT jboolean JNICALL
     Java_org_gearvrf_NativeBaseTexture_update(JNIEnv * env, jobject obj,
             jlong jtexture, jint width, jint height, jbyteArray jdata);
+
+    JNIEXPORT jboolean JNICALL
+    Java_org_gearvrf_NativeBaseTexture_hasTransparency(JNIEnv * env, jobject obj, jlong jtexture, jobject jbitmap);
 }
 
 JNIEXPORT jlong JNICALL

@@ -72,7 +72,7 @@ public class GVRBitmapTexture extends GVRTexture {
         mBitmap = bitmap;
 
         // check for transparency
-        if(mBitmap.hasAlpha()) {
+        if(mBitmap != null && mBitmap.hasAlpha()) {
             mHasTransparency = NativeBaseTexture.hasTransparency(getNative(), bitmap);
             // Warn if the image is actually opaque, but has an alpha channel.
             if(!mHasTransparency) {

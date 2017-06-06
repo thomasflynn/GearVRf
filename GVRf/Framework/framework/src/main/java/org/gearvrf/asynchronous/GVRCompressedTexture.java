@@ -126,11 +126,15 @@ public class GVRCompressedTexture extends GVRTexture {
             case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
             case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
             case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+            case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
             case GL_COMPRESSED_RG11_EAC:
             case GL_COMPRESSED_SIGNED_RG11_EAC:
             case GL_COMPRESSED_RGBA8_ETC2_EAC:
             case GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
                 alpha = true;
+                break;
+            default:
+                alpha = false;
                 break;
         }
 
