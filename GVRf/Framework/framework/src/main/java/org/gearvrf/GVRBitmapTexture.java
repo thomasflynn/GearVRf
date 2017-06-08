@@ -73,7 +73,8 @@ public class GVRBitmapTexture extends GVRTexture {
 
         // check for transparency
         if(mBitmap != null && mBitmap.hasAlpha()) {
-            mHasTransparency = NativeBaseTexture.hasTransparency(getNative(), bitmap);
+            mHasTransparency = NativeBaseTexture.bitmapHasTransparency(getNative(), bitmap);
+            NativeBaseTexture.setTransparency(getNative(), mHasTransparency);
             // Warn if the image is actually opaque, but has an alpha channel.
             if(!mHasTransparency) {
                 Log.i(TAG, "Bitmap " + 
@@ -403,5 +404,6 @@ final class NativeBaseTexture {
             byte[] grayscaleData);
 
     static native boolean updateFromBuffer(long pointer, int width, int height, int format, int type, Buffer pixels);
-    static native boolean hasTransparency(long pointer, Bitmap bitmap);
+    static native boolean bitmapHasTransparency(long pointer, Bitmap bitmap);
+    static native boolean setTransparency(long pointer, boolean hasTransparency);
 }

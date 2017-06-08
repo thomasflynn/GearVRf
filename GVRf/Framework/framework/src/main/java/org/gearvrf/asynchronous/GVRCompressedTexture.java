@@ -81,6 +81,7 @@ public class GVRCompressedTexture extends GVRTexture {
         mQuality = GVRCompressedTexture.clamp(quality);
 
         mHasTransparency = hasAlpha(internalFormat);
+        NativeCompressedTexture.setTransparency(getNative(), mHasTransparency);
 
         updateMinification();
     }
@@ -218,4 +219,6 @@ class NativeCompressedTexture {
             int[] textureParameterValues);
 
     static native long mipmappedConstructor(int target);
+
+    static native boolean setTransparency(long pointer, boolean hasTransparency);
 }
