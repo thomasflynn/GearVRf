@@ -47,7 +47,7 @@ bool bitmap_has_transparency(JNIEnv *env, jobject jbitmap) {
 
     if(format == ANDROID_BITMAP_FORMAT_A_8) {
         const uint8_t *ptr = (uint8_t *)addrPtr;
-        while(height >= 0 && !done) {
+        while(height > 0 && !done) {
             if(*ptr < 255) {
                 transparency = true;
                 done = true;
@@ -57,9 +57,9 @@ bool bitmap_has_transparency(JNIEnv *env, jobject jbitmap) {
         }
     } else if(format == ANDROID_BITMAP_FORMAT_RGBA_8888) {
         const uint32_t *ptr = (uint32_t *)addrPtr; 
-        while(height >= 0 && !done) {
+        while(height > 0 && !done) {
             for(int x = 0; x < width && !done; x++) {
-                uint8_t alpha = ptr[x] << 24;
+                uint8_t alpha = ptr[x] >> 24;
                 if(alpha < 255) {
                     transparency = true;
                     done = true;
@@ -70,7 +70,7 @@ bool bitmap_has_transparency(JNIEnv *env, jobject jbitmap) {
         }
     } else if(format == ANDROID_BITMAP_FORMAT_RGBA_4444) {
         const uint16_t *ptr = (uint16_t *)addrPtr; 
-        while(height >= 0 && !done) {
+        while(height > 0 && !done) {
             for (int x = 0; x < width && !done; x++) {
                 uint8_t alpha = ptr[x] & 0x7;
                 if(alpha < 128) {
