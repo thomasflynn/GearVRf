@@ -21,6 +21,7 @@
 #define GL_PROGRAM_H_
 
 #include <string>
+#include <string.h>
 #include "gl/gl_headers.h"
 
 #include "util/gvr_log.h"

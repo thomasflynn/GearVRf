@@ -15,7 +15,14 @@
 
 #ifndef FRAMEWORK_VULKAN_HEADERS_H
 #define FRAMEWORK_VULKAN_HEADERS_H
+
+#ifdef __ANDROID__
 #define VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
+#ifdef __linux__
+#define VK_USE_PLATFORM_XLIB_KHR
+#endif
 
 #include "vulkan_wrapper.h"
 #include "vulkanInfoWrapper.h"

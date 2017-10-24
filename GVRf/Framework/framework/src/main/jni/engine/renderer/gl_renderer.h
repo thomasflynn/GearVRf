@@ -23,6 +23,7 @@
 #include <vector>
 #include <memory>
 
+#ifdef __ANDROID__
 #define __gl2_h_
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
@@ -30,6 +31,9 @@
 #include "GLES3/gl3.h"
 #include <GLES2/gl2ext.h>
 #include "GLES3/gl3ext.h"
+#endif
+#else
+#include "util/gvr_gl.h"
 #endif
 
 #include "glm/glm.hpp"

@@ -17,6 +17,7 @@
 #define JNI_UTILS_H
 
 #include "util/gvr_log.h"
+
 #include <jni.h>
 
 namespace gvr {

@@ -19,6 +19,7 @@
 
 #include <mutex>
 #include <vector>
+#include <string.h>
 #include "objects/hybrid_object.h"
 #include "util/gvr_log.h"
 #include "gl/gl_headers.h"  // for GL_TEXTURE_xxx

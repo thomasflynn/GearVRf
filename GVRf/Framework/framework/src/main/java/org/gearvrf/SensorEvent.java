@@ -103,7 +103,7 @@ public class SensorEvent {
     private static SensorEvent recyclerTop;
     private SensorEvent next;
 
-    SensorEvent(){
+    public SensorEvent(){
 
     }
 
@@ -135,7 +135,7 @@ public class SensorEvent {
      * @param pickedObject
      *            The picking information of the affected {@link GVRSceneObject}.
      */
-    void setPickedObject(GVRPicker.GVRPickedObject pickedObject) {
+    public void setPickedObject(GVRPicker.GVRPickedObject pickedObject) {
         this.pickedObject = pickedObject;
     }
 
@@ -146,7 +146,7 @@ public class SensorEvent {
      * @param isOver
      *            The value of the "is over" flag.
      */
-    void setOver(boolean isOver) {
+    public void setOver(boolean isOver) {
         this.isOver = isOver;
     }
 
@@ -202,7 +202,7 @@ public class SensorEvent {
      * 
      * @return the {@link SensorEvent} object.
      */
-    static SensorEvent obtain() {
+    public static SensorEvent obtain() {
         final SensorEvent event;
         synchronized (recyclerLock) {
             event = recyclerTop;
@@ -221,7 +221,7 @@ public class SensorEvent {
      * 
      * Make sure that the object is not used after this call.
      */
-    final void recycle() {
+    public final void recycle() {
         synchronized (recyclerLock) {
             if (recyclerUsed < MAX_RECYCLED) {
                 recyclerUsed++;

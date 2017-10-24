@@ -3,7 +3,9 @@
 #include <string>
 
 #ifndef GL_ES_VERSION_3_0
+#ifdef __ANDROID__ // is this include really necessary?  not covered by gvr_gl.h??
 #include "GLES3/gl3.h"
+#endif
 #endif
 #include "gl/gl_program.h"
 #include "util/gvr_gl.h"

@@ -1,5 +1,3 @@
-PROGRAM = librenderer.so
-
 OS = linux
 ARCH = x86_64
 
@@ -15,7 +13,10 @@ SOURCES = \
 
 INCLUDES = \
 		   -I../../ \
-		   -I../../contrib
+		   -I../../contrib \
+		   -I$(JAVA_HOME)/include \
+		   -I$(JAVA_HOME)/include/linux \
+
 
 
 OBJECTS = $(SOURCES:.cpp=.o)
@@ -23,15 +24,15 @@ OBJECTS = $(SOURCES:.cpp=.o)
 OBJS = $(patsubst %.cpp, $(OBJSDIR)/%.o, $(SOURCES))
 
 LIBDIR = \
-		 -L/usr/X11R6/lib
+		 -L/usr/X11R6/lib \
+		 -L/usr/lib/x86_64-linux-gnu/mesa/
 
 LIBS = \
 	   -lGL\
 	   -lX11\
 	   -lm
 
-$(PROGRAM): $(OBJSDIR) $(OBJS)
-	$(CXX) $(OBJS) $(LIBDIR) $(LIBS) -o $(PROGRAM)
+all: $(OBJSDIR) $(OBJS)
 
 $(OBJSDIR):
 	mkdir -p $(OBJSDIR)

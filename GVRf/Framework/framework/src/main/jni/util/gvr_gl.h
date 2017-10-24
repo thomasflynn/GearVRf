@@ -25,7 +25,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+#ifdef __ANDROID__
 #include <android/bitmap.h>
+#endif
+
 #include "util/gvr_jni.h"
 #include "gl/gl_headers.h"
 

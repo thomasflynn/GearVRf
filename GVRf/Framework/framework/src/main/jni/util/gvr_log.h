@@ -21,7 +21,12 @@
 #ifndef LOG_H_
 #define LOG_H_
 
+#ifdef __ANDROID__
 #include <android/log.h>
+#endif
+
+#include <stdio.h>
+
 #include <exception>
 
 #include "gl/gl_headers.h"
@@ -30,7 +35,7 @@
 
 #define VERBOSE_LOGGING_GLOBAL 1
 
-
+#ifdef __ANDROID__
 #if VERBOSE_LOGGING_GLOBAL
     #ifdef VERBOSE_LOGGING
         #if VERBOSE_LOGGING
@@ -49,6 +54,27 @@
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define  LOGW(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#else // linux
+#if VERBOSE_LOGGING_GLOBAL
+    #ifdef VERBOSE_LOGGING
+        #if VERBOSE_LOGGING
+            #define  LOGV(...) fprintf(stderr,__VA_ARGS__)
+        #else
+            #define  LOGV(...)
+        #endif
+    #else
+        #define  LOGV(...) fprintf(stderr,__VA_ARGS__)
+    #endif
+#else
+    #define  LOGV(...)
+#endif
+
+#define  LOGD(...)  fprintf(stderr,__VA_ARGS__)
+#define  LOGI(...)  fprintf(stderr,__VA_ARGS__)
+#define  LOGW(...)  fprintf(stderr,__VA_ARGS__)
+#define  LOGE(...)  fprintf(stderr,__VA_ARGS__)
+#endif
+
 
 //#define STOP_ON_ERROR
 //#define GL( func )      func; checkGLError(#func);

@@ -21,7 +21,10 @@
 #define CUBEMAP_IMAGE_H_
 
 #include <string>
+
+#ifdef __ANDROID__
 #include <android/bitmap.h>
+#endif
 
 #include "image.h"
 #include "util/scope_exit.h"

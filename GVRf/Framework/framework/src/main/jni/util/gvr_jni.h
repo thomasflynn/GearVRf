@@ -22,7 +22,8 @@
 #define GVR_JNI_H_
 
 #include <memory>
-#include "jni.h"
+
+#include <jni.h>
 #include "gvr_log.h"
 
 #endif

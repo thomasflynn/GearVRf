@@ -21,6 +21,7 @@
 
 namespace gvr {
 
+#ifdef __ANDROID__
 class GLExternalRendererTexture: public GLTexture, public ExternalRendererTexture
 {
 public:
@@ -35,6 +36,7 @@ private:
     GLExternalRendererTexture& operator=(const GLExternalRendererTexture&);
     GLExternalRendererTexture& operator=(GLExternalRendererTexture&&);
 };
+#endif
 
 }
 #endif

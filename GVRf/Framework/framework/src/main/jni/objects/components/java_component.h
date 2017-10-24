@@ -68,7 +68,7 @@ inline void JavaComponent::free_java()
     if (javaVM_ && javaObj_)
     {
         JNIEnv* env;
-        jint rs = javaVM_->AttachCurrentThread(&env, NULL);
+        jint rs = javaVM_->AttachCurrentThread((void **)&env, NULL);
         if (rs == JNI_OK) {
             env->DeleteGlobalRef(javaObj_);
         }

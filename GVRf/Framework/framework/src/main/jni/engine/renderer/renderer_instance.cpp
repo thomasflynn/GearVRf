@@ -20,7 +20,9 @@
 #include "renderer.h"
 #include "gl_renderer.h"
 #include "vulkan_renderer.h"
+#ifdef __ANDROID__
 #include <sys/system_properties.h>
+#endif
 #include <cstring>
 
 namespace gvr {
@@ -39,6 +41,7 @@ Renderer* Renderer::getInstance(std::string type){
         //     1                      - pretend gvr.xml asked for Vulkan (not implemented yet. Select Vulkan.)
         //     2                      - always use Vulkan.
         bool useVulkan = false; // TODO: obtain setting from gvr.xml
+#ifdef __ANDROID__
         const prop_info *pi = __system_property_find("debug.gearvrf.vulkan");
         char buffer[PROP_VALUE_MAX];
         int len = 0;
@@ -55,6 +58,7 @@ Renderer* Renderer::getInstance(std::string type){
                 LOGI("OpenGL ES renderer: debug.gearvrf.vulkan is \"%s\".", buffer );
             }
         }
+#endif
         if( useVulkan ) {
             instance = new VulkanRenderer();
             if(reinterpret_cast<VulkanRenderer*>(instance)->getCore() != NULL)

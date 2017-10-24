@@ -4,8 +4,10 @@
 #include <vector>
 #include <map>
 
+#ifdef __ANDROID__ // is this include really necessary?  not covered by gvr_gl.h??
 #ifndef GL_ES_VERSION_3_0
 #include "GLES3/gl3.h"
+#endif
 #endif
 #include "glm/glm.hpp"
 #include "gl/gl_program.h"

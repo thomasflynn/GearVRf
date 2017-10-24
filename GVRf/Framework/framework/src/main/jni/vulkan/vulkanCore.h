@@ -18,7 +18,9 @@
 #define FRAMEWORK_VULKANCORE_H
 
 #include "util/gvr_log.h"
+#ifdef __ANDROID__
 #include <android/native_window_jni.h>	// for native window JNI
+#endif
 #include <string>
 #include <unordered_map>
 #include "objects/components/camera.h"
@@ -82,6 +84,7 @@ class RenderTarget;
 class VulkanCore {
 public:
     // Return NULL if Vulkan inititialisation failed. NULL denotes no Vulkan support for this device.
+#ifdef __ANDROID__
     static VulkanCore *getInstance(ANativeWindow *newNativeWindow = nullptr) {
         if (!theInstance) {
             theInstance = new VulkanCore(newNativeWindow);
@@ -91,6 +94,17 @@ public:
             return theInstance;
         return NULL;
     }
+#else
+    static VulkanCore *getInstance() {
+        if (!theInstance) {
+            theInstance = new VulkanCore(NULL);
+            theInstance->initVulkanCore();
+        }
+        if (theInstance->m_Vulkan_Initialised)
+            return theInstance;
+        return NULL;
+    }
+#endif
 
     void releaseInstance(){
         delete theInstance;
@@ -172,19 +186,30 @@ private:
     static VulkanCore *theInstance;
     std::unordered_map<std::string, VkPipeline> pipelineHashMap;
 
-
+#ifdef __ANDROID__
     VulkanCore(ANativeWindow *newNativeWindow) : m_pPhysicalDevices(NULL), postEffectCmdBuffer(
             nullptr),mRenderPassMap{0,0} {
         m_Vulkan_Initialised = false;
         initVulkanDevice(newNativeWindow);
 
     }
+#else
+    VulkanCore(void *newNativeWindow) : m_pPhysicalDevices(NULL), postEffectCmdBuffer(
+            nullptr),mRenderPassMap{0,0} {
+        m_Vulkan_Initialised = false;
+        initVulkanDevice(newNativeWindow);
+
+    }
+#endif
 
     bool CreateInstance();
     bool GetPhysicalDevices();
 
-
+#ifdef __ANDROID__
     void initVulkanDevice(ANativeWindow *newNativeWindow);
+#else
+    void initVulkanDevice(void *newNativeWindow);
+#endif
 
     bool InitDevice();
 
@@ -208,7 +233,11 @@ private:
     void CreateSampler(TextureObject * &textureObject);
     void GetDescriptorPool(VkDescriptorPool& descriptorPool);
 
+#ifdef __ANDROID__
     ANativeWindow *m_androidWindow;
+#else
+    void *m_androidWindow;
+#endif
 
     VkInstance m_instance;
     VkPhysicalDevice *m_pPhysicalDevices;

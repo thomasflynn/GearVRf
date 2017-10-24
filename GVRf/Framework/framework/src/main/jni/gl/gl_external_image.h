@@ -22,6 +22,7 @@
 
 namespace gvr {
 
+#ifdef __ANDROID__
 class GLExternalImage: public GLImage, public ExternalImage
 {
 public:
@@ -47,6 +48,7 @@ private:
     GLExternalImage& operator=(const GLExternalImage&);
     GLExternalImage& operator=(GLExternalImage&&);
 };
+#endif
 
 }
 #endif

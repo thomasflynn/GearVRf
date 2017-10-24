@@ -111,10 +111,12 @@ namespace gvr
                 break;
             case Texture::TextureType::TEXTURE_ARRAY: gltex = new GLImageTex(GL_TEXTURE_2D_ARRAY);
                 break;
+#ifdef __ANDROID__
             case Texture::TextureType::TEXTURE_EXTERNAL: gltex = new GLExternalImage();
                 break;
             case Texture::TextureType::TEXTURE_EXTERNAL_RENDERER: gltex = new GLExternalImage();
                 break;
+#endif
         }
         if (gltex)
         {
