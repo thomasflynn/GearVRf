@@ -24,6 +24,7 @@ namespace gvr {
 bool bitmap_has_transparency(JNIEnv *env, jobject jbitmap) {
     int result = -4;
     bool transparency = false;
+#ifdef __ANDROID__
 	AndroidBitmapInfo info;
     void *addrPtr = NULL;
 
@@ -88,7 +89,7 @@ bool bitmap_has_transparency(JNIEnv *env, jobject jbitmap) {
         LOGE("GVRBitmapTexture: unable to unlock bitmap in bitmap_transparency.cpp");
         return transparency;
     }
-
+#endif
     return transparency;
 }
 

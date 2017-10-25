@@ -17,7 +17,9 @@
  * JNI
  ***************************************************************************/
 
+#ifdef __ANDROID__
 #include "android/bitmap.h"
+#endif
 #include "util/gvr_jni.h"
 #include "util/gvr_log.h"
 

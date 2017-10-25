@@ -21,8 +21,10 @@
 #include "bitmap_image.h"
 #include "util/gvr_jni.h"
 #include "util/gvr_java_stack_trace.h"
-#include "android/asset_manager_jni.h"
 
+#ifdef __ANDROID__
+#include "android/asset_manager_jni.h"
+#endif
 
 namespace gvr
 {

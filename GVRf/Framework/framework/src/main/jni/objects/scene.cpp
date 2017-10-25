@@ -46,7 +46,7 @@ Scene::~Scene() {
     if (javaVM_ && javaObj_)
     {
         JNIEnv* env;
-        jint rs = javaVM_->AttachCurrentThread(&env, NULL);
+        jint rs = javaVM_->AttachCurrentThread((void **)&env, NULL);
         if (rs == JNI_OK) {
             env->DeleteGlobalRef(javaObj_);
         }
@@ -75,7 +75,7 @@ int Scene::get_java_env(JNIEnv** envptr)
     int rc = javaVM->GetEnv((void **) envptr, JNI_VERSION_1_6);
     if (rc == JNI_EDETACHED)
     {
-        if (javaVM->AttachCurrentThread(envptr, NULL) && *envptr)
+        if (javaVM->AttachCurrentThread((void **)envptr, NULL) && *envptr)
         {
             return 1;
         }

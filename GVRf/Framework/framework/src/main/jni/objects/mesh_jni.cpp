@@ -22,7 +22,9 @@
 
 #include "util/gvr_log.h"
 #include "util/gvr_jni.h"
+#ifdef __ANDROID__
 #include "android/asset_manager_jni.h"
+#endif
 
 namespace gvr {
     extern "C" {
