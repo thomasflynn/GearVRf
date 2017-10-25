@@ -17,7 +17,7 @@
  * A shader which an user can add in run-time.
  ***************************************************************************/
 
-#include <jni_utils.h>
+#include "jni_utils.h"
 #include "shader.h"
 
 namespace gvr {

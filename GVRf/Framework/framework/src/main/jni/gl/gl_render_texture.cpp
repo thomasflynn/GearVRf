@@ -22,6 +22,10 @@
 #include "gl_imagetex.h"
 #include "gl_render_image.h"
 
+#ifndef GL_APIENTRY
+#define GL_APIENTRY
+#endif
+
 namespace gvr {
 extern void texImage3D(int color_format, int width, int height, int depth , GLenum target);
 typedef void (GL_APIENTRY *PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC)(GLenum target,
@@ -62,15 +66,27 @@ GLRenderTexture::GLRenderTexture(int width, int height, int sample_count, int la
         break;
 
         case DepthFormat::DEPTH_24:
+#ifdef __ANDROID__
         depth_format_ = GL_DEPTH_COMPONENT24_OES;
+#else
+        depth_format_ = GL_DEPTH_COMPONENT;
+#endif
         break;
 
         case DepthFormat::DEPTH_24_STENCIL_8:
+#ifdef __ANDROID__
         depth_format_ = GL_DEPTH24_STENCIL8_OES;
+#else
+        depth_format_ = GL_DEPTH_STENCIL;
+#endif
         break;
 
         default:
+#ifdef __ANDROID__
         depth_format_ = GL_DEPTH_COMPONENT16;
+#else
+        depth_format_ = GL_DEPTH_COMPONENT;
+#endif
         break;
     }
 }
@@ -176,7 +192,11 @@ void GLNonMultiviewRenderTexture::generateRenderTextureLayer(GLenum depth_format
     {
         if (depth_format_)
         {
+#ifdef __ANDROID__
             GLenum attachment =  GL_DEPTH24_STENCIL8_OES == depth_format_ ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+#else
+            GLenum attachment =  GL_DEPTH_STENCIL == depth_format_ ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+#endif
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER,
                                       renderTexture_gl_render_buffer_->id());
         }
@@ -272,7 +292,11 @@ void GLRenderTexture::beginRendering(Renderer* renderer)
     {
         int mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
         glClearColor(mBackColor[0], mBackColor[1], mBackColor[2], mBackColor[3]);
+#ifdef __ANDROID__
         if (mUseStencil && (depth_format_ == GL_DEPTH24_STENCIL8_OES))
+#else
+        if (mUseStencil && (depth_format_ == GL_DEPTH_STENCIL))
+#endif
         {
             mask |= GL_STENCIL_BUFFER_BIT;
             glStencilMask(~0);
@@ -307,7 +331,11 @@ void GLRenderTexture::invalidateFrameBuffer(GLenum target, bool is_fbo, const bo
     const int offset = (int) !color_buffer;
     const int count = (int) color_buffer + ((int) depth_buffer) * 2;
     const GLenum fboAttachments[3] = { GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT };
+#ifdef __ANDROID__
     const GLenum attachments[3] = { GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT };
+#else
+    const GLenum attachments[3] = { GL_COLOR, GL_DEPTH, GL_STENCIL};
+#endif
     glInvalidateFramebuffer(target, count, (is_fbo ? fboAttachments : attachments) + offset);
 }
 
@@ -400,15 +428,27 @@ GLNonMultiviewRenderTexture::GLNonMultiviewRenderTexture(int width, int height, 
     switch (jdepth_format)
     {
         case DepthFormat::DEPTH_24:
+#ifdef __ANDROID__
             depth_format = GL_DEPTH_COMPONENT24_OES;
+#else
+            depth_format = GL_DEPTH_COMPONENT;
+#endif
             break;
 
         case DepthFormat::DEPTH_24_STENCIL_8:
+#ifdef __ANDROID__
             depth_format = GL_DEPTH24_STENCIL8_OES;
+#else
+            depth_format = GL_DEPTH_STENCIL;
+#endif
             break;
 
         default:
+#ifdef __ANDROID__
             depth_format = GL_DEPTH_COMPONENT16;
+#else
+            depth_format = GL_DEPTH_COMPONENT;
+#endif
             break;
     }
     if (sample_count <= 1)
@@ -474,26 +514,50 @@ GLMultiviewRenderTexture::GLMultiviewRenderTexture(int width, int height, int sa
     switch (jdepth_format)
     {
         case DepthFormat::DEPTH_24:
+#ifdef __ANDROID__
             depth_format = GL_DEPTH_COMPONENT24_OES;
+#else
+            depth_format = GL_DEPTH_COMPONENT;
+#endif
             break;
 
         case DepthFormat::DEPTH_24_STENCIL_8:
+#ifdef __ANDROID__
             depth_format = GL_DEPTH24_STENCIL8_OES;
+#else
+            depth_format = GL_DEPTH_STENCIL;
+#endif
             break;
 
         default:
+#ifdef __ANDROID__
             depth_format = GL_DEPTH_COMPONENT16;
+#else
+            depth_format = GL_DEPTH_COMPONENT;
+#endif
             break;
     }
     const GLenum depthStencilAttachment =
+#ifdef __ANDROID__
             GL_DEPTH24_STENCIL8_OES == depth_format ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+#else
+            GL_DEPTH_STENCIL == depth_format ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+#endif
 
     PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC glFramebufferTextureMultiviewOVR =
-            (PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC) eglGetProcAddress(
-                    "glFramebufferTextureMultiviewOVR");
+#ifdef __ANDROID__
+            (PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC) eglGetProcAddress( "glFramebufferTextureMultiviewOVR");
+#endif
+#ifdef __linux__
+            (PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC) glXGetProcAddress((const GLubyte *) "glFramebufferTextureMultiviewOVR");
+#endif
     PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC glFramebufferTextureMultisampleMultiviewOVR =
-            (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC) eglGetProcAddress(
-                    "glFramebufferTextureMultisampleMultiviewOVR");
+#ifdef __ANDROID__
+            (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC) eglGetProcAddress( "glFramebufferTextureMultisampleMultiviewOVR");
+#endif
+#ifdef __linux__
+            (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC) glXGetProcAddress((const GLubyte *) "glFramebufferTextureMultisampleMultiviewOVR");
+#endif
     if (jdepth_format != DepthFormat::DEPTH_0)
         createArrayTexture(frameBufferDepthTextureId, width, height, depth_format);
 

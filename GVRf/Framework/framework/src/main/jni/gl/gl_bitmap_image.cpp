@@ -17,13 +17,17 @@
  * Texture from a (Java-loaded) byte stream containing a compressed texture
  ***************************************************************************/
 
+#ifdef __ANDROID__
 #include <android/bitmap.h>
+#endif
+
 #include <gvr_gl.h>
 #include "gl/gl_bitmap_image.h"
 namespace gvr {
 
 int GLBitmapImage::updateFromBitmap(JNIEnv *env, int target, jobject bitmap, bool mipmap)
 {
+#ifdef __ANDROID__
     AndroidBitmapInfo info;
     void *pixels;
     int ret;
@@ -70,6 +74,7 @@ int GLBitmapImage::updateFromBitmap(JNIEnv *env, int target, jobject bitmap, boo
         AndroidBitmap_unlockPixels(env, bitmap);
         return internalFormat;
     }
+#endif
     return 0;
 }
 

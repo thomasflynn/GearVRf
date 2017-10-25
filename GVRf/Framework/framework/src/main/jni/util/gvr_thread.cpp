@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
+#include <string.h>
 #include <sys/syscall.h>
-#include<stdlib.h>
-#include<unistd.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include "gvr_log.h"
 #include "gvr_thread.h"
 
@@ -59,7 +61,11 @@ void setCurrentThreadAffinityMask(int cpu1, int cpu2, int cpu3)
         CPU_SET(cpu2, &_mask);
     if (cpu3)
         CPU_SET(cpu3, &_mask);
+#ifdef __linux__
+    const int tid = syscall(SYS_gettid);
+#else
     const int tid = gettid();
+#endif
 
     // Android
     const int result = syscall(__NR_sched_setaffinity,
