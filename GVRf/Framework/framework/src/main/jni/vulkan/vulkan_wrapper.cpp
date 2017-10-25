@@ -13,7 +13,13 @@
  * limitations under the License.
  */
 
+#ifdef __ANDROID__
 #define VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
+#ifdef __linux__
+#define VK_USE_PLATFORM_XLIB_KHR
+#endif
 
 #include "vulkan_wrapper.h"
 #include <dlfcn.h>

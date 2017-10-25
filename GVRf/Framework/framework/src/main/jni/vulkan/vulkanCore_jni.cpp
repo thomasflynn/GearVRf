@@ -28,7 +28,11 @@ extern "C" {
 
 JNIEXPORT jlong JNICALL
 Java_org_gearvrf_NativeVulkanCore_getInstance(JNIEnv * env, jobject obj, jobject surface){
+#ifdef __ANDROID__
     ANativeWindow * newNativeWindow = nullptr;//ANativeWindow_fromSurface(env, surface);
+#else
+    void * newNativeWindow = nullptr;//ANativeWindow_fromSurface(env, surface);
+#endif
     VulkanCore * vulkanCore = VulkanCore::getInstance(newNativeWindow);
     //if(vulkanCore == nullptr)
     //    return (reinterpret_cast<jlong>(nullptr));

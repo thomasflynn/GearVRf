@@ -47,7 +47,7 @@ extern std::map<int, VkFormat> compressed_formats;
     }
 
     void VkCubemapImage::updateFromBitmap(int texid) {
-
+#ifdef __ANDROID__
         JNIEnv *env = getCurrentEnv(mJava);
         jobjectArray bmapArray = static_cast<jobjectArray>(env->NewLocalRef(mBitmaps));
         if (bmapArray == NULL) {
@@ -123,6 +123,7 @@ extern std::map<int, VkFormat> compressed_formats;
             env->DeleteLocalRef(bitmaps[i]);
         }
 
+#endif
     }
 
     void VkCubemapImage::updateFromMemory(int texid) {

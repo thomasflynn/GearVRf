@@ -95,9 +95,9 @@ public:
         return NULL;
     }
 #else
-    static VulkanCore *getInstance() {
+    static VulkanCore *getInstance(void *newNativeWindow = nullptr) {
         if (!theInstance) {
-            theInstance = new VulkanCore(NULL);
+            theInstance = new VulkanCore(newNativeWindow);
             theInstance->initVulkanCore();
         }
         if (theInstance->m_Vulkan_Initialised)

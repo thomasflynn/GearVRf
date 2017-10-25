@@ -17,7 +17,10 @@
  * Texture from a (Java-loaded) byte stream containing a compressed texture
  ***************************************************************************/
 
+#ifdef __ANDROID__
 #include <android/bitmap.h>
+#endif
+
 #include "engine/renderer/renderer.h"
 #include "engine/renderer/vulkan_renderer.h"
 #include "vk_bitmap_image.h"
@@ -58,10 +61,11 @@ std::map<int, VkFormat> compressed_formats = {
     }
 
     int VkBitmapImage::updateFromBitmap(JNIEnv *env, VkImageViewType target, jobject bitmap) {
+        int imageFormat = 0;
+#ifdef __ANDROID__
         AndroidBitmapInfo info;
         void *pixels;
         int ret;
-        int imageFormat = 0;
         std::vector<void *> texData;
         size_t tex_size = 0;
         std::vector<VkBufferImageCopy> bufferCopyRegions;
@@ -120,6 +124,7 @@ std::map<int, VkFormat> compressed_formats = {
             AndroidBitmap_unlockPixels(env, bitmap);
             return internalFormat;
         }
+#endif
         return imageFormat;
     }
 
