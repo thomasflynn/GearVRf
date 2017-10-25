@@ -1599,6 +1599,7 @@ JNIEXPORT jstring JNICALL Java_org_gearvrf_jassimp_Jassimp_getErrorString
 	return env->NewStringUTF(err);
 }
 
+#ifdef __ANDROID__
 static char *extractAsset(AAssetManager* mgr, const char *name, int *pBufferSize)
 {
 	// Open file
@@ -1630,6 +1631,7 @@ static char *extractAsset(AAssetManager* mgr, const char *name, int *pBufferSize
 	}
 	return pBuffer;
 }
+#endif
 
 // Memory File IO
 
@@ -1682,8 +1684,7 @@ static void aiFileClose(C_STRUCT aiFileIO* fio, C_STRUCT aiFile* file) {
 	free(file);
 }
 
-static jobject importHelper(JNIEnv *env, jclass jClazz, jstring jFilename, jlong postProcess,
-							jobject assetManager, jobject jFileIO)
+static jobject importHelper(JNIEnv *env, jclass jClazz, jstring jFilename, jlong postProcess, jobject assetManager, jobject jFileIO)
 {
 	jobject jScene = NULL;
 
@@ -1697,10 +1698,16 @@ static jobject importHelper(JNIEnv *env, jclass jClazz, jstring jFilename, jlong
 	/* do import */
 	const aiScene *cScene;
 	if (assetManager) {
+#ifdef __ANDROID__
 		AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
+#endif
 
 		int assetSize;
+#ifdef __ANDROID__
 		char *pBuffer = extractAsset(mgr, cFilename, &assetSize);
+#else
+		char *pBuffer = NULL;  // not expecting this portion of the if to be taken on an OS other than Android.
+#endif
 		if (!pBuffer)
 			return NULL;
 
@@ -1824,7 +1831,11 @@ static jobject importHelper(JNIEnv *env, jclass jClazz, jstring jFilename, jlong
 JNIEXPORT jobject JNICALL Java_org_gearvrf_jassimp_Jassimp_aiImportAssetFile
 		(JNIEnv *env, jclass jClazz, jstring jFilename, jlong postProcess, jobject assetManager)
 {
+#ifdef __ANDROID__
 	return importHelper(env, jClazz, jFilename, postProcess, assetManager, NULL);
+#else
+	return importHelper(env, jClazz, jFilename, postProcess, NULL, NULL);
+#endif
 }
 
 JNIEXPORT jobject JNICALL Java_org_gearvrf_jassimp_Jassimp_aiImportFile
