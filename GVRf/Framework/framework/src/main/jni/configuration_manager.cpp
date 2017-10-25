@@ -13,7 +13,12 @@
  * limitations under the License.
  */
 
+#ifdef __ANDROID__
 #include <GLES3/gl3.h>
+#else
+#include <util/gvr_gl.h>
+#endif
+
 #include <engine/renderer/renderer.h>
 #include "configuration_manager.h"
 
