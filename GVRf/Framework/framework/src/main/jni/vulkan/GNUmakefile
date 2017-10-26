@@ -22,11 +22,14 @@ SOURCES = \
 	vulkan_vertex_buffer.cpp \
 	vulkan_wrapper.cpp \
 
+SHADERC ?= ../../../../../../../../../shaderc
 
 INCLUDES = \
 		   -I../ \
 		   -I../contrib \
 		   -I../util \
+		   -I$(SHADERC)/libshaderc/include \
+		   -I$(SHADERC)/third_party/glslang \
 		   -I$(JAVA_HOME)/include \
 		   -I$(JAVA_HOME)/include/linux \
 
@@ -38,11 +41,13 @@ OBJS = $(patsubst %.cpp, $(OBJSDIR)/%.o, $(SOURCES))
 
 LIBDIR = \
 		 -L/usr/X11R6/lib \
+		 -L$(SHADERC)/build/libshaderc \
 		 -L/usr/lib/x86_64-linux-gnu/mesa/
 
 LIBS = \
 	   -lGL\
 	   -lX11\
+	   -lshaderc \
 	   -lm
 
 all: $(OBJSDIR) $(OBJS)

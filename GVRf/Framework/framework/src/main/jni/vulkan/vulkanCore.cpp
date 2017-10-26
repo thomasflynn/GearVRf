@@ -193,11 +193,20 @@ namespace gvr {
                 extensionNames[enabledExtensionCount++] = VK_KHR_SURFACE_EXTENSION_NAME;
             }
 
+#ifdef __ANDROID__
             if (!strcmp(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
                         instanceExtensions[i].extensionName)) {
                 platformSurfaceExtFound = 1;
                 extensionNames[enabledExtensionCount++] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
             }
+#endif
+#ifdef __linux__
+            if (!strcmp(VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
+                        instanceExtensions[i].extensionName)) {
+                platformSurfaceExtFound = 1;
+                extensionNames[enabledExtensionCount++] = VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
+            }
+#endif
             GVR_VK_CHECK(enabledExtensionCount < 16);
         }
         if (!surfaceExtFound) {
@@ -208,7 +217,12 @@ namespace gvr {
         }
         if (!platformSurfaceExtFound) {
             LOGE("vkEnumerateInstanceExtensionProperties failed to find the "
+#ifdef __ANDROID__
                          VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+#endif
+#ifdef __linux__
+                         VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+#endif
                          " extension.");
             return false;
         }
@@ -297,6 +311,7 @@ namespace gvr {
     }
 
     void VulkanCore::InitSurface() {
+#ifdef __ANDROID__
         VkResult ret = VK_SUCCESS;
         // At this point, we create the android surface. This is because we want to
         // ensure our device is capable of working with the created surface object.
@@ -313,6 +328,25 @@ namespace gvr {
         ret = vkCreateAndroidSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_surface);
         GVR_VK_CHECK(!ret);
         LOGI("Vulkan After surface creation");
+#endif
+#ifdef __linux__
+        VkResult ret = VK_SUCCESS;
+        // At this point, we create the android surface. This is because we want to
+        // ensure our device is capable of working with the created surface object.
+        VkXlibSurfaceCreateInfoKHR surfaceCreateInfo = {};
+        surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
+        surfaceCreateInfo.pNext = nullptr;
+        surfaceCreateInfo.flags = 0;
+        surfaceCreateInfo.window = (Window) m_androidWindow;
+        LOGI("Vulkan Before surface creation");
+        if (m_androidWindow == NULL)
+            LOGI("Vulkan Before surface null");
+        else
+            LOGI("Vulkan Before not null surface creation");
+        ret = vkCreateXlibSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_surface);
+        GVR_VK_CHECK(!ret);
+        LOGI("Vulkan After surface creation");
+#endif
     }
 
     bool VulkanCore::InitDevice() {
@@ -1375,7 +1409,11 @@ void VulkanCore::InitPipelineForRenderData(const GVR_VK_Vertices* m_vertices, Vu
         GVR_VK_CHECK(!ret);
     }
 
+#ifdef __ANDROID__
     void VulkanCore::initVulkanDevice(ANativeWindow *newNativeWindow) {
+#else
+    void VulkanCore::initVulkanDevice(void *newNativeWindow) {
+#endif
         m_Vulkan_Initialised = true;
         m_androidWindow = newNativeWindow;
         if (InitVulkan() == 0) {
