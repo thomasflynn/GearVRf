@@ -2,6 +2,7 @@ OS = linux
 ARCH = x86_64
 
 OBJSDIR = objs/$(OS)/$(ARCH)
+OUTDIR = output/$(OS)/$(ARCH)
 
 
 SUBDIRS = \
@@ -14,19 +15,20 @@ SUBDIRS = \
 		  util \
 		  vulkan \
 
-.PHONY: subdirs $(SUBDIRS)
-
-subdirs: $(SUBDIRS)
-
-$(SUBDIRS): all 
-		$(MAKE) -C $@
-
 SOURCES = \
 	buildinfo.cpp \
 	configuration_manager.cpp \
 	configuration_manager_jni.cpp \
 	view_manager_jni.cpp \
 
+SHADERC ?= ../../../../../../../../shaderc
+#SHADERC ?= /home/flynnt/trees/shaderc
+
+ALLSRCS := $(shell find -iname '*.cpp')
+FILENAME = $(notdir $(ALLSRCS))
+DIRNAME = $(dir $(ALLSRCS))
+OUTOBJS = $(addsuffix $(OS)/$(ARCH)/, $(DIRNAME))
+ALLOBJS = $(patsubst %.cpp,$(OS)/$(ARCH)/%.o,$(ALLSRCS))
 
 INCLUDES = \
 		   -I./ \
@@ -38,7 +40,7 @@ INCLUDES = \
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
-OBJS = $(patsubst %.cpp, $(OBJSDIR)/%.o, $(SOURCES))
+OBJS = $(patsubst %.cpp, $(OBJSDIR)/%.o, $(FILENAME))
 
 LIBDIR = \
 		 -L/usr/X11R6/lib \
@@ -49,22 +51,34 @@ LIBS = \
 	   -lX11\
 	   -lm
 
-all: $(OBJSDIR) $(OBJS)
+all: $(OBJSDIR) $(OUTDIR) $(OBJECTS) $(SUBDIRS)
+	$(CXX) -shared $(OBJS) $(LIBDIR) $(LIBS) -o $(OUTDIR)/libgvrf.so
+
+.PHONY: subdirs $(SUBDIRS)
+
+subdirs: $(SUBDIRS)
+
+$(SUBDIRS): all
+		$(MAKE) -C $@
+
 
 $(OBJSDIR):
 	mkdir -p $(OBJSDIR)
 
+$(OUTDIR):
+	mkdir -p $(OUTDIR)
+
 $(OBJSDIR)/%.o: %.cpp
-	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -g $< -o $@
+	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -MMD -fPIC -g $< -o $@
 
 -include $(OBJS:.o=.d)
 
 .cpp.o:
-	$(CXX) $(INCLUDES) -std=c++11 -c -g $< -o $(OBJSDIR)/$@
+	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -fPIC -g $< -o $(OBJSDIR)/$@
 
-clean:
-	rm -rf $(OBJS) $(OBJSDIR)
-
-clobber: clean
-	rm -f $(PROGRAM)
-
+clean: 
+	rm -rf $(OBJS) $(OBJSDIR); \
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done
+	

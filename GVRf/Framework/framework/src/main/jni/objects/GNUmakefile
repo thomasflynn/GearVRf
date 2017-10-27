@@ -1,7 +1,8 @@
+TOPDIR=..
 OS = linux
 ARCH = x86_64
 
-OBJSDIR = objs/$(OS)/$(ARCH)
+OBJSDIR = $(TOPDIR)/objs/$(OS)/$(ARCH)
 
 
 SUBDIRS = \
@@ -66,16 +67,17 @@ $(OBJSDIR):
 	mkdir -p $(OBJSDIR)
 
 $(OBJSDIR)/%.o: %.cpp
-	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -g $< -o $@
+	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -fPIC -g $< -o $@
 
 -include $(OBJS:.o=.d)
 
 .cpp.o:
-	$(CXX) $(INCLUDES) -std=c++11 -c -g $< -o $(OBJSDIR)/$@
+	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -fPIC -g $< -o $(OBJSDIR)/$@
 
-clean:
-	rm -rf $(OBJS) $(OBJSDIR)
-
-clobber: clean
-	rm -f $(PROGRAM)
+clean: 
+	rm -rf $(OBJS) $(OBJSDIR); \
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done
+	
 

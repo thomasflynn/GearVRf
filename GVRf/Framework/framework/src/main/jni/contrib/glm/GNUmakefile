@@ -1,7 +1,6 @@
 
 SUBDIRS = \
-		  jassimp \
-		  glm \
+		  detail \
 
 .PHONY: subdirs $(SUBDIRS)
 

@@ -1,16 +1,17 @@
-TOPDIR=../..
+TOPDIR=../../..
 OS = linux
 ARCH = x86_64
 
 OBJSDIR = $(TOPDIR)/objs/$(OS)/$(ARCH)
 
 SOURCES = \
-          picker.cpp \
-          picker_jni.cpp \
+          dummy.cpp \
+          glm.cpp \
 
 INCLUDES = \
 		   -I../../ \
-		   -I../../contrib \
+		   -I../assimp/include \
+		   -I../ \
 		   -I$(JAVA_HOME)/include \
 		   -I$(JAVA_HOME)/include/linux \
 

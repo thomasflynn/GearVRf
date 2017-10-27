@@ -11,5 +11,11 @@ subdirs: $(SUBDIRS)
 $(SUBDIRS):
 		$(MAKE) -C $@
 
-picker: renderer
-exporter: picker
+clean: 
+	rm -rf $(OBJS) $(OBJSDIR); \
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done
+	
+
+

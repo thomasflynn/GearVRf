@@ -1,7 +1,8 @@
+TOPDIR=..
 OS = linux
 ARCH = x86_64
 
-OBJSDIR = objs/$(OS)/$(ARCH)
+OBJSDIR = $(TOPDIR)/objs/$(OS)/$(ARCH)
 
 SOURCES = \
 	vk_bitmap_image.cpp \
@@ -56,12 +57,12 @@ $(OBJSDIR):
 	mkdir -p $(OBJSDIR)
 
 $(OBJSDIR)/%.o: %.cpp
-	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -g -Wno-int-to-pointer-cast $< -o $@
+	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -fPIC -g -Wno-int-to-pointer-cast $< -o $@
 
 -include $(OBJS:.o=.d)
 
 .cpp.o:
-	$(CXX) $(INCLUDES) -std=c++11 -c -g $< -o $(OBJSDIR)/$@
+	$(CXX) $(INCLUDES) -std=c++11 -c -MMD -fPIC -g $< -o $(OBJSDIR)/$@
 
 clean:
 	rm -rf $(OBJS) $(OBJSDIR)
