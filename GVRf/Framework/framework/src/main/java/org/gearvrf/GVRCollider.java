@@ -4,8 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Log;
-import android.util.LongSparseArray;
 
 /**
  * A collider allows a scene object to be picked.
@@ -34,7 +32,7 @@ import android.util.LongSparseArray;
 public class GVRCollider extends GVRComponent
 {
     private float mPickDistance = 0;
-    private static final LongSparseArray<WeakReference<GVRCollider>> sColliders = new LongSparseArray<WeakReference<GVRCollider>>();
+    private static final ArrayList<WeakReference<GVRCollider>> sColliders = new ArrayList<WeakReference<GVRCollider>>();
     private final static List<NativeCleanupHandler> sCleanup;
     private final static CleanupHandlerListManager sConcatenations;
     static {

@@ -15,7 +15,7 @@
 
 package org.gearvrf;
 
-import android.view.View;
+//import android.view.View;
 
 import org.gearvrf.scene_objects.GVRViewSceneObject;
 
@@ -24,6 +24,6 @@ import org.gearvrf.scene_objects.GVRViewSceneObject;
  * that is inflated by a {@link GVRViewSceneObject}.
  */
 public interface IViewEvents extends IEvents {
-    void onInitView(GVRViewSceneObject sceneObject, View view);
-    void onStartDraw(GVRViewSceneObject sceneObject, View view);
+ //   void onInitView(GVRViewSceneObject sceneObject, View view);
+  //  void onStartDraw(GVRViewSceneObject sceneObject, View view);
 }

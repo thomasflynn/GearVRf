@@ -1,11 +1,6 @@
 package org.gearvrf;
 
 
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.PointF;
-import android.view.MotionEvent;
-
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -69,6 +64,7 @@ public class GVRPickerInput extends GVRPicker {
         }
     }
 
+    /*
     private void onTouchEvent(MotionEvent event) {
         final int action = event.getAction();
         // TODO: send hit collision and synchronize with onDraw thread.
@@ -97,6 +93,7 @@ public class GVRPickerInput extends GVRPicker {
                 break;
         }
     }
+    */
 
     public GVRSceneObject getHovered() {
         return mHoveredSceneObject;
@@ -106,11 +103,13 @@ public class GVRPickerInput extends GVRPicker {
         return mPressedSceneObject;
     }
 
+    /*
     private void sendOnTouch(GVRSceneObject target, MotionEvent event, float[] hitLocation) {
         getGVRContext().getEventManager().sendEvent(target, ITouchEvents.class, "onTouch",
                 target, event, hitLocation);
 
     }
+    */
 
     private void sendOnHoverEnter(GVRSceneObject target) {
         getGVRContext().getEventManager().sendEvent(target, IHoverEvents.class, "onHoverEnter",
@@ -123,6 +122,7 @@ public class GVRPickerInput extends GVRPicker {
     }
 
     private class ActivityEventsHandler implements  IActivityEvents {
+        /*
         @Override
         public void onTouchEvent(MotionEvent event) {
             GVRPickerInput.this.onTouchEvent(event);
@@ -132,6 +132,7 @@ public class GVRPickerInput extends GVRPicker {
         public void onControllerEvent(Vector3f position, Quaternionf orientation, PointF touchpadPoint) {
 
         }
+        */
 
         @Override
         public void onPause() {}
@@ -148,6 +149,7 @@ public class GVRPickerInput extends GVRPicker {
         @Override
         public void onWindowFocusChanged(boolean hasFocus) {}
 
+        /*
         @Override
         public void onConfigurationChanged(Configuration config) {}
 
@@ -156,5 +158,6 @@ public class GVRPickerInput extends GVRPicker {
 
         @Override
         public void dispatchTouchEvent(MotionEvent event) {}
+        */
     }
 }

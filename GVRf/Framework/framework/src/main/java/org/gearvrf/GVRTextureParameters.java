@@ -15,10 +15,6 @@
 
 package org.gearvrf;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.opengl.GLES20;
-
 /**
  * The class to be used to set and pass texture filter and warp types for
  * loading texture and also to enhance texture even after they are loaded.
@@ -203,11 +199,11 @@ public class GVRTextureParameters {
     public int[] getDefalutValuesArray() {
         int[] defaultValues = new int[5];
 
-        defaultValues[0] = GLES20.GL_LINEAR_MIPMAP_NEAREST; // MIN FILTER
-        defaultValues[1] = GLES20.GL_LINEAR; // MAG FILTER
+        defaultValues[0] = 0x2701; // GL_LINEAR_MIPMAP_NEAREST  MIN FILTER
+        defaultValues[1] = 0x2601; // GL_LINEAR MAG FILTER
         defaultValues[2] = 1; // ANISO FILTER
-        defaultValues[3] = GLES20.GL_CLAMP_TO_EDGE; // WRAP S
-        defaultValues[4] = GLES20.GL_CLAMP_TO_EDGE; // WRAP T
+        defaultValues[3] = 0x812F; // GL_CLAMP_TO_EDGE; // WRAP S
+        defaultValues[4] = 0x812F; // GL_CLAMP_TO_EDGE; // WRAP T
 
         return defaultValues;
     }

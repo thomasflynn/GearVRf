@@ -15,8 +15,6 @@
 
 package org.gearvrf;
 
-import android.os.Environment;
-
 import org.gearvrf.GVRCameraRig.GVRCameraRigType;
 import org.gearvrf.GVRRenderData.GVRRenderMaskBit;
 import org.gearvrf.debug.GVRConsole;
@@ -635,8 +633,7 @@ public class GVRScene extends GVRHybridObject implements PrettyPrint, IScriptabl
     private static int getCameraRigType(final GVRContext gvrContext) {
         int cameraRigType = -1;
         try {
-            final File dir = new File(Environment.getExternalStorageDirectory(),
-                    gvrContext.getContext().getPackageName());
+            final File dir = new File(".gvrf");
             if (dir.exists()) {
                 final File config = new File(dir, ".gvrf");
                 if (config.exists()) {

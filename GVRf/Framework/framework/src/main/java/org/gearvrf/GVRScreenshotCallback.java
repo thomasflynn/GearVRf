@@ -15,8 +15,6 @@
 
 package org.gearvrf;
 
-import android.graphics.Bitmap;
-
 /**
  * Callback interface for asynchronous screenshot capture. The screenshot result
  * will be passed to the caller as the parameter of
@@ -28,6 +26,6 @@ public interface GVRScreenshotCallback {
      * 
      * @param bitmap
      *            Bitmap containing the screenshot result
-     */
     public void onScreenCaptured(Bitmap bitmap);
+     */
 }

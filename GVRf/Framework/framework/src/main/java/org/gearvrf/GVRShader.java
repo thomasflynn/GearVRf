@@ -23,7 +23,6 @@ import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.os.Environment;
 
 /**
  * Generates a vertex and fragment shader from the sources provided.
@@ -460,7 +459,7 @@ public class GVRShader
     {
         try
         {
-            File sdCard = Environment.getExternalStorageDirectory();
+            File sdCard = File(".");
             File file = new File(sdCard.getAbsolutePath() + "/GearVRF/" + fileName);
             OutputStreamWriter stream = new FileWriter(file);
             stream.append(sourceCode);

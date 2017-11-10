@@ -15,8 +15,7 @@
 
 package org.gearvrf;
 
-import android.util.SparseArray;
-
+import org.gearvrf.GVRContext;
 import org.gearvrf.SensorEvent.EventGroup;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -44,7 +43,7 @@ public class GVRBaseSensor {
     private static final String TAG = GVRBaseSensor.class.getSimpleName();
     private static final float[] EMPTY_HIT_POINT = new float[3];
     private boolean enabled = true;
-    private SparseArray<ControllerData> controllerData;
+    private ArrayList<ControllerData> controllerData;
     protected GVRContext gvrContext;
     protected IEventReceiver owner;
     private DepthComparator depthComparator;
@@ -77,7 +76,7 @@ public class GVRBaseSensor {
      */
     public GVRBaseSensor(GVRContext gvrContext, boolean sendEventsInDepthOrder) {
         this.gvrContext = gvrContext;
-        controllerData = new SparseArray<GVRBaseSensor.ControllerData>();
+        controllerData = new ArrayList<GVRBaseSensor.ControllerData>();
         this.depthOrderEnabled = sendEventsInDepthOrder;
         if(sendEventsInDepthOrder) {
             depthComparator = new DepthComparator();

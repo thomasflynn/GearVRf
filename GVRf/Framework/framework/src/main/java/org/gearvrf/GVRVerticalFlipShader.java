@@ -14,8 +14,7 @@
  */
 package org.gearvrf;
 
-import android.content.Context;
-
+import org.gearvrf.GVRContext;
 import org.gearvrf.utility.TextFile;
 
 /**
@@ -37,9 +36,8 @@ public class GVRVerticalFlipShader extends GVRShader
     public GVRVerticalFlipShader(GVRContext ctx)
     {
         super("float3 u_color float u_factor", "sampler2D u_texture", "float3 a_position float2 a_texcoord", GLSLESVersion.VULKAN);
-        Context context = ctx.getContext();
-        setSegment("VertexTemplate", TextFile.readTextFile(context, R.raw.vert_flip_tex));
-        setSegment("FragmentTemplate", TextFile.readTextFile(context, R.raw.color_blend_frag));
+        setSegment("VertexTemplate", TextFile.readTextFile(ctx, R.raw.vert_flip_tex));
+        setSegment("FragmentTemplate", TextFile.readTextFile(ctx, R.raw.color_blend_frag));
     }
 
     protected void setMaterialDefaults(GVRShaderData material)

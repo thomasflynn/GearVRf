@@ -14,10 +14,6 @@
  */
 package org.gearvrf;
 
-import android.graphics.Bitmap;
-import android.opengl.GLES20;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import org.gearvrf.animation.GVRAnimation;
 import org.gearvrf.animation.GVROnFinish;
@@ -85,6 +81,7 @@ abstract class GVRViewManager extends GVRContext {
         return mEventManager;
     }
 
+    /*
     public boolean dispatchKeyEvent(KeyEvent event) {
         return mInputManager.dispatchKeyEvent(event);
     }
@@ -92,6 +89,7 @@ abstract class GVRViewManager extends GVRContext {
     public boolean dispatchMotionEvent(MotionEvent event) {
         return mInputManager.dispatchMotionEvent(event);
     }
+    */
 
     @Override
     public GVRScene getMainScene() {
@@ -188,8 +186,7 @@ abstract class GVRViewManager extends GVRContext {
         mGLThreadID = currentThread.getId();
 
         // Evaluating anisotropic support on GL Thread
-        String extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
-        isAnisotropicSupported = extensions.contains("GL_EXT_texture_filter_anisotropic");
+        isAnisotropicSupported = true;
 
         // Evaluating max anisotropic value if supported
         if (isAnisotropicSupported) {
@@ -597,12 +594,15 @@ abstract class GVRViewManager extends GVRContext {
         final byte[] byteArray = Arrays.copyOf(mReadbackBuffer.array(), mReadbackBuffer.array().length);
         Threads.spawn(new Runnable() {
             public void run() {
+            /*
                 final Bitmap capturedBitmap = ImageUtils.generateBitmapFlipV(byteArray, width, height);
                 callback.onScreenCaptured(capturedBitmap);
+            */
             }
         });
     }
 
+    /*
     protected void returnScreenshot3DToCaller(final GVRScreenshot3DCallback callback, final Bitmap[] bitmaps,
                                               final int width, final int height) {
 
@@ -647,15 +647,16 @@ abstract class GVRViewManager extends GVRContext {
             }
         });
     }
+    */
 
     // capture 3D screenshot
     protected void capture3DScreenShot(GVRRenderTarget renderTarget, boolean isMultiview) {
         if (mScreenshot3DCallback == null) {
             return;
         }
-        final Bitmap[] bitmaps = new Bitmap[6];
-        renderSixCamerasAndReadback(mMainScene.getMainCameraRig(), bitmaps, renderTarget, isMultiview);
-        returnScreenshot3DToCaller(mScreenshot3DCallback, bitmaps, mReadbackBufferWidth, mReadbackBufferHeight);
+        //final Bitmap[] bitmaps = new Bitmap[6];
+        //renderSixCamerasAndReadback(mMainScene.getMainCameraRig(), bitmaps, renderTarget, isMultiview);
+        //returnScreenshot3DToCaller(mScreenshot3DCallback, bitmaps, mReadbackBufferWidth, mReadbackBufferHeight);
 
         mScreenshot3DCallback = null;
     }
@@ -712,7 +713,7 @@ abstract class GVRViewManager extends GVRContext {
         if(isMultiview)
             renderTarget.endRendering();
 
-        final Bitmap bitmap = Bitmap.createBitmap(mReadbackBufferWidth, mReadbackBufferHeight, Bitmap.Config.ARGB_8888);
+        //final Bitmap bitmap = Bitmap.createBitmap(mReadbackBufferWidth, mReadbackBufferHeight, Bitmap.Config.ARGB_8888);
         mReadbackBuffer.rewind();
         bitmap.copyPixelsFromBuffer(mReadbackBuffer);
 
@@ -726,6 +727,7 @@ abstract class GVRViewManager extends GVRContext {
         mScreenshotCenterCallback = null;
     }
 
+    /*
     private void renderOneCameraAndAddToList(final GVRPerspectiveCamera centerCamera, final Bitmap[] bitmaps, int index,
                                              GVRRenderTarget renderTarget, GVRRenderTexture postEffectRenderTextureA, GVRRenderTexture postEffectRenderTextureB ) {
 
@@ -737,7 +739,9 @@ abstract class GVRViewManager extends GVRContext {
         mReadbackBuffer.rewind();
         bitmaps[index].copyPixelsFromBuffer(mReadbackBuffer);
     }
+    */
 
+    /*
     private void renderSixCamerasAndReadback(final GVRCameraRig mainCameraRig, final Bitmap[] bitmaps, GVRRenderTarget renderTarget, boolean isMultiview) {
         // temporarily create a center camera
         GVRPerspectiveCamera centerCamera = new GVRPerspectiveCamera(this);
@@ -790,6 +794,7 @@ abstract class GVRViewManager extends GVRContext {
         if(isMultiview)
             renderTarget.endRendering();
     }
+    */
 
     protected void captureFinish() {
         if (mScreenshotLeftCallback == null && mScreenshotRightCallback == null

@@ -15,19 +15,12 @@
 
 package org.gearvrf;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import org.gearvrf.asynchronous.GVRAsynchronousResourceLoader;
 import org.gearvrf.utility.Log;
 
 import java.io.IOException;
 import java.nio.Buffer;
-
-import static android.opengl.GLES20.GL_RGBA;
-import static android.opengl.GLES20.GL_RGB;
-import static android.opengl.GLES20.GL_LUMINANCE;
-
 
 /**
  * Describes an uncompressed bitmap texture.
@@ -40,6 +33,11 @@ import static android.opengl.GLES20.GL_LUMINANCE;
  */
 public class GVRBitmapTexture extends GVRImage
 {
+    public static final int GL_RGBA = 0x1908;
+    public static final int GL_RGB = 0x1907;
+    public static final int GL_LUMINANCE = 0x1909;
+
+
     /**
      * Constructs a texture using a pre-existing {@link Bitmap}.
      *
@@ -48,12 +46,12 @@ public class GVRBitmapTexture extends GVRImage
      * @param bitmap
      *            A non-null {@link Bitmap} instance; do *not* call
      *            recycle on the bitmap
-     */
     public GVRBitmapTexture(GVRContext gvrContext, Bitmap bitmap)
     {
         super(gvrContext, NativeBitmapImage.constructor(ImageType.BITMAP.Value, bitmap.hasAlpha() ? GL_RGBA : GL_RGB));
         setBitmap(bitmap);
     }
+     */
 
     public GVRBitmapTexture(GVRContext gvrContext)
     {
@@ -76,10 +74,10 @@ public class GVRBitmapTexture extends GVRImage
     {
         this(gvrContext);
         GVRAndroidResource resource = new GVRAndroidResource(gvrContext, assetFile);
-        Bitmap bitmap = GVRAsynchronousResourceLoader.decodeStream(resource.getStream(), false);
+        //Bitmap bitmap = GVRAsynchronousResourceLoader.decodeStream(resource.getStream(), false);
         resource.closeStream();
         setFileName(assetFile);
-        setBitmap(bitmap);
+        //setBitmap(bitmap);
     }
 
     /**
@@ -102,7 +100,7 @@ public class GVRBitmapTexture extends GVRImage
     public GVRBitmapTexture(GVRContext gvrContext, int width, int height, byte[] grayscaleData)
             throws IllegalArgumentException
     {
-        super(gvrContext, NativeBitmapImage.constructor(ImageType.BITMAP.Value, GL_LUMINANCE));
+        //super(gvrContext, NativeBitmapImage.constructor(ImageType.BITMAP.Value, GL_LUMINANCE));
         NativeBitmapImage.updateFromMemory(getNative(), width, height, grayscaleData);
     }
 
@@ -121,11 +119,11 @@ public class GVRBitmapTexture extends GVRImage
      * @param bmap  An Android Bitmap.
      *
      * @since 1.6.3
-     */
     public void setBitmap(Bitmap bmap)
     {
         NativeBitmapImage.updateFromBitmap(getNative(), bmap, bmap.hasAlpha());
     }
+     */
 
     /**
      * Copy a new texture from a {@link Buffer} to the GPU texture. This one is also safe even
@@ -184,8 +182,7 @@ public class GVRBitmapTexture extends GVRImage
      *            A NIO Buffer with the texture
      *
      */
-    public void setBuffer(final int xoffset, final int yoffset, final int width, final int height,
-                          final int format, final int type, final Buffer pixels)
+    public void setBuffer(final int xoffset, final int yoffset, final int width, final int height, final int format, final int type, final Buffer pixels)
     {
         NativeBitmapImage.updateFromBuffer(getNative(), xoffset, yoffset, width, height, format, type, pixels);
     }
@@ -208,6 +205,7 @@ public class GVRBitmapTexture extends GVRImage
         NativeBitmapImage.updateFromMemory(getNative(), width, height, grayscaleData);
     }
 
+        /*
     private static Bitmap loadBitmap(GVRContext gvrContext, String pngAssetFilename)
     {
         try
@@ -221,6 +219,7 @@ public class GVRBitmapTexture extends GVRImage
         }
         return null;
     }
+        */
 
     private final static String TAG = "GVRBitmapTexture";
 }
@@ -230,7 +229,7 @@ class NativeBitmapImage {
     static native void setFileName(long pointer, String fname);
     static native String getFileName(long pointer);
     static native void updateFromMemory(long pointer, int width, int height, byte[] data);
-    static native void updateFromBitmap(long pointer, Bitmap bitmap, boolean hasAlpha);
+    //static native void updateFromBitmap(long pointer, Bitmap bitmap, boolean hasAlpha);
     static native void updateFromBuffer(long pointer, int xoffset, int yoffset, int width, int height, int format, int type, Buffer pixels);
     static native void updateCompressed(long pointer, int width, int height, int imageSize, byte[] data, int levels, int[] offsets);
 

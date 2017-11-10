@@ -1,6 +1,5 @@
 package org.gearvrf;
 
-import android.graphics.Bitmap;
 
 import org.gearvrf.utility.ImageUtils;
 import org.gearvrf.utility.Log;
@@ -29,7 +28,7 @@ public class GVRTextureCapturer extends GVRHybridObject {
      * An interface to receive captured {@code Bitmap}s.
      */
     public interface TextureCapturerListener {
-        void onTextureCaptured(Bitmap capturedTexture);
+        //void onTextureCaptured(Bitmap capturedTexture);
     }
 
     protected int width;
@@ -174,11 +173,10 @@ public class GVRTextureCapturer extends GVRHybridObject {
                             @Override
                             public void run()
                             {
-                                Bitmap capturedBitmap = ImageUtils.generateBitmap(readBackBuffer,
-                                                                                  width, height);
+                                //Bitmap capturedBitmap = ImageUtils.generateBitmap(readBackBuffer, width, height);
                                 // Wait for all listeners before processing another frame
                                 for (TextureCapturerListener l : mListeners) {
-                                    l.onTextureCaptured(capturedBitmap);
+                                //    l.onTextureCaptured(capturedBitmap);
                                 }
 
                                 synchronized (processingLock) {

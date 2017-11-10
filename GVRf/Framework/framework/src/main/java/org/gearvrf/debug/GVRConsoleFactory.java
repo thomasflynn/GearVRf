@@ -24,9 +24,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import jline.TerminalFactory;
-import jline.console.ConsoleReader;
-
 import org.gearvrf.debug.cli.CommandTable;
 import org.gearvrf.debug.cli.ConsoleIO;
 import org.gearvrf.debug.cli.DashJoinedNamer;
@@ -99,6 +96,7 @@ public class GVRConsoleFactory {
         try {
             PrintStream out = new PrintStream(output);
 
+            /*
             // Build jline terminal
             jline.Terminal term = TerminalFactory.get();
             final ConsoleReader console = new ConsoleReader(input, output, term);
@@ -116,6 +114,7 @@ public class GVRConsoleFactory {
                     return true; // suppress normal prompt
                 }
             };
+            */
 
             return createConsoleShell(prompt, appName, mainHandler, in, out, out, promptListener);
         } catch (Exception e) {
@@ -190,7 +189,6 @@ public class GVRConsoleFactory {
 
 /**
  * InputStream wrapper for jline.ConsoleReader
- */
 class ConsoleReaderInputStream extends InputStream {
     private final ConsoleReader reader;
     private String line = null;
@@ -229,3 +227,4 @@ class ConsoleReaderInputStream extends InputStream {
         return line.charAt(index++);
     }
 }
+ */

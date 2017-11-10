@@ -15,7 +15,6 @@
 
 package org.gearvrf;
 
-import android.opengl.GLSurfaceView;
 
 /**
  * Allows non-GL threads to synchronize with {@link GVRMain#onStep()}.

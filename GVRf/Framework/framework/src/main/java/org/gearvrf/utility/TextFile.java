@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import android.content.Context;
+import org.gearvrf.GVRContext;
 
 /**
  * Text file utilities.
@@ -76,10 +76,9 @@ public abstract class TextFile {
      *            An Android resource id
      * @return The contents, or null on error.
      */
-    public static String readTextFile(Context context, int resourceId) {
-        InputStream inputStream = context.getResources().openRawResource(
-                resourceId);
-        return readTextFile(inputStream);
+    public static String readTextFile(GVRContext context, int resourceId) {
+        //InputStream inputStream = context.getResources().openRawResource(resourceId);
+        return null; //readTextFile(inputStream);
     }
 
     /**

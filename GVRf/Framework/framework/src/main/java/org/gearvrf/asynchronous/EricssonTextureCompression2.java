@@ -15,12 +15,10 @@
 
 package org.gearvrf.asynchronous;
 
-import static android.opengl.GLES30.*;
-
 import org.gearvrf.utility.RuntimeAssertion;
 
-import android.util.SparseArray;
-import android.util.SparseIntArray;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 class EricssonTextureCompression2 extends GVRCompressedTextureLoader {
 
@@ -95,8 +93,7 @@ class EricssonTextureCompression2 extends GVRCompressedTextureLoader {
         return (dimension >> 2) + ((dimension & 0x3) == 0 ? 0 : 1);
     }
 
-    private final static SparseArray<String> formatNames = new SparseArray<String>(
-            8);
+    private final static ArrayList<String> formatNames = new ArrayList<String>(8);
     static {
         formatNames.put(GL_COMPRESSED_RGB8_ETC2, "GL_COMPRESSED_RGB8_ETC2");
         formatNames.put(GL_COMPRESSED_RGB8_ETC2, "GL_COMPRESSED_RGB8_ETC2");
@@ -112,7 +109,7 @@ class EricssonTextureCompression2 extends GVRCompressedTextureLoader {
                 "GL_COMPRESSED_SIGNED_RG11_EAC");
     }
 
-    private final static SparseIntArray formatMap = new SparseIntArray(8);
+    private final static HashMap formatMap = new HashMap(8);
     static {
         // https://github.com/paulvortex/RwgTex/blob/master/libs/etcpack/source/etcpack.cxx
         formatMap.put(0x00, GL_COMPRESSED_RGB8_ETC2);

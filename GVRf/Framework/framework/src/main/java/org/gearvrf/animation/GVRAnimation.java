@@ -23,7 +23,7 @@ import org.gearvrf.GVRSceneObject;
 import org.gearvrf.GVRShaderData;
 import org.gearvrf.GVRTransform;
 
-import android.graphics.Color;
+//import android.graphics.Color;
 
 /**
  * The root of the GVRF animation tree.

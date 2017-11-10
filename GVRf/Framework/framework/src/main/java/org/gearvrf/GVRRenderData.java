@@ -28,14 +28,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static android.opengl.GLES30.GL_LINES;
-import static android.opengl.GLES30.GL_LINE_LOOP;
-import static android.opengl.GLES30.GL_LINE_STRIP;
-import static android.opengl.GLES30.GL_POINTS;
-import static android.opengl.GLES30.GL_TRIANGLES;
-import static android.opengl.GLES30.GL_TRIANGLE_FAN;
-import static android.opengl.GLES30.GL_TRIANGLE_STRIP;
-
 /**
  * Encapsulates the data associated with rendering a mesh.
  *
@@ -43,6 +35,14 @@ import static android.opengl.GLES30.GL_TRIANGLE_STRIP;
  * material}, camera association, rendering order, and various other parameters.
  */
 public class GVRRenderData extends GVRJavaComponent implements IRenderable, PrettyPrint {
+    private static final int GL_LINES = 0x01;
+    private static final int GL_LINE_LOOP = 0x02;
+    private static final int GL_LINE_STRIP = 0x03;
+    private static final int GL_POINTS = 0x0;
+    private static final int GL_TRIANGLES = 0x04;
+    private static final int GL_TRIANGLE_FAN = 0x06;
+    private static final int GL_TRIANGLE_STRIP = 0x05;
+
 
     private GVRMesh mMesh;
     private ArrayList<GVRRenderPass> mRenderPassList;

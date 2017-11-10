@@ -19,9 +19,6 @@ import java.util.List;
 
 import org.gearvrf.utility.TextFile;
 
-import android.content.Context;
-
-import org.gearvrf.R;
 
    /**
     * Manages a set of variants on vertex and fragment shaders from the same source
@@ -47,24 +44,23 @@ import org.gearvrf.R;
 
            if (fragTemplate == null)
            {
-               Context context = gvrcontext.getContext();
                if (useMultitex)
                {
-                   fragTemplate = TextFile.readTextFile(context, R.raw.fragment_template_multitex);
-                   vtxTemplate = TextFile.readTextFile(context, R.raw.vertex_template_multitex);
-                   surfaceShader = TextFile.readTextFile(context, R.raw.phong_surface_multitex);
-                   vtxShader = TextFile.readTextFile(context, R.raw.pos_norm_multitex);
+                   fragTemplate = TextFile.readTextFile(gvrcontext, R.raw.fragment_template_multitex);
+                   vtxTemplate = TextFile.readTextFile(gvrcontext, R.raw.vertex_template_multitex);
+                   surfaceShader = TextFile.readTextFile(gvrcontext, R.raw.phong_surface_multitex);
+                   vtxShader = TextFile.readTextFile(gvrcontext, R.raw.pos_norm_multitex);
                }
                else
                {
-                   fragTemplate = TextFile.readTextFile(context, R.raw.fragment_template);
-                   vtxTemplate = TextFile.readTextFile(context, R.raw.vertex_template);
-                   surfaceShader = TextFile.readTextFile(context, R.raw.phong_surface);
-                   vtxShader = TextFile.readTextFile(context, R.raw.pos_norm_tex);
+                   fragTemplate = TextFile.readTextFile(gvrcontext, R.raw.fragment_template);
+                   vtxTemplate = TextFile.readTextFile(gvrcontext, R.raw.vertex_template);
+                   surfaceShader = TextFile.readTextFile(gvrcontext, R.raw.phong_surface);
+                   vtxShader = TextFile.readTextFile(gvrcontext, R.raw.pos_norm_tex);
                }
-               normalShader = TextFile.readTextFile(context, R.raw.normalmap);
-               skinShader = TextFile.readTextFile(context, R.raw.vertexskinning);
-               addLight = TextFile.readTextFile(context, R.raw.addlight);
+               normalShader = TextFile.readTextFile(gvrcontext, R.raw.normalmap);
+               skinShader = TextFile.readTextFile(gvrcontext, R.raw.vertexskinning);
+               addLight = TextFile.readTextFile(gvrcontext, R.raw.addlight);
            }
            setSegment("FragmentTemplate", fragTemplate);
            setSegment("VertexTemplate", vtxTemplate);

@@ -28,9 +28,7 @@
  */
 
 package org.gearvrf;
-import android.opengl.GLES30;
 
-import static android.opengl.GLES30.GL_RG;
 
 /**
  * A specialized image, for doing computation on the GPU.
@@ -42,6 +40,7 @@ import static android.opengl.GLES30.GL_RG;
  */
 public class GVRFloatTexture extends GVRImage
 {
+    private static final int GL_RG = 0x8227;
     /**
      * Create a floating-point image.
      *

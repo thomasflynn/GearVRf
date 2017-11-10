@@ -15,11 +15,6 @@
 
 package org.gearvrf;
 
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.PointF;
-import android.view.MotionEvent;
-
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -39,18 +34,18 @@ public interface IActivityEvents extends IEvents {
 
     void onWindowFocusChanged(boolean hasFocus);
 
-    void onConfigurationChanged(Configuration config);
+//    void onConfigurationChanged(Configuration config);
 
-    void onActivityResult(int requestCode, int resultCode, Intent data);
+//    void onActivityResult(int requestCode, int resultCode, Intent data);
 
-    void onTouchEvent(MotionEvent event);
+//    void onTouchEvent(MotionEvent event);
 
     /**
      * Invoked every frame with the latest controller position and orientation; the parameters
      * should be copied if they need to be used after the callback returns.
      * @param touchpadPoint
      */
-    void onControllerEvent(Vector3f position, Quaternionf orientation, PointF touchpadPoint);
+//    void onControllerEvent(Vector3f position, Quaternionf orientation, PointF touchpadPoint);
 
-    void dispatchTouchEvent(MotionEvent event);
+//    void dispatchTouchEvent(MotionEvent event);
 }

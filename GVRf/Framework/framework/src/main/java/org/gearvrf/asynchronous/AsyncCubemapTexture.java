@@ -30,8 +30,6 @@ import org.gearvrf.asynchronous.Throttler.GlConverter;
 import org.gearvrf.utility.FileNameUtils;
 import org.gearvrf.utility.Log;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 /**
  * Async resource loading: cube map textures.
@@ -72,6 +70,7 @@ class AsyncCubemapTexture {
         return sInstance;
     }
 
+    /*
     private AsyncCubemapTexture() {
         AsyncManager.get().registerDatatype(TEXTURE_CLASS,
                 new AsyncLoaderFactory<GVRCubemapTexture, Bitmap[]>() {
@@ -86,11 +85,13 @@ class AsyncCubemapTexture {
                     }
                 });
     }
+    */
 
     /*
      * Asynchronous loader for uncompressed cubemap
      */
 
+    /*
     private static class AsyncLoadCubemapTextureResource extends
             AsyncLoader<GVRCubemapTexture, Bitmap[]> {
 
@@ -145,4 +146,5 @@ class AsyncCubemapTexture {
             return bitmapArray;
         }
     }
+    */
 }

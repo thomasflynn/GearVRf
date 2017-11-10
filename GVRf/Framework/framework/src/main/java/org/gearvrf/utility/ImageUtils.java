@@ -6,10 +6,6 @@ import java.io.IOException;
 import org.gearvrf.GVRAndroidResource;
 import org.gearvrf.GVRContext;
 
-import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.media.MediaPlayer;
 
 /**
  * Utilities for basic image I/O and manipulation.
@@ -26,7 +22,6 @@ public class ImageUtils
      * @param width The width of the image.
      * @param height The height of the image.
      * @return The generated {@code Bitmap} object.
-     */
     public static Bitmap generateBitmapFlipV(final byte[] byteArray, final int width,
             final int height) {
         int[] pixels = new int[width * height];
@@ -39,12 +34,13 @@ public class ImageUtils
                 int g = byteArray[position++] & 0xff;
                 int b = byteArray[position] & 0xff;
                 // flip the image vertically
-                pixels[reverse_start_position + col] = Color.rgb(r, g, b);
+                pixels[reverse_start_position + col] = (0xFF << 24 | r << 16 | g << 8 | b);
             }
         }
         return Bitmap.createBitmap(pixels, width, height,
                 Bitmap.Config.ARGB_8888);
     }
+     */
 
     /**
      * Generates a {@code Bitmap} from a int array containing {@code width} *
@@ -55,12 +51,12 @@ public class ImageUtils
      * @param width The width of the image.
      * @param height The height of the image.
      * @return The generated {@code Bitmap} object.
-     */
     public static Bitmap generateBitmap(final int[] argbIntBuffer,
             final int width, final int height) {
         return Bitmap.createBitmap(argbIntBuffer,
                                    width, height, Bitmap.Config.ARGB_8888);
     }
+     */
 
     /**
      * Saves a {@code Bitmap} as a PNG file.
@@ -68,7 +64,6 @@ public class ImageUtils
      * @param filename The file path on the file system.
      * @param bitmap The input {@code Bitmap} object.
      * @return {@code true} if successful.
-     */
     public static boolean saveBitmapAsPNG(String filename, Bitmap bitmap) {
         FileOutputStream outStream = null;
         try {
@@ -90,6 +85,7 @@ public class ImageUtils
 
         return true;
     }
+     */
 
     /**
      * Creates a {@code MediaPlayer} with a specified data source. The returned media player
@@ -100,7 +96,6 @@ public class ImageUtils
      *
      * @return The {@code MediaPlayer} object if successful, or {@code null} if there is
      *         an error.
-     */
     public static MediaPlayer createMediaPlayer(String filenameOrURL) {
         // create mediaplayer instance
         MediaPlayer mediaPlayer = new MediaPlayer();
@@ -114,4 +109,5 @@ public class ImageUtils
 
         return mediaPlayer;
     }
+     */
 }

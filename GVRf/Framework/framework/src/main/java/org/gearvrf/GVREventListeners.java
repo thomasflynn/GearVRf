@@ -4,10 +4,12 @@ import org.gearvrf.script.IScriptable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+/*
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PointF;
 import android.view.MotionEvent;
+*/
 
 /**
  * This class contains null implementations for the event interfaces
@@ -78,6 +80,7 @@ public class GVREventListeners {
         public void onWindowFocusChanged(boolean hasFocus) {
         }
 
+        /*
         @Override
         public void onConfigurationChanged(Configuration config) {
         }
@@ -98,6 +101,7 @@ public class GVREventListeners {
         @Override
         public void dispatchTouchEvent(MotionEvent event) {
         }
+        */
     }
 
     /**

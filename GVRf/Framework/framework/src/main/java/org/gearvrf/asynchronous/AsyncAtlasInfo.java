@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gearvrf.GVRAtlasInformation;
+/*
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+*/
 
 /**
  * Async resource loading: Atlas texture information.
@@ -39,6 +41,7 @@ abstract class AsyncAtlasInfo {
      * @return List of atlas information.
      */
     public static List<GVRAtlasInformation> loadAtlasInformation(InputStream ins) {
+        /*
         try {
             int size = ins.available();
             byte[] buffer = new byte[size];
@@ -51,10 +54,12 @@ abstract class AsyncAtlasInfo {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        */
 
         return null;
     }
 
+    /*
     private static List<GVRAtlasInformation> loadAtlasInformation(JSONArray jsonInfo) throws JSONException {
         List<GVRAtlasInformation> list = new ArrayList<GVRAtlasInformation>();
         int length = jsonInfo.length();
@@ -75,5 +80,6 @@ abstract class AsyncAtlasInfo {
 
         return new GVRAtlasInformation(name, offset, scale);
     }
+    */
 
 }

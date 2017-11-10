@@ -29,7 +29,6 @@ import java.util.concurrent.Executors;
 import org.gearvrf.GVRContext;
 import org.gearvrf.debug.cli.Shell;
 
-import android.util.Log;
 
 /**
  * Debug server provides a command line interface (CLI) for GVRf
@@ -114,7 +113,7 @@ public class DebugServer implements Runnable {
             {
                 errorLog.print(message);
             }
-            Log.e("SCRIPT", "ERROR: " + message);
+            System.out.println("ERROR: " + message);
         }
     }
 

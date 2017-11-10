@@ -17,9 +17,11 @@ package org.gearvrf.io;
 
 import org.gearvrf.GVRCursorController;
 
+/*
 import android.hardware.input.InputManager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+*/
 
 /**
  * This class represents an internal {@link GVRCursorController}. It makes use
@@ -37,7 +39,9 @@ abstract class GVRBaseController extends GVRCursorController {
         super(controllerType, name, vendorId, productId);
     }
 
+    /*
     abstract boolean dispatchKeyEvent(KeyEvent event);
 
     abstract boolean dispatchMotionEvent(MotionEvent event);
+    */
 }

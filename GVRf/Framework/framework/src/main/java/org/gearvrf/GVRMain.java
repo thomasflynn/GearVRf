@@ -19,9 +19,6 @@ import org.gearvrf.animation.GVRAnimation;
 import org.gearvrf.script.GVRScriptFile;
 import org.gearvrf.script.IScriptable;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 /**
  * Extend this class to create a GVRF application.
  * <p>
@@ -259,11 +256,13 @@ public abstract class GVRMain implements IScriptEvents, IScriptable, IEventRecei
      * @since 1.6.4
      */
     public GVRTexture getSplashTexture(GVRContext gvrContext) {
+        /*
         Bitmap bitmap = BitmapFactory.decodeResource( //
                 gvrContext.getContext().getResources(), //
                 R.drawable.__default_splash_screen__);
+                */
         GVRTexture tex = new GVRTexture(gvrContext);
-        tex.setImage(new GVRBitmapTexture(gvrContext, bitmap));
+        //tex.setImage(new GVRBitmapTexture(gvrContext, bitmap));
         return tex;
     }
 

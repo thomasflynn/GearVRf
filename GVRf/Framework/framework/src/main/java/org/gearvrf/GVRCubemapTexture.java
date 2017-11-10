@@ -18,8 +18,6 @@ package org.gearvrf;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.graphics.Bitmap;
-import static android.opengl.GLES30.GL_RGBA;
 
 /**
  * Describes an uncompressed cubemap texture with bitmaps for 6 faces.
@@ -36,6 +34,7 @@ import static android.opengl.GLES30.GL_RGBA;
  */
 public class GVRCubemapTexture extends GVRImage
 {
+    private static final int GL_RGBA = 0x1908;
     /**
      * Constructs a cube map texture using six pre-existing {@link Bitmap}s and
      * the user defined filters {@link GVRTextureParameters}.
@@ -49,7 +48,6 @@ public class GVRCubemapTexture extends GVRImage
      *            six images are "posx.png", "negx.png", "posy.png", "negx.png",
      *            "posz.png", and "negz.png", which can be changed by calling
      *            {@link GVRCubemapTexture#setFaceNames(String[])}.
-     */
     public GVRCubemapTexture(GVRContext gvrContext, Bitmap[] bitmapArray)
     {
         super(gvrContext, NativeBitmapImage.constructor(ImageType.CUBEMAP.Value, GL_RGBA));
@@ -60,6 +58,7 @@ public class GVRCubemapTexture extends GVRImage
     {
         NativeCubemapImage.update(getNative(), bitmapArray);
     }
+     */
 
     /**
      * Set the names of six images in the zip file. The default names of the six
@@ -103,6 +102,6 @@ public class GVRCubemapTexture extends GVRImage
 
 class NativeCubemapImage
 {
-    static native void update(long pointer, Bitmap[] bitmapArray);
+    //static native void update(long pointer, Bitmap[] bitmapArray);
     static native void updateCompressed(long pointer, int width, int height, int imageSize, byte[][] data, int[] dataOffsets);
 }

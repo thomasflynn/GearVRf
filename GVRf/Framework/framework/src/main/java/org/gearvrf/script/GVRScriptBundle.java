@@ -8,7 +8,7 @@ import org.gearvrf.GVRContext;
 import org.gearvrf.GVRResourceVolume;
 import org.gearvrf.utility.TextFile;
 
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
 
 /**
  * Represents a script bundle loaded from a JSON file, and its storage
@@ -71,6 +71,7 @@ public class GVRScriptBundle {
         fileRes.closeStream();
 
         GVRScriptBundle bundle = new GVRScriptBundle();
+        /*
         Gson gson = new Gson();
         try {
             bundle.gvrContext = gvrContext;
@@ -80,6 +81,7 @@ public class GVRScriptBundle {
         } catch (Exception e) {
             throw new IOException("Cannot load the script bundle", e);
         }
+        */
     }
 
     @Override

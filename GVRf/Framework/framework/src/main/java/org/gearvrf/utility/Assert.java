@@ -15,7 +15,6 @@
 
 package org.gearvrf.utility;
 
-import android.text.TextUtils;
 
 /**
  * The goal of this class is to improve the readability and to provide some
@@ -64,7 +63,7 @@ public abstract class Assert {
      */
     public static void checkStringNotNullOrEmpty(String parameterName,
             String value) {
-        if (TextUtils.isEmpty(value)) {
+        if (value == null || value.equals("")) {
             throw Exceptions.IllegalArgument("Current input string %s is %s.",
                     parameterName, value == null ? "null" : "empty");
         }

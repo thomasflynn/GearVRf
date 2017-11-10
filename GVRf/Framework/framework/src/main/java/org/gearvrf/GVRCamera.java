@@ -21,8 +21,6 @@ import java.util.Set;
 import org.gearvrf.utility.Colors;
 import org.gearvrf.utility.Log;
 
-import android.content.res.Resources;
-import android.graphics.Color;
 
 /**
  * A GVR camera 'takes a picture' of the scene graph: there are typically two of
@@ -64,10 +62,7 @@ public abstract class GVRCamera extends GVRComponent implements PrettyPrint {
 
     /** Get the background color as an Android {@link Color} */
     public int getBackgroundColor() {
-        return Color.argb(Colors.glToByte(getBackgroundColorA()), //
-                Colors.glToByte(getBackgroundColorR()), //
-                Colors.glToByte(getBackgroundColorG()), //
-                Colors.glToByte(getBackgroundColorB()));
+        return 0;
     }
 
     /**
@@ -81,10 +76,6 @@ public abstract class GVRCamera extends GVRComponent implements PrettyPrint {
      *            {@link Resources#getColor(int)}
      */
     public void setBackgroundColor(int color) {
-        setBackgroundColorR(Colors.byteToGl(Color.red(color)));
-        setBackgroundColorG(Colors.byteToGl(Color.green(color)));
-        setBackgroundColorB(Colors.byteToGl(Color.blue(color)));
-        setBackgroundColorA(Colors.byteToGl(Color.alpha(color)));
     }
 
     /**

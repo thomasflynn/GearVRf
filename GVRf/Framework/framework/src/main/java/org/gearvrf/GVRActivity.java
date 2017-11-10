@@ -31,20 +31,6 @@ import org.gearvrf.utility.Log;
 import org.gearvrf.utility.Threads;
 import org.gearvrf.utility.VrAppSettings;
 
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
-import android.content.res.AssetManager;
-import android.content.res.Configuration;
-import android.media.AudioManager;
-import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-
 /**
  * The typical GVRF application will have a single Android {@link Activity},
  * which <em>must</em> descend from {@link GVRActivity}, not directly from
@@ -55,7 +41,7 @@ import android.view.WindowManager;
  * of your scene graph. {@code GVRActivity} also gives GVRF a full-screen window
  * in landscape orientation with no title bar.
  */
-public class GVRActivity extends Activity implements IEventReceiver, IScriptable {
+public class GVRActivity implements IEventReceiver, IScriptable {
 
     static {
         System.loadLibrary("gvrf");
@@ -66,11 +52,10 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
     private volatile GVRConfigurationManager mConfigurationManager;
     private GVRMain mGVRMain;
     private VrAppSettings mAppSettings;
-    private static View mFullScreenView;
+    //private static View mFullScreenView;
 
     // Group of views that are going to be drawn
     // by some GVRViewSceneObject to the scene.
-    private ViewGroup mRenderableViewGroup;
     private IActivityNative mActivityNative;
     private boolean mPaused = true;
 
@@ -81,20 +66,20 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
     private GVREventReceiver mEventReceiver = new GVREventReceiver(this);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        android.util.Log.i(TAG, "onCreate " + Integer.toHexString(hashCode()));
-        super.onCreate(savedInstanceState);
+    protected void onCreate() {
+        System.out.println("onCreate " + Integer.toHexString(hashCode()));
 
         InputStream inputStream = null;
         BufferedReader reader = null;
         try {
             for (int i = 0; i < 10; ++i) {
                 try {
-                    inputStream = getAssets().open("backend_" + i + ".txt");
+                    File file = new File("backend_" + i + ".txt");
+                    inputStream = new FileInputStream(file);
                     reader = new BufferedReader(new InputStreamReader(inputStream));
 
                     final String line = reader.readLine();
-                    Log.i(TAG, "trying backend " + line);
+                    System.out.println("trying backend " + line);
                     final Class<?> aClass = Class.forName(line);
 
                     mDelegate = (GVRActivityDelegate) aClass.newInstance();
@@ -133,12 +118,6 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
         /*
          * Removes the title bar and the status bar.
          */
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-        mRenderableViewGroup = (ViewGroup) findViewById(android.R.id.content).getRootView();
 
         mActivityNative = mDelegate.getActivityNative();
     }
@@ -151,7 +130,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
         mConfigurationManager = mDelegate.makeConfigurationManager(this);
         mConfigurationManager.addDockListener(this);
         mConfigurationManager.configureForHeadset(GVRConfigurationManager.DEFAULT_HEADSET_MODEL);
-        mDelegate.parseXmlSettings(getAssets(), dataFilename);
+        mDelegate.parseXmlSettings(dataFilename);
 
         onInitAppSettings(mAppSettings);
     }
@@ -170,7 +149,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
 
     @Override
     protected void onPause() {
-        android.util.Log.i(TAG, "onPause " + Integer.toHexString(hashCode()));
+        System.out.println("onPause " + Integer.toHexString(hashCode()));
 
         mDelegate.onPause();
         mPaused = true;
@@ -188,7 +167,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
 
     @Override
     protected void onResume() {
-        android.util.Log.i(TAG, "onResume " + Integer.toHexString(hashCode()));
+        System.out.println("onResume " + Integer.toHexString(hashCode()));
 
         mDelegate.onResume();
         mPaused = false;
@@ -206,7 +185,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
 
     @Override
     protected void onDestroy() {
-        android.util.Log.i(TAG, "onDestroy " + Integer.toHexString(hashCode()));
+        System.out.println("onDestroy " + Integer.toHexString(hashCode()));
         if (mViewManager != null) {
             mViewManager.onDestroy();
             mViewManager.getEventManager().sendEventWithMask(
@@ -236,7 +215,6 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
         mRenderableViewGroup = null;
         mConfigurationManager = null;
 
-        super.onDestroy();
     }
 
     /**
@@ -255,7 +233,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
      */
     public void setMain(GVRMain gvrMain, String dataFileName) {
         this.mGVRMain = gvrMain;
-        if (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+        if (true) {
             onConfigure(dataFileName);
             if (!mDelegate.setMain(gvrMain, dataFileName)) {
                 Log.w(TAG, "delegate's setMain failed");
@@ -309,6 +287,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
      * to restore the clip rectangle.
      * @return full screen View object
      */
+        /*
     public View getFullScreenView() {
         if (mFullScreenView != null) {
             return mFullScreenView;
@@ -326,6 +305,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
 
         return mFullScreenView;
     }
+        */
 
     /**
      * Gets the {@linkplain GVRMain} linked to the activity.
@@ -387,6 +367,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
     }
 
     private long mBackKeyDownTime;
+    /*
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         final int keyAction = event.getAction();
@@ -537,6 +518,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
+    */
 
     /**
      * Called from C++
@@ -552,25 +534,24 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
      *
      * @param view Is a {@link GVRView} that draw itself into some
      *            {@link GVRViewSceneObject}.
-     */
     public final void registerView(final View view) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (null != mRenderableViewGroup) {
-                    /* The full screen should be updated otherwise just the children's bounds may be refreshed. */
+                    // The full screen should be updated otherwise just the children's bounds may be refreshed.
                     mRenderableViewGroup.setClipChildren(false);
                     mRenderableViewGroup.addView(view);
                 }
             }
         });
     }
+     */
 
     /**
      * Remove a child view of Android hierarchy view .
      *
      * @param view View to be removed.
-     */
     public final void unregisterView(final View view) {
         runOnUiThread(new Runnable() {
             @Override
@@ -581,6 +562,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
             }
         });
     }
+     */
 
     public final GVRContext getGVRContext() {
         return mViewManager;
@@ -682,11 +664,13 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
         void onCreate(GVRActivity activity);
         void onPause();
         void onResume();
-        void onConfigurationChanged(final Configuration newConfig);
 
+        /*
+        void onConfigurationChanged(final Configuration newConfig);
         boolean onKeyDown(int keyCode, KeyEvent event);
         boolean onKeyUp(int keyCode, KeyEvent event);
         boolean onKeyLongPress(int keyCode, KeyEvent event);
+        */
 
         boolean setMain(GVRMain gvrMain, String dataFileName);
         void setViewManager(GVRViewManager viewManager);
@@ -698,7 +682,7 @@ public class GVRActivity extends Activity implements IEventReceiver, IScriptable
         GVRViewManager makeMonoscopicViewManager();
         GVRCameraRig makeCameraRig(GVRContext context);
         GVRConfigurationManager makeConfigurationManager(GVRActivity activity);
-        void parseXmlSettings(AssetManager assetManager, String dataFilename);
+        //void parseXmlSettings(AssetManager assetManager, String dataFilename);
 
         boolean onBackPress();
     }

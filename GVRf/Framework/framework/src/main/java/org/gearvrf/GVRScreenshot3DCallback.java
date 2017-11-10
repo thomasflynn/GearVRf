@@ -17,7 +17,6 @@ package org.gearvrf;
 
 import java.util.List;
 
-import android.graphics.Bitmap;
 
 /**
  * Callback interface for asynchronous 3D screenshot capture. The screenshot
@@ -31,6 +30,6 @@ public interface GVRScreenshot3DCallback {
      * @param bitmapArray
      *            Array containing six screenshot results. The six images are for
      *            +x, -x, +y, -y, +z, -z directions respectively.
-     */
     public void onScreenCaptured(Bitmap[] bitmapArray);
+     */
 }

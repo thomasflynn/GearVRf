@@ -49,8 +49,7 @@ package org.gearvrf;
 // (http://www.nvidia.com/object/cube_map_ogl_tutorial.html)
 // (http://stackoverflow.com/questions/11685608/convention-of-faces-in-opengl-cubemapping)
 
-import android.content.Context;
-
+import org.gearvrf.GVRContext;
 import org.gearvrf.utility.TextFile;
 
 /**
@@ -73,9 +72,8 @@ public class GVRCubemapReflectionShader extends GVRShaderTemplate
     public GVRCubemapReflectionShader(GVRContext gvrContext)
     {
         super("float3 u_color float u_opacity", "samplerCube u_texture", "float3 a_position float3 a_normal", GLSLESVersion.VULKAN);
-        Context context = gvrContext.getContext();
-        setSegment("FragmentTemplate", TextFile.readTextFile(context, R.raw.cubemap_reflection_frag));
-        setSegment("VertexTemplate", TextFile.readTextFile(context, R.raw.cubemap_reflection_vert));
+        setSegment("FragmentTemplate", TextFile.readTextFile(gvrContext, R.raw.cubemap_reflection_frag));
+        setSegment("VertexTemplate", TextFile.readTextFile(gvrContext, R.raw.cubemap_reflection_vert));
     }
     protected void setMaterialDefaults(GVRShaderData material)
     {

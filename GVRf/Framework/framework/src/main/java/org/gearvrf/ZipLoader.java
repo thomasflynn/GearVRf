@@ -15,7 +15,6 @@
 
 package org.gearvrf;
 
-import android.content.Context;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -76,8 +75,8 @@ public abstract class ZipLoader {
      */
     public static <T> List<T> load(GVRContext gvrContext, String zipFileName, ZipEntryProcessor<T>
             processor) throws IOException {
-        Context context = gvrContext.getContext();
-        InputStream inputStream = context.getAssets().open(zipFileName);
+        File zipFile = new File(zipFileName);
+        InputStream inputStream = new InputFileStream(zipFile);
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         List<T> result = new ArrayList<T>();
 

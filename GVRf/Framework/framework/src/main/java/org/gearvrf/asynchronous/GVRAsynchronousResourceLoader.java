@@ -46,7 +46,6 @@ import org.gearvrf.utility.Log;
 import org.gearvrf.utility.ResourceCache;
 import org.gearvrf.utility.Threads;
 
-import android.graphics.Bitmap;
 
 /**
  * Internal API for asynchronous resource loading.
@@ -666,12 +665,12 @@ public class GVRAsynchronousResourceLoader {
      * @param closeStream
      *            If {@code true}, closes {@code stream}
      * @return Bitmap, or null if cannot be decoded into a bitmap
-     */
     public static Bitmap decodeStream(InputStream stream, boolean closeStream) {
         return AsyncBitmapTexture.decodeStream(stream,
                 AsyncBitmapTexture.glMaxTextureSize,
                 AsyncBitmapTexture.glMaxTextureSize, true, null, closeStream);
     }
+     */
 
     /**
      * Load a atlas map information asynchronously.

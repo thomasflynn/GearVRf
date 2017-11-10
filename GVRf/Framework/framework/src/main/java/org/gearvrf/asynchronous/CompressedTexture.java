@@ -26,7 +26,6 @@ import org.gearvrf.GVRContext;
 import org.gearvrf.GVRTextureParameters;
 import org.gearvrf.asynchronous.GVRCompressedTextureLoader.Reader;
 
-import android.opengl.GLES20;
 
 /**
  * Represents a texture file, loaded into memory. Pass to EGL by calling

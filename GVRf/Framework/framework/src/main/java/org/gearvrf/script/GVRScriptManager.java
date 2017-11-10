@@ -15,8 +15,6 @@
 
 package org.gearvrf.script;
 
-import com.naef.jnlua.script.LuaScriptEngineFactory;
-
 import org.gearvrf.GVRAndroidResource;
 import org.gearvrf.GVRContext;
 import org.gearvrf.GVRContextProxy;
@@ -117,7 +115,6 @@ public class GVRScriptManager {
         mEngines = new TreeMap<String, ScriptEngine>();
 
         // Add languages
-        mEngines.put(LANG_LUA, new LuaScriptEngineFactory().getScriptEngine());
         mEngines.put(LANG_JAVASCRIPT, new RhinoScriptEngineFactory().getScriptEngine());
 
         // Add variables to engines
@@ -228,7 +225,6 @@ public class GVRScriptManager {
 
         GVRScriptFile script = null;
         if (language.equals(LANG_LUA)) {
-            script = new GVRLuaScriptFile(mGvrContext, resource.getStream());
         } else if (language.equals(LANG_JAVASCRIPT)) {
             script = new GVRJavascriptScriptFile(mGvrContext, resource.getStream());
         }

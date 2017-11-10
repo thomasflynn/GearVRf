@@ -15,11 +15,6 @@
 
 package org.gearvrf;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-
 import org.gearvrf.GVRAndroidResource.TextureCallback;
 import org.gearvrf.animation.GVRAnimator;
 import org.gearvrf.asynchronous.GVRAsynchronousResourceLoader;
@@ -110,7 +105,7 @@ public final class GVRAssetLoader {
             mUserHandler = null;
             mErrors = "";
             mVolume = fileVolume;
-            Log.d(TAG, "ASSET: loading %s ...", mFileName);
+            System.out.println("ASSET: loading %s ...", mFileName);
         }
 
         /**
@@ -128,7 +123,7 @@ public final class GVRAssetLoader {
             mErrors = "";
             mVolume = new GVRResourceVolume(mContext, mFileName);
             mVolume.addResource(resource);
-            Log.d(TAG, "ASSET: loading %s ...", mFileName);
+            System.out.println("ASSET: loading %s ...", mFileName);
         }
 
         /**
@@ -150,7 +145,7 @@ public final class GVRAssetLoader {
             mErrors = "";
             mReplaceScene = replaceScene;
             mVolume = fileVolume;
-            Log.d(TAG, "ASSET: loading %s ...", mFileName);
+            System.out.println("ASSET: loading %s ...", mFileName);
         }
 
         public boolean isCacheEnabled()         { return mCacheEnabled; }
@@ -255,6 +250,7 @@ public final class GVRAssetLoader {
                     request.loaded(image, resource);
                     return bmapTex;
                 }
+                /* XXX
                 Bitmap bmap;
                 if (aitex.getHeight() == 0)
                 {
@@ -266,9 +262,10 @@ public final class GVRAssetLoader {
                     bmap = Bitmap.createBitmap(aitex.getWidth(), aitex.getHeight(), Bitmap.Config.ARGB_8888);
                     bmap.setPixels(aitex.getIntData(), 0, aitex.getWidth(), 0, 0, aitex.getWidth(), aitex.getHeight());
                 }
+                */
                 GVRBitmapTexture bmaptex = new GVRBitmapTexture(mContext);
                 bmaptex.setFileName(resource.getResourceFilename());
-                bmaptex.setBitmap(bmap);
+                //bmaptex.setBitmap(bmap);
                 image = bmaptex;
                 Log.d(TAG, "ASSET: loadEmbeddedTexture saved %s", resource.getResourceFilename());
                 texCache.put(request.TextureFile, image);
@@ -602,12 +599,14 @@ public final class GVRAssetLoader {
     {
         if (mDefaultImage == null)
         {
+            /* XXX
             mDefaultImage = new GVRBitmapTexture(ctx);
             Bitmap bmap = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888);
 
             Canvas canvas = new Canvas(bmap);
             canvas.drawRGB(0xff, 0xff, 0xff);
             mDefaultImage.setBitmap(bmap);
+            */
         }
         return mDefaultImage;
     }
@@ -1806,7 +1805,7 @@ public final class GVRAssetLoader {
         return root;
     }
 
-    public static File downloadFile(Context context, String urlString) {
+    public static File downloadFile(String urlString) {
         URL url = null;
         try {
             url = new URL(urlString);
@@ -1815,7 +1814,7 @@ public final class GVRAssetLoader {
             return null;
         }
 
-        String directoryPath = context.getCacheDir().getAbsolutePath();
+        String directoryPath = "/tmp";
         // add a uuid value for the url to prevent aliasing from files sharing
         // same name inside one given app
         String outputFilename = directoryPath + File.separator

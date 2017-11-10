@@ -19,7 +19,6 @@ package org.gearvrf.utility;
 import org.gearvrf.GVRContext;
 import org.gearvrf.GVRShader;
 
-import android.content.Context;
 import org.gearvrf.utility.TextFile;
 
 /**
@@ -57,8 +56,7 @@ public class YuvNv21ToRgbShader extends GVRShader
     public YuvNv21ToRgbShader(GVRContext ctx)
     {
         super("", "sampler2D y_texture, sampler2D uv_texture", "float3 a_position float2 a_texcoord", GLSLESVersion.VULKAN);
-        Context context = ctx.getContext();
-        setSegment("FragmentTemplate", TextFile.readTextFile(context, org.gearvrf.R.raw.yuv_nv21_to_rgb));
-        setSegment("VertexTemplate", TextFile.readTextFile(context, org.gearvrf.R.raw.pos_tex_ubo));
+        setSegment("FragmentTemplate", TextFile.readTextFile(ctx, org.gearvrf.R.raw.yuv_nv21_to_rgb));
+        setSegment("VertexTemplate", TextFile.readTextFile(ctx, org.gearvrf.R.raw.pos_tex_ubo));
     }
 }

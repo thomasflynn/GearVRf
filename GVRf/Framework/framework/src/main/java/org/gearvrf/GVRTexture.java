@@ -15,10 +15,6 @@
 
 package org.gearvrf;
 
-import android.graphics.Bitmap;
-import android.opengl.GLES30;
-import android.opengl.GLUtils;
-
 import org.gearvrf.GVRCompressedTexture;
 import org.gearvrf.utility.Log;
 
@@ -31,15 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static android.opengl.GLES20.GL_LINEAR_MIPMAP_NEAREST;
-import static android.opengl.GLES20.GL_NO_ERROR;
-import static android.opengl.GLES20.GL_TEXTURE_2D;
-import static android.opengl.GLES20.GL_TEXTURE_MIN_FILTER;
-import static android.opengl.GLES20.glBindTexture;
-import static android.opengl.GLES20.glGenerateMipmap;
-import static android.opengl.GLES20.glGetError;
-import static android.opengl.GLES20.glTexParameteri;
 
 /**
  * Describes a texture mapped onto a 3D object by a shader.
@@ -82,6 +69,11 @@ import static android.opengl.GLES20.glTexParameteri;
  */
 public class GVRTexture extends GVRHybridObject implements GVRAndroidResource.TextureCallback
 {
+    private static final int GL_LINEAR_MIPMAP_NEAREST = 0x2701;
+    private static final int GL_NO_ERROR = 0x0;
+    private static final int GL_TEXTURE_2D = 0x0DE1;
+    private static final int GL_TEXTURE_MIN_FILTER = 0x2801;
+
     protected static final String TAG = "GVRTexture";
     protected GVRImage  mImage;
     protected GVRTextureParameters mTextureParams;

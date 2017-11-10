@@ -39,8 +39,6 @@ import org.gearvrf.utility.Threads.Cancelable;
 import org.gearvrf.utility.Threads.ThreadLimiter;
 import org.gearvrf.utility.Threads.ThreadPolicyProvider;
 
-import android.graphics.Bitmap;
-import android.util.SparseArray;
 
 /**
  * Asynchronous, heterogeneous resource loading with integrated thread
@@ -594,7 +592,7 @@ class Throttler implements Scheduler {
             ThreadPolicyProvider<PriorityCancelable> {
 
         private final PriorityQueue<PriorityGroup> queue = new PriorityQueue<PriorityGroup>();
-        private final SparseArray<PriorityGroup> groups = new SparseArray<PriorityGroup>();
+        private final ArrayList<PriorityGroup> groups = new ArrayList<PriorityGroup>();
 
         private void addGroup(int priority, PriorityGroup newGroup) {
             queue.add(newGroup);

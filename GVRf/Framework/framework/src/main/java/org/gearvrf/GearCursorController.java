@@ -16,21 +16,12 @@
 
 package org.gearvrf;
 
-import android.graphics.PointF;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
-import android.os.SystemClock;
-import android.view.InputDevice;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
+//import org.gearvrf.io.CursorControllerListener;
+//import org.gearvrf.io.GVRControllerType;
+//import org.gearvrf.io.GVRInputManager;
 
-import org.gearvrf.io.CursorControllerListener;
-import org.gearvrf.io.GVRControllerType;
-import org.gearvrf.io.GVRInputManager;
-
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+//import org.joml.Quaternionf;
+//import org.joml.Vector3f;
 
 
 /**
@@ -50,8 +41,8 @@ import org.joml.Vector3f;
  * {@link GVRCursorController#addControllerEventListener(ControllerEventListener)} to receive
  * notification whenever the controller information is updated.
  */
-final class GearCursorController extends GVRCursorController {
-
+final class GearCursorController {
+/*
     public enum CONTROLLER_KEYS{
         BUTTON_A (0x00000001), BUTTON_ENTER (0x00100000), BUTTON_BACK (0x00200000), BUTTON_UP (0x00010000), BUTTON_DOWN(0x00020000),
         BUTTON_LEFT (0x00040000), BUTTON_RIGHT (0x00080000), BUTTON_VOLUME_UP(0x00400000), BUTTON_VOLUME_DOWN(0x00800000), BUTTON_HOME(0x01000000);
@@ -65,9 +56,6 @@ final class GearCursorController extends GVRCursorController {
             return numVal;
         }
     }
-    /**
-     * Defines the handedness of the gear controller.
-     */
     public enum Handedness {
         LEFT, RIGHT
     }
@@ -89,9 +77,6 @@ final class GearCursorController extends GVRCursorController {
         void updateTouchpad(PointF pt);
     }
 
-    private final MotionEvent.PointerCoords pointerCoords = new MotionEvent.PointerCoords();
-    private final MotionEvent.PointerProperties[] pointerPropertiesArray;
-    private final MotionEvent.PointerCoords[] pointerCoordsArray;
     private long prevEnterTime;
     private long prevATime;
     private boolean touching = false;
@@ -104,11 +89,11 @@ final class GearCursorController extends GVRCursorController {
         isEnabled = isEnabled();
         position = new Vector3f(0.0f, 0.0f, -1.0f);
         mControllerReader = controllerReader;
-        MotionEvent.PointerProperties properties = new MotionEvent.PointerProperties();
-        properties.id = 0;
-        properties.toolType = MotionEvent.TOOL_TYPE_FINGER;
-        pointerPropertiesArray = new MotionEvent.PointerProperties[]{properties};
-        pointerCoordsArray = new MotionEvent.PointerCoords[]{pointerCoords};
+        //MotionEvent.PointerProperties properties = new MotionEvent.PointerProperties();
+        //properties.id = 0;
+        //properties.toolType = MotionEvent.TOOL_TYPE_FINGER;
+        //pointerPropertiesArray = new MotionEvent.PointerProperties[]{properties};
+        //pointerCoordsArray = new MotionEvent.PointerCoords[]{pointerCoords};
     }
 
     @Override
@@ -202,12 +187,12 @@ final class GearCursorController extends GVRCursorController {
         }
     }
 
-    /**
-     * Return the current position of the Gear Controller.
-     *
-     * @return a {@link Vector3f} representing the position of the controller. This function
-     * returns <code>null</code> if the controller is unavailable or the data is stale.
-     */
+    //
+     // Return the current position of the Gear Controller.
+     // 
+     // @return a {@link Vector3f} representing the position of the controller. This function
+     // returns <code>null</code> if the controller is unavailable or the data is stale.
+     //
     public Vector3f getPosition() {
         if (thread == null || thread.currentControllerEvent == null || thread
                 .currentControllerEvent.isRecycled()) {
@@ -216,12 +201,12 @@ final class GearCursorController extends GVRCursorController {
         return thread.currentControllerEvent.position;
     }
 
-    /**
-     * Return the current rotation of the Gear Controller.
-     *
-     * @return a {@link Quaternionf} representing the rotation of the controller. This function
-     * returns <code>null</code> if the controller is unavailable or the data is stale.
-     */
+    //
+     // Return the current rotation of the Gear Controller.
+     
+     // @return a {@link Quaternionf} representing the rotation of the controller. This function
+     // returns <code>null</code> if the controller is unavailable or the data is stale.
+     //
     public Quaternionf getRotation() {
         if (thread == null || thread.currentControllerEvent == null || thread
                 .currentControllerEvent.isRecycled()) {
@@ -230,13 +215,13 @@ final class GearCursorController extends GVRCursorController {
         return thread.currentControllerEvent.rotation;
     }
 
-    /**
-     * Return the current touch coordinates of the Gear Controller touchpad.
-     *
-     * @return a {@link PointF} representing the touch coordinates on the controller. If the
-     * user is not using the touchpad (0.0f, 0.0f) is returned. This function
-     * returns <code>null</code> if the controller is unavailable or the data is stale.
-     */
+    //
+     // Return the current touch coordinates of the Gear Controller touchpad.
+     //
+     // @return a {@link PointF} representing the touch coordinates on the controller. If the
+     // user is not using the touchpad (0.0f, 0.0f) is returned. This function
+     // returns <code>null</code> if the controller is unavailable or the data is stale.
+     //
     public PointF getTouch() {
         if (thread == null || thread.currentControllerEvent == null || thread
                 .currentControllerEvent.isRecycled()) {
@@ -245,12 +230,12 @@ final class GearCursorController extends GVRCursorController {
         return thread.currentControllerEvent.pointF;
     }
 
-    /**
-     * Return the current handedness of the Gear Controller.
-     *
-     * @return returns whether the user is using the controller left or right handed. This function
-     * returns <code>null</code> if the controller is unavailable or the data is stale.
-     */
+    //
+     // Return the current handedness of the Gear Controller.
+     // 
+     // @return returns whether the user is using the controller left or right handed. This function
+     // returns <code>null</code> if the controller is unavailable or the data is stale.
+     //
     public Handedness getHandedness() {
         if (thread == null || thread.currentControllerEvent == null || thread
                 .currentControllerEvent.isRecycled()) {
@@ -273,10 +258,10 @@ final class GearCursorController extends GVRCursorController {
         }
     }
 
-    private class EventHandlerThread extends HandlerThread {
+    private class EventHandlerThread {
         private static final String THREAD_NAME = "GVREventHandlerThread";
         private final Vector3f FORWARD = new Vector3f(0.0f, 0.0f, -1.0f);
-        private Handler handler;
+        //private Handler handler;
         private Vector3f result = new Vector3f();
         private int prevButtonEnter = KeyEvent.ACTION_UP;
         private int prevButtonA = KeyEvent.ACTION_UP;
@@ -298,7 +283,7 @@ final class GearCursorController extends GVRCursorController {
         private ControllerEvent currentControllerEvent;
 
         EventHandlerThread() {
-            super(THREAD_NAME);
+            //super(THREAD_NAME);
         }
 
         void prepareHandler() {
@@ -529,4 +514,5 @@ final class GearCursorController extends GVRCursorController {
             return recycled;
         }
     }
+    */
 }

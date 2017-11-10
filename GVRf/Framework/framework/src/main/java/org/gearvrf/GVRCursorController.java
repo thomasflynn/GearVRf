@@ -15,9 +15,6 @@
 
 package org.gearvrf;
 
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import org.gearvrf.io.CursorControllerListener;
 import org.gearvrf.io.GVRControllerType;
@@ -58,10 +55,12 @@ public abstract class GVRCursorController {
     private float nearDepth, farDepth = -Float.MAX_VALUE;
     private final Vector3f position, ray, origin;
     private boolean enable = true;
+    /*
     private List<KeyEvent> keyEvent;
     private List<KeyEvent> processedKeyEvent;
     private List<MotionEvent> motionEvent;
     private List<MotionEvent> processedMotionEvent;
+    */
     private GVRSceneObject sceneObject;
     private Object sceneObjectLock = new Object();
     private Object eventLock = new Object();
@@ -107,8 +106,7 @@ public abstract class GVRCursorController {
      * @param vendorId       the vendor id for this {@link GVRCursorController}
      * @param productId      the product id for this {@link GVRCursorController}
      */
-    public GVRCursorController(GVRControllerType controllerType, String name,
-                               int vendorId, int productId) {
+    public GVRCursorController(GVRControllerType controllerType, String name, int vendorId, int productId) {
         this.controllerId = uniqueControllerId;
         this.controllerType = controllerType;
         this.name = name;
@@ -118,10 +116,12 @@ public abstract class GVRCursorController {
         position = new Vector3f();
         ray = new Vector3f();
         origin = new Vector3f();
+        /*
         keyEvent = new ArrayList<KeyEvent>();
         processedKeyEvent = new ArrayList<KeyEvent>();
         motionEvent = new ArrayList<MotionEvent>();
         processedMotionEvent = new ArrayList<MotionEvent>();
+        */
         controllerEventListeners = new CopyOnWriteArrayList<ControllerEventListener>();
         sensorManager = SensorManager.getInstance();
     }
@@ -264,7 +264,6 @@ public abstract class GVRCursorController {
      * not want to expose key events.
      *
      * @param keyEvent
-     */
     protected void setKeyEvent(KeyEvent keyEvent) {
         synchronized (eventLock) {
             this.keyEvent.add(keyEvent);
@@ -278,6 +277,7 @@ public abstract class GVRCursorController {
             }
         }
     }
+     */
 
     /**
      * Get the all the key events processed by the {@link GVRCursorController}
@@ -297,12 +297,12 @@ public abstract class GVRCursorController {
      *
      * @return the list of {@link KeyEvent}s processed by the
      * {@link GVRCursorController}.
-     */
     public List<KeyEvent> getKeyEvents() {
         synchronized (eventLock) {
             return processedKeyEvent;
         }
     }
+     */
 
     /**
      * Get the latest key event processed by the {@link GVRCursorController} if
@@ -319,7 +319,6 @@ public abstract class GVRCursorController {
      * would be reset to null on completion.
      *
      * @return the {@link KeyEvent} or null if there isn't one.
-     */
     public KeyEvent getKeyEvent() {
         synchronized (eventLock) {
             if (processedKeyEvent.isEmpty()) {
@@ -329,6 +328,7 @@ public abstract class GVRCursorController {
             }
         }
     }
+     */
 
     /**
      * Set the latest motion event processed by the {@link GVRCursorController}.
@@ -339,13 +339,13 @@ public abstract class GVRCursorController {
      *
      * @param motionEvent the {@link MotionEvent} processed by the
      *                    {@link GVRCursorController}.
-     */
     protected void setMotionEvent(MotionEvent motionEvent) {
         Log.d(TAG, "setting motion event; motionEvent " + (null != motionEvent));
         synchronized (eventLock) {
             this.motionEvent.add(motionEvent);
         }
     }
+     */
 
     /**
      * Get the all the {@link MotionEvent} processed by the
@@ -365,12 +365,12 @@ public abstract class GVRCursorController {
      *
      * @return a list of {@link MotionEvent}s processed by the
      * {@link GVRCursorController} .
-     */
     public List<MotionEvent> getMotionEvents() {
         synchronized (eventLock) {
             return processedMotionEvent;
         }
     }
+     */
 
     /**
      * Get the latest {@link MotionEvent} processed by the
@@ -389,7 +389,6 @@ public abstract class GVRCursorController {
      *
      * @return the latest {@link MotionEvent} processed by the
      * {@link GVRCursorController} or null.
-     */
     public MotionEvent getMotionEvent() {
         synchronized (eventLock) {
             if (processedMotionEvent.isEmpty()) {
@@ -400,6 +399,7 @@ public abstract class GVRCursorController {
             }
         }
     }
+     */
 
     /**
      * This call sets the position of the {@link GVRCursorController}.
@@ -603,12 +603,14 @@ public abstract class GVRCursorController {
      */
     private void update() {
         // set the newly received key and motion events.
+        /*
         synchronized (eventLock) {
             processedKeyEvent.addAll(keyEvent);
             keyEvent.clear();
             processedMotionEvent.addAll(motionEvent);
             motionEvent.clear();
         }
+        */
 
         if (previousActive == false && active) {
             activeState = ActiveState.ACTIVE_PRESSED;
@@ -624,6 +626,7 @@ public abstract class GVRCursorController {
         for (ControllerEventListener listener : controllerEventListeners) {
             listener.onEvent(this);
         }
+        /*
         // reset the set key and motion events.
         synchronized (eventLock) {
             processedKeyEvent.clear();
@@ -633,6 +636,7 @@ public abstract class GVRCursorController {
             }
             processedMotionEvent.clear();
         }
+        */
     }
 
     /**

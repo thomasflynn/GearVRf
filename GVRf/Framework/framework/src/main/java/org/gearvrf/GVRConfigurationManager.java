@@ -15,13 +15,6 @@
 
 package org.gearvrf;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
-import android.os.SystemClock;
-import android.util.Log;
 
 import org.gearvrf.utility.DockEventReceiver;
 import org.gearvrf.utility.Threads;
@@ -79,7 +72,7 @@ abstract class GVRConfigurationManager {
                             handleOnDock();
                         } else {
                             mCounter = 0;
-                            Log.w(TAG, "too many usb checks");
+                            System.out.println("too many usb checks");
                         }
                     } else {
                         mCounter = 0;
@@ -110,7 +103,7 @@ abstract class GVRConfigurationManager {
         } else {
             fovY = 90;
         }
-        Log.i(TAG, "set the default fov-y to " + fovY);
+        System.out.println("set the default fov-y to " + fovY);
 
         setFovY(fovY);
     }
@@ -172,7 +165,6 @@ abstract class GVRConfigurationManager {
         return mHeadsetModel;
     }
 
-    @SuppressLint("NewApi")
     private String scanUsbDevicesForHeadset() {
         final GVRActivity activity = mActivity.get();
         if (null == activity) {
@@ -182,6 +174,7 @@ abstract class GVRConfigurationManager {
         final int vendorId = 1256;
         final int productId = 42240;
 
+        /*
         final UsbManager usbManager = (UsbManager) activity.getSystemService(Context.USB_SERVICE);
         final HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
         for (final UsbDevice device : deviceList.values()) {
@@ -189,6 +182,7 @@ abstract class GVRConfigurationManager {
                 return device.getSerialNumber();
             }
         }
+        */
 
         return null;
     }
@@ -219,10 +213,12 @@ abstract class GVRConfigurationManager {
         return NativeConfigurationManager.getMaxLights(mPtr);
     }
 
+    /*
     DockEventReceiver makeDockEventReceiver(final Activity gvrActivity, final Runnable runOnDock,
                                             final Runnable runOnUndock) {
         return new DockEventReceiver(gvrActivity, runOnDock, runOnUndock);
     }
+    */
 
     private void updatePerspectiveCameraFovY(final GVRCamera camera, final float fovY) {
         if (camera instanceof GVRPerspectiveCamera) {

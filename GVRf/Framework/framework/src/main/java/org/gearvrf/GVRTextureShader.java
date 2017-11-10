@@ -19,9 +19,7 @@ import java.util.List;
 
 import org.gearvrf.utility.TextFile;
 
-import android.content.Context;
 
-import org.gearvrf.R;
 
 /**
  * Manages a set of variants on vertex and fragment shaders from the same source
@@ -41,12 +39,11 @@ public class GVRTextureShader extends GVRShaderTemplate
               "sampler2D u_texture; sampler2D diffuseTexture",
               "float3 a_position; float2 a_texcoord; float3 a_normal", GLSLESVersion.VULKAN);
         if (fragTemplate == null) {
-            Context context = gvrcontext.getContext();
-            fragTemplate = TextFile.readTextFile(context, R.raw.fragment_template);
-            vtxTemplate = TextFile.readTextFile(context, R.raw.vertex_template);
-            surfaceShader = TextFile.readTextFile(context, R.raw.texture_surface);
-            vtxShader = TextFile.readTextFile(context, R.raw.pos_norm_tex);
-            addLight = TextFile.readTextFile(context, R.raw.addlight);
+            fragTemplate = TextFile.readTextFile(gvrcontext, R.raw.fragment_template);
+            vtxTemplate = TextFile.readTextFile(gvrcontext, R.raw.vertex_template);
+            surfaceShader = TextFile.readTextFile(gvrcontext, R.raw.texture_surface);
+            vtxShader = TextFile.readTextFile(gvrcontext, R.raw.pos_norm_tex);
+            addLight = TextFile.readTextFile(gvrcontext, R.raw.addlight);
         }
         setSegment("FragmentTemplate", fragTemplate);
         setSegment("VertexTemplate", vtxTemplate);

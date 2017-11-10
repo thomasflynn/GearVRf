@@ -25,14 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.gearvrf.utility.FileNameUtils;
 
-import android.content.res.Resources;
-import android.os.Environment;
 
 /**
  * Models a file system which supports stream I/O.
  */
 public class GVRResourceVolume {
-    private static final String TAG = GVRResourceVolume.class.getSimpleName();
 
     public enum VolumeType {
         ANDROID_ASSETS ("assets", "/"),

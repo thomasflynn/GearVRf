@@ -15,12 +15,6 @@
 
 package org.gearvrf;
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Color;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.view.Gravity;
 
 import org.gearvrf.GVRAndroidResource.MeshCallback;
 import org.gearvrf.GVRHybridObject.NativeCleanupHandler;
@@ -83,7 +77,7 @@ import java.util.concurrent.Future;
  * @see GVRScene
  */
 public abstract class GVRContext implements IEventReceiver {
-    private static final String TAG = Log.tag(GVRContext.class);
+    private static final String TAG = "GVRContext";
 
     private final GVRActivity mContext;
 
@@ -183,9 +177,11 @@ public abstract class GVRContext implements IEventReceiver {
         mContext = context;
         mEventReceiver = new GVREventReceiver(this);
 
+        /*
         mHandlerThread = new HandlerThread("gvrf-main");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
+        */
     }
 
     /**
@@ -205,10 +201,10 @@ public abstract class GVRContext implements IEventReceiver {
      * method to an {@code (Activity)} or {@code (GVRActivity)}.
      * 
      * @return An Android {@code Context}
-     */
     public Context getContext() {
         return mContext;
     }
+     */
 
     /**
      * Get the Android {@link Activity} which launched your GVRF app.
@@ -564,10 +560,11 @@ public abstract class GVRContext implements IEventReceiver {
      *            Callback to run on restart.
      */
     public synchronized static void addResetOnRestartHandler(Runnable handler) {
-        sHandlers.add(handler);
+        //sHandlers.add(handler);
     }
 
     protected synchronized static void resetOnRestart() {
+        /*
         for (Runnable handler : sHandlers) {
             Log.d(TAG, "Running on-restart handler %s", handler);
             handler.run();
@@ -580,9 +577,10 @@ public abstract class GVRContext implements IEventReceiver {
 
         // We do NOT want to clear sHandlers - the static initializers won't be
         // run again, even if the new run does recreate singletons.
+        */
     }
 
-    private static final List<Runnable> sHandlers = new ArrayList<Runnable>();
+    //private static final List<Runnable> sHandlers = new ArrayList<Runnable>();
 
     /**
      * Capture a 2D screenshot from the position in the middle of left eye and
@@ -704,17 +702,17 @@ public abstract class GVRContext implements IEventReceiver {
         return mTag;
     }
 
-    private final HandlerThread mHandlerThread;
-    private final Handler mHandler;
+    //private final HandlerThread mHandlerThread;
+    //private final Handler mHandler;
 
     /**
      * Execute on the so called framework thread. For now this is mostly for
      * internal use. To actually enable the use of this framework thread you
      * should derive from the GVRMain base class instead of GVRMain.
-     */
     public void runOnTheFrameworkThread(final Runnable runnable) {
         mHandler.post(runnable);
     }
+     */
 
     /**
      * Show a toast-like message for 3 seconds

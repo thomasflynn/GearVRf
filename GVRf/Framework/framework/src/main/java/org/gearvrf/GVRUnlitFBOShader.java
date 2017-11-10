@@ -14,8 +14,7 @@
  */
 package org.gearvrf;
 
-import android.content.Context;
-
+import org.gearvrf.GVRContext;
 import org.gearvrf.utility.TextFile;
 
 /**
@@ -35,9 +34,8 @@ public class GVRUnlitFBOShader extends GVRShaderTemplate
     {
 
         super("float3 u_color float u_opacity", "sampler2D u_texture", "float3 a_position float2 a_texcoord", GLSLESVersion.VULKAN);
-        Context context = gvrContext.getContext();
-        setSegment("FragmentTemplate", TextFile.readTextFile(context,R.raw.unlit_tex_frag));
-        setSegment("VertexTemplate",TextFile.readTextFile(context,R.raw.unlit_flip_tex));
+        setSegment("FragmentTemplate", TextFile.readTextFile(gvrContext,R.raw.unlit_tex_frag));
+        setSegment("VertexTemplate",TextFile.readTextFile(gvrContext,R.raw.unlit_flip_tex));
     }
 
     protected void setMaterialDefaults(GVRShaderData material)

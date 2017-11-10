@@ -18,7 +18,6 @@ package org.gearvrf;
 import org.gearvrf.utility.Colors;
 import org.gearvrf.utility.Log;
 
-import android.graphics.Color;
 
 /**
  * Encapculates data to be sent to a vertex or fragment shader.
@@ -290,10 +289,10 @@ public class GVRMaterial extends  GVRShaderData
      * Android {@link Color}
      * 
      * @return An Android {@link Color}
-     */
     public int getRgbColor() {
         return Colors.toColor(getColor());
     }
+     */
 
     /**
      * Set the {@code u_color} uniform.
@@ -320,12 +319,12 @@ public class GVRMaterial extends  GVRShaderData
      * 
      * @param color
      *            Any Android {@link Color}; the alpha byte is ignored.
-     */
     public void setColor(int color) {
         setColor(Colors.byteToGl(Color.red(color)), //
                 Colors.byteToGl(Color.green(color)), //
                 Colors.byteToGl(Color.blue(color)));
     }
+     */
 
     /**
      * Get the {@code ambient_color} uniform.

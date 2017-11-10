@@ -14,9 +14,6 @@
  */
 package org.gearvrf;
 
-import static android.opengl.GLES20.GL_EXTENSIONS;
-import static android.opengl.GLES20.glGetString;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,7 +31,6 @@ import java.util.regex.Pattern;
 import org.gearvrf.utility.VrAppSettings;
 
 import org.gearvrf.utility.Log;
-import android.os.Environment;
 
 /**
  * Generates a set of native vertex and fragment shaders from source code segments.

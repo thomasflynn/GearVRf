@@ -15,10 +15,6 @@
 
 package org.gearvrf.asynchronous;
 
-import static android.opengl.GLES20.GL_MAX_TEXTURE_SIZE;
-import static android.opengl.GLES20.GL_NO_ERROR;
-import static android.opengl.GLES20.glGetError;
-import static android.opengl.GLES20.glGetIntegerv;
 import static org.gearvrf.utility.Threads.threadId;
 
 import java.io.FileDescriptor;
@@ -39,22 +35,6 @@ import org.gearvrf.utility.Log;
 import org.gearvrf.utility.RecycleBin;
 import org.gearvrf.utility.Threads;
 
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
-import android.graphics.BitmapRegionDecoder;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.view.Display;
-import android.view.WindowManager;
-import android.content.pm.ApplicationInfo;
 
 /**
  * Async resource loading: bitmap textures.
@@ -68,6 +48,8 @@ import android.content.pm.ApplicationInfo;
  * @since 1.6.1
  */
 class AsyncBitmapTexture {
+    private static final int GL_MAX_TEXTURE_SIZE = 0x0D33;
+    private static final int GL_NO_ERROR = 0x0;
 
     /*
      * The API
@@ -94,6 +76,7 @@ class AsyncBitmapTexture {
         return sInstance;
     }
 
+    /*
     private AsyncBitmapTexture() {
         AsyncManager.get().registerDatatype(TEXTURE_CLASS,
                 new AsyncLoaderFactory<GVRBitmapTexture, Bitmap>() {
@@ -107,6 +90,7 @@ class AsyncBitmapTexture {
             }
         });
     }
+    */
 
     /*
      * Static constants
@@ -166,7 +150,7 @@ class AsyncBitmapTexture {
      * first use; the default settings are very conservative, and will usually
      * give much smaller textures than necessary.
      */
-    static Context setup(GVRContext context) {
+    static GVRContext setup(GVRContext context) {
         return setup(context, null);
     }
 
@@ -176,20 +160,14 @@ class AsyncBitmapTexture {
      * first use; the default settings are very conservative, and will usually
      * give much smaller textures than necessary.
      */
-    static Context setup(GVRContext gvrContext, ImageSizePolicy sizePolicy) {
-        Context androidContext = gvrContext.getContext();
-        Memory.setup(androidContext);
+    static GVRContext setup(GVRContext gvrContext, ImageSizePolicy sizePolicy) {
+        Memory.setup(gvrContext);
 
         if (sizePolicy == null) {
             sizePolicy = new DefaultImageSizePolicy();
         }
 
-        Context applicationContext = androidContext.getApplicationContext();
-        // Should only be null in a unit test
-        applicationContext = applicationContext == null ? androidContext
-                : applicationContext;
-
-        getScreenSize(applicationContext);
+        getScreenSize();
 
         int heapSize = Memory.getMemoryClass();
         maxImageSize = (int) (heapSize * sizePolicy.getMaximumImageFactor());
@@ -203,7 +181,7 @@ class AsyncBitmapTexture {
             }
         });
 
-        return applicationContext;
+        return gvrContext;
     }
 
     /**
@@ -213,8 +191,7 @@ class AsyncBitmapTexture {
      *            Any non-null Android Context
      * @return .x is screen width; .y is screen height.
      */
-    private static Point getScreenSize(Context context) {
-        return getScreenSize(context, null);
+    private static void getScreenSize(GVRContext context) {
     }
 
     /**
@@ -225,8 +202,7 @@ class AsyncBitmapTexture {
      * @param p
      *            Optional Point to reuse. If null, a new Point will be created.
      * @return .x is screen width; .y is screen height.
-     */
-    private static Point getScreenSize(Context context, Point p) {
+    private static Point getScreenSize(GVRContext context, Point p) {
         if (p == null) {
             p = new Point();
         }
@@ -236,6 +212,7 @@ class AsyncBitmapTexture {
         display.getSize(p);
         return p;
     }
+     */
 
     /**
      * This method must be called, on the GL thread, at least once after
@@ -294,7 +271,7 @@ class AsyncBitmapTexture {
          * {@link #getMemoryClass()} will not be accurate until you call
          * {@link #setup(Context)}
          */
-        static synchronized void setup(Context context) {
+        static synchronized void setup(GVRContext context) {
             if (initialized) {
                 return;
             }
@@ -304,7 +281,8 @@ class AsyncBitmapTexture {
             initialized = true;
         }
 
-        private static void getMemoryClass(Context context) {
+        private static void getMemoryClass(GVRContext context) {
+            /*
             ActivityManager activityManager = (ActivityManager) context
                     .getSystemService(Activity.ACTIVITY_SERVICE);
             ApplicationInfo info = context.getApplicationInfo();
@@ -313,6 +291,9 @@ class AsyncBitmapTexture {
             } else {
                 memoryClass = activityManager.getMemoryClass() * 1024 * 1024;
             }
+            */
+            memoryClass = 512 * 1024 * 1024;
+
             Log.d(TAG, "MemoryClass = %dM", memoryClass / (1024 * 1024));
         }
 
@@ -326,6 +307,7 @@ class AsyncBitmapTexture {
      * Asynchronous loader
      */
 
+    /*
     private static class AsyncLoadTextureResource extends
             AsyncLoader<GVRBitmapTexture, Bitmap> {
 
@@ -359,7 +341,10 @@ class AsyncBitmapTexture {
             return bitmap;
         }
     }
+    */
 
+   
+    /*
     static Bitmap decodeStreamTGA(InputStream stream) throws IOException {
         Bitmap bitmap = null;
         byte[] headerTGA = new byte[18];
@@ -601,6 +586,7 @@ class AsyncBitmapTexture {
         }
         return bitmap;
     }
+    */
 
 
     /*
@@ -644,7 +630,6 @@ class AsyncBitmapTexture {
      * @param closeStream
      *            If {@code true}, closes {@code stream}
      * @return Bitmap, or null if cannot be decoded into a bitmap
-     */
     static Bitmap decodeStream(InputStream stream, int requestedWidth,
             int requestedHeight, final boolean canShrink,
             Bitmap possibleAlternative, boolean closeStream) {
@@ -724,10 +709,6 @@ class AsyncBitmapTexture {
     }
 
     private interface GetBounds {
-        /**
-         * Should just do the decodeX - may assume that
-         * <code>options.inJustDecodeBounds == true;</code>
-         */
         void getBounds(Options options);
     }
 
@@ -797,6 +778,7 @@ class AsyncBitmapTexture {
             options.inJustDecodeBounds = false;
         }
     }
+     */
 
     private static int scale(int requestedSize, int outSize) {
         if (requestedSize == 0) {
@@ -821,6 +803,7 @@ class AsyncBitmapTexture {
         return scale(requestedSize, (int) (outSize + 0.5f));
     }
 
+    /*
     private interface DecodeHelper {
         public void setInSampleSize(BitmapFactory.Options options,
                 int requestedWidth, int requestedHeight) throws IOException;
@@ -830,6 +813,7 @@ class AsyncBitmapTexture {
 
         public void rewind() throws IOException;
     }
+    */
 
     /**
      * Shim that lets
@@ -842,7 +826,7 @@ class AsyncBitmapTexture {
          * call a BitmapFactory decode method directly
          * 
          */
-        Bitmap decode(Options options);
+     //   Bitmap decode(Options options);
 
         /**
          * Call the appropriate {@link BitmapRegionDecoder} newInstance()
@@ -851,14 +835,13 @@ class AsyncBitmapTexture {
          * @return A new {@code BitmapRegionDecoder}, or {@code null}
          *         "if the image format is not supported or can not be decoded."
          */
-        BitmapRegionDecoder newRegionDecoder();
+      //  BitmapRegionDecoder newRegionDecoder();
     }
 
     /**
      * Use {@link BitmapRegionDecoder} to read the bitmap in smallish slices,
      * and resize each slice so that the target bitmap matches requestedWidth or
      * requestedHeight in at least one dimension.
-     */
     private static Bitmap fractionalDecode(FractionalDecodeShim shim,
             Options options, int requestedWidth, int requestedHeight) {
         final int rawWidth = options.outWidth;
@@ -931,6 +914,7 @@ class AsyncBitmapTexture {
             }
         }
     }
+     */
 
     private static int roundUp(float f) {
         // The (int) cast rounds towards 0
@@ -938,6 +922,7 @@ class AsyncBitmapTexture {
         return (int) (f + 1.0 - Float.MIN_VALUE);
     }
 
+     /*
     private static class FractionalDecodeStreamShim implements
             FractionalDecodeShim {
         private final InputStream mStream;
@@ -960,7 +945,9 @@ class AsyncBitmapTexture {
             }
         }
     }
+     */
 
+     /*
     private static class FractionalDecodeDescriptorShim implements
             FractionalDecodeShim {
         private final FileDescriptor mDescriptor;
@@ -984,7 +971,9 @@ class AsyncBitmapTexture {
             }
         }
     }
+     */
 
+     /*
     private static class DecodeStreamHelper implements DecodeHelper {
 
         DecodeStreamHelper(InputStream stream) {
@@ -1022,7 +1011,9 @@ class AsyncBitmapTexture {
 
         private final InputStream mStream;
     }
+     */
 
+     /*
     private static class DecodeFileStreamHelper implements DecodeHelper {
 
         DecodeFileStreamHelper(FileInputStream stream) throws IOException {
@@ -1067,6 +1058,7 @@ class AsyncBitmapTexture {
         private final long mOffset;
         private final FileInputStream mStream;
     }
+     */
 
     /**
      * A soft referenced set of <code>byte[DECODE_BUFFER_SIZE]</code> arrays.)

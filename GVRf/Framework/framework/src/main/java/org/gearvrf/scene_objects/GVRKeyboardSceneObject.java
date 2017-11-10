@@ -15,6 +15,7 @@
 
 package org.gearvrf.scene_objects;
 
+/*
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -30,6 +31,7 @@ import android.os.Message;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.ViewConfiguration;
+*/
 
 import org.gearvrf.GVRActivity;
 import org.gearvrf.GVRBoxCollider;
@@ -60,6 +62,7 @@ import java.util.Map;
  * See: {@link Keyboard}
  */
 public class GVRKeyboardSceneObject extends GVRSceneObject {
+    /*
     private final GVRActivity mActivity;
 
     private GVRMesh mKeyboardMesh;
@@ -82,6 +85,7 @@ public class GVRKeyboardSceneObject extends GVRSceneObject {
     private GVRSceneObject mEditableSceneObject;
     private OutsideMiniKeyboardEvent mMiniKeyboardHandler;
     private KeyEventsHandler mKeyEventsHandler;
+    */
 
     /**
      * Creates a {@linkplain GVRKeyboardSceneObject keyboard} from the given xml key layout file.
@@ -90,6 +94,7 @@ public class GVRKeyboardSceneObject extends GVRSceneObject {
      *
      * @param gvrContext current {@link GVRContext}
      */
+     /*
     private GVRKeyboardSceneObject(GVRContext gvrContext, int keyboardResId, GVRMesh keyboardMesh,
                                   GVRMesh keyMesh, GVRTexture keyboardTexture,
                                    Drawable keyBackground, int textColor, boolean enableHoverAnim) {
@@ -960,10 +965,10 @@ public class GVRKeyboardSceneObject extends GVRSceneObject {
             }
         }
     }
+     */
 
     /**
      * Builder for the {@link GVRKeyboardSceneObject}.
-     */
     public static class Builder {
         private GVRMesh keyboardMesh;
         private GVRMesh keyMesh;
@@ -972,9 +977,9 @@ public class GVRKeyboardSceneObject extends GVRSceneObject {
         private boolean keyHoveredAnimated;
         private int textColor;
 
-        /**
-         * Creates a builder for the {@link GVRKeyboardSceneObject}.
-         */
+        //
+        // Creates a builder for the {@link GVRKeyboardSceneObject}.
+         //
         public Builder() {
             this.keyboardMesh = null;
             this.keyMesh = null;
@@ -1035,5 +1040,6 @@ public class GVRKeyboardSceneObject extends GVRSceneObject {
                     this.textColor, keyHoveredAnimated);
         }
     }
+     */
 
 }

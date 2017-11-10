@@ -15,6 +15,7 @@
 
 package org.gearvrf.scene_objects;
 
+/*
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -45,6 +46,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+*/
 
 import org.gearvrf.GVRActivity;
 import org.gearvrf.GVRCollider;
@@ -69,11 +71,13 @@ import org.gearvrf.utility.Log;
  * into the scene with an arbitrarily complex geometry.
  */
 public class GVRViewSceneObject extends GVRSceneObject {
+/*
     private View mView;
     private RootViewGroup mRootViewGroup;
     private IViewEvents mEventsListener;
     private InputMethodHandler mInputMethodHandler;
 
+*/
     /**
      * Constructs a scene object that inflate a view from an XML resource. The scene object
      * notifies the {@linkplain IViewEvents listener} of the view to set its initial properties
@@ -86,7 +90,6 @@ public class GVRViewSceneObject extends GVRSceneObject {
      * @param gvrContext current {@link GVRContext}.
      * @param viewId The resource ID to inflate. See {@link LayoutInflater}.
      * @param eventsListener Listener to be notified after the view has been inflated.
-     */
     public GVRViewSceneObject(GVRContext gvrContext, int viewId, IViewEvents eventsListener) {
         this(gvrContext, null, null);
 
@@ -94,16 +97,17 @@ public class GVRViewSceneObject extends GVRSceneObject {
 
         inflateView(viewId);
     }
+     */
 
     /**
      * Shows {@link View} in a 2D, rectangular {@linkplain GVRViewSceneObject scene object.}
      *
      * @param gvrContext current {@link GVRContext}.
      * @param view The {@link View} to be shown.
-     */
     public GVRViewSceneObject(GVRContext gvrContext, View view) {
         this(gvrContext, view, null);
     }
+     */
 
     /**
      * Shows {@link View} in a 2D, rectangular {@linkplain GVRViewSceneObject scene object.}
@@ -112,10 +116,10 @@ public class GVRViewSceneObject extends GVRSceneObject {
      * @param view The {@link View} to be shown.
      * @param width the rectangle's width
      * @param height the rectangle's height
-     */
     public GVRViewSceneObject(GVRContext gvrContext, View view, float width, float height) {
         this(gvrContext, view, gvrContext.createQuad(width, height));
     }
+     */
 
     /**
      * Shows any {@link View} into the {@linkplain GVRViewSceneObject scene object} with an
@@ -126,7 +130,6 @@ public class GVRViewSceneObject extends GVRSceneObject {
      * @param mesh a {@link GVRMesh} - see
      *            {@link GVRContext#getAssetLoader()#loadMesh(org.gearvrf.GVRAndroidResource)} and
      *            {@link GVRContext#createQuad(float, float)}
-     */
     public GVRViewSceneObject(final GVRContext gvrContext, final View view, final GVRMesh mesh) {
         super(gvrContext, mesh);
 
@@ -156,7 +159,9 @@ public class GVRViewSceneObject extends GVRSceneObject {
             }
         });
     }
+     */
 
+    /*
     @Override
     protected void onNewParentObject(GVRSceneObject parent) {
         super.onNewParentObject(parent);
@@ -234,12 +239,14 @@ public class GVRViewSceneObject extends GVRSceneObject {
         getGVRContext().getActivity().getFullScreenView().invalidate();
     }
 
+    */
     /**
      * To set initial properties before attach the view to the View three;
      *
      * @param sceneObject This scene object
      * @param view The view to be initialized;
      */
+     /*
     private void onInitView(GVRViewSceneObject sceneObject, View view) {
         if (mEventsListener != null) {
             mEventsListener.onInitView(sceneObject, mView);
@@ -365,6 +372,7 @@ public class GVRViewSceneObject extends GVRSceneObject {
             return false;
         }
     }
+     */
 
     /**
      * Internal class to draw the Android view into canvas at UI thread and
@@ -373,6 +381,7 @@ public class GVRViewSceneObject extends GVRSceneObject {
      * This is the root view to overwrite the default canvas of the view by the
      * canvas of the texture attached to the scene object.
      */
+     /*
     private static class RootViewGroup extends FrameLayout implements ITouchEvents {
         final GVRContext mGVRContext;
         final GVRViewSceneObject mSceneObject;
@@ -472,11 +481,11 @@ public class GVRViewSceneObject extends GVRSceneObject {
             // To just set the layout's dimensions but don't call draw(...) after it
             setVisibility(INVISIBLE);
 
-            /**
-             * To be notified when when the layout gets ready.
-             * So after that create render data and material
-             * to the scene object.
-             */
+            ///
+            // To be notified when when the layout gets ready.
+            // So after that create render data and material
+            // to the scene object.
+             //
             getViewTreeObserver().addOnGlobalLayoutListener (
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -490,9 +499,9 @@ public class GVRViewSceneObject extends GVRSceneObject {
         }
 
         private void onLayoutReady() {
-            /**
-             * Creates render data and material to its scene object on GL Thread.
-             */
+            ///
+            // Creates render data and material to its scene object on GL Thread.
+             //
             mGVRContext.runOnGlThread(new Runnable() {
                 @Override
                 public void run() {
@@ -508,9 +517,9 @@ public class GVRViewSceneObject extends GVRSceneObject {
             mQuadWidth = getWidth() / mViewSize;
             mQuadHeight = getHeight() / mViewSize;
 
-            /**
-             * Makes the view visible to call draw(...) and start rendering it.
-             */
+            ///
+            // Makes the view visible to call draw(...) and start rendering it.
+             //
             mGVRContext.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -525,10 +534,10 @@ public class GVRViewSceneObject extends GVRSceneObject {
         }
 
         private void onViewVisible() {
-            /**
-             * To adjust the default buffer size of the surface texture according to
-             * changes of layout's size.
-             */
+            //*
+            // To adjust the default buffer size of the surface texture according to
+            // changes of layout's size.
+             //
             getViewTreeObserver().addOnGlobalLayoutListener (
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -613,6 +622,8 @@ public class GVRViewSceneObject extends GVRSceneObject {
             dispatchPickerInputEvent(event, hitLocation);
         }
     }
+     */
+     /*
 
     private static class InputMethodHandler implements IKeyboardEvents {
         final GVRActivity mActivity;
@@ -713,23 +724,6 @@ public class GVRViewSceneObject extends GVRSceneObject {
             return separators.contains(String.valueOf((char)code));
         }
 
-        /**
-         * Helper to update the shift state of our keyboard based on the initial
-         * editor state.
-         */
-        private void updateShiftKeyState(EditorInfo attr) {
-            /*
-            TODO: Integrate this code to GVRKeyboard
-            if (attr != null && mGvrKeybaord != null) {
-                int caps = 0;
-                EditorInfo ei = getCurrentInputEditorInfo();
-                if (ei != null && ei.inputType != InputType.TYPE_NULL) {
-                    caps = getCurrentInputConnection().getCursorCapsMode(attr.inputType);
-                }
-                mGvrKeybaord.getKeyboard().setShifted(mCapsLock || caps != 0);
-            }*/
-        }
-
         private void handleBackspace() {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
             updateShiftKeyState(getCurrentInputEditorInfo());
@@ -810,4 +804,5 @@ public class GVRViewSceneObject extends GVRSceneObject {
             doFinishInput();
         }
     }
+     */
 }

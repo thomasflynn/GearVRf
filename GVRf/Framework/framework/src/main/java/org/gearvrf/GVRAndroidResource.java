@@ -15,11 +15,6 @@
 
 package org.gearvrf;
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.util.TypedValue;
-
 import org.gearvrf.asynchronous.CompressedTexture;
 import org.gearvrf.asynchronous.GVRCompressedTextureLoader;
 import org.gearvrf.utility.Log;
@@ -75,7 +70,6 @@ public class GVRAndroidResource {
     private final URL url;
     private boolean enableUrlLocalCache = false;
     
-    private Context context;
     private ResourceType resourceType;
     private String inputStreamName;
 
@@ -121,7 +115,7 @@ public class GVRAndroidResource {
      *            A {@code R.raw} or {@code R.drawable} id
      */
     public GVRAndroidResource(GVRContext gvrContext, int resourceId) {
-        this(gvrContext.getContext(), resourceId);
+        this(resourceId);
     }
 
     /**
@@ -132,9 +126,7 @@ public class GVRAndroidResource {
      * @param resourceId
      *            A {@code R.raw} or {@code R.drawable} id
      */
-    public GVRAndroidResource(Context context, int resourceId) {
-        this.context = context.getApplicationContext();
-        Resources resources = context.getResources();
+    public GVRAndroidResource(int resourceId) {
         streamState = StreamStates.NEW;
 
         filePath = null;
@@ -142,9 +134,9 @@ public class GVRAndroidResource {
         assetPath = null;
         url = null;
         TypedValue value = new TypedValue();
-        resources.getValue(resourceId, value, true);
-        resourceFilePath = value.string.toString();
-        resourceType = ResourceType.ANDROID_RESOURCE;
+        //resources.getValue(resourceId, value, true);
+        //resourceFilePath = value.string.toString();
+        //resourceType = ResourceType.ANDROID_RESOURCE;
     }
 
     /**
@@ -160,7 +152,7 @@ public class GVRAndroidResource {
      */
     public GVRAndroidResource(GVRContext gvrContext,
             String assetRelativeFilename)  throws IOException  {
-        this(gvrContext.getContext(), assetRelativeFilename);
+        this(assetRelativeFilename);
     }
 
     /**
@@ -173,9 +165,7 @@ public class GVRAndroidResource {
      *            can be in a sub-directory of the {@code assets} directory:
      *            {@code "foo/bar.png"} will open the file
      *            {@code assets/foo/bar.png}
-     */
-    public GVRAndroidResource(Context context, String assetRelativeFilename) {
-        this.context = context.getApplicationContext();
+    public GVRAndroidResource(String assetRelativeFilename) {
         streamState = StreamStates.NEW;
 
         filePath = null;
@@ -185,6 +175,7 @@ public class GVRAndroidResource {
         url = null;
         resourceType = ResourceType.ANDROID_ASSETS;
     }
+     */
 
     /**
      * Open resource from a URL.
@@ -294,7 +285,6 @@ public class GVRAndroidResource {
         resourceFilePath = null;
         this.url = url;
         resourceType = ResourceType.NETWORK;
-        this.context = context.getContext().getApplicationContext();
     }
 
     /**
@@ -364,12 +354,12 @@ public class GVRAndroidResource {
     public synchronized void openStream() throws IOException {
         switch (resourceType) {
         case ANDROID_ASSETS:
-            stream = context.getResources().getAssets().open(assetPath);
+            File file = new File(assetPath);
+            stream = new FileInputStream(file);
             streamState = StreamStates.OPEN;
             break;
 
         case ANDROID_RESOURCE:
-            stream = context.getResources().openRawResource(resourceId);
             streamState = StreamStates.OPEN;
             break;
 
@@ -466,10 +456,6 @@ public class GVRAndroidResource {
         case ANDROID_ASSETS:
             return assetPath
                     .substring(assetPath.lastIndexOf(File.separator) + 1);
-
-        case ANDROID_RESOURCE:
-            return resourceFilePath.substring(
-                    resourceFilePath.lastIndexOf(File.separator) + 1);
 
         case LINUX_FILESYSTEM:
             return filePath.substring(filePath.lastIndexOf(File.separator) + 1);

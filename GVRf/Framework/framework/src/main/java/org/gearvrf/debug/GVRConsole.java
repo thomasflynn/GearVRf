@@ -30,13 +30,6 @@ import org.gearvrf.GVRShaderData;
 import org.gearvrf.GVRShaderId;
 import org.gearvrf.GVRShaderTemplate;
 import org.gearvrf.GVRTexture;
-import org.gearvrf.R;
-
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 
 import org.gearvrf.utility.TextFile;
 
@@ -71,6 +64,7 @@ public class GVRConsole extends GVRMaterial
 
         public ConsoleShader(GVRContext ctx)
         {
+            /*
             super("", "sampler2D u_texture sampler2D u_overlay", "float3 a_position float2 a_texcoord",GLSLESVersion.V300);
             if (vertexShader == null)
             {
@@ -82,6 +76,7 @@ public class GVRConsole extends GVRMaterial
             }
             setSegment("FragmentTemplate", fragmentShader);
             setSegment("VertexTemplate", vertexShader);
+            */
         }
     }
 
@@ -114,10 +109,9 @@ public class GVRConsole extends GVRMaterial
     private float textSize;
 
     private final List<String> lines = new ArrayList<String>();
-    private Bitmap HUD = Bitmap.createBitmap(HUD_WIDTH, HUD_HEIGHT,
-            Config.ARGB_8888);
-    private Canvas canvas = new Canvas(HUD);
-    private final Paint paint = new Paint();
+//    private Bitmap HUD = Bitmap.createBitmap(HUD_WIDTH, HUD_HEIGHT, Config.ARGB_8888);
+//    private Canvas canvas = new Canvas(HUD);
+//    private final Paint paint = new Paint();
     private final float defaultTextSize = paint.getTextSize();
     private GVRTexture texture = null;
     private float textXOffset = 0.0f;
@@ -201,7 +195,7 @@ public class GVRConsole extends GVRMaterial
      */
     public void setTextColor(int color) {
         textColor = color;
-        paint.setColor(textColor);
+        //paint.setColor(textColor);
     }
 
     /**
@@ -226,7 +220,7 @@ public class GVRConsole extends GVRMaterial
      */
     public void setTextSize(float newSize) {
         textSize = newSize;
-        paint.setTextSize(defaultTextSize * textSize);
+        //paint.setTextSize(defaultTextSize * textSize);
     }
 
     /**
@@ -336,8 +330,8 @@ public class GVRConsole extends GVRMaterial
     public void setCanvasWidthHeight(int width, int height) {
         hudWidth = width;
         hudHeight = height;
-        HUD = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-        canvas = new Canvas(HUD);
+        //HUD = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+        //canvas = new Canvas(HUD);
         texture = null;
     }
 
@@ -366,7 +360,7 @@ public class GVRConsole extends GVRMaterial
 
     private void updateHUD() {
         // TODO Line wrap!
-
+/*
         HUD.eraseColor(Color.TRANSPARENT);
         float textHeight = paint.getFontSpacing();
         int rowsOnScreen = (int) (hudHeight / textHeight);
@@ -386,6 +380,7 @@ public class GVRConsole extends GVRMaterial
         for (int index = lines.size() - 1; index > written; --index) {
             lines.remove(index);
         }
+*/
 
         setMainTexture();
     }
@@ -403,13 +398,13 @@ public class GVRConsole extends GVRMaterial
             if (GVRBitmapTexture.class.isAssignableFrom(image.getClass()))
             {
                 GVRBitmapTexture bmapImage = (GVRBitmapTexture) image;
-                bmapImage.setBitmap(HUD);
+                //bmapImage.setBitmap(HUD);
                 textureUpdated = true;
             }
         }
         if (!textureUpdated)
         {
-            image = new GVRBitmapTexture(getGVRContext(), HUD);
+            //image = new GVRBitmapTexture(getGVRContext(), HUD);
             texture.setImage(image);
             setTexture("u_overlay", texture);
         }

@@ -15,7 +15,6 @@
 
 package org.gearvrf.utility;
 
-import android.graphics.Color;
 
 /**
  * RGB -- GL utilities.
@@ -43,7 +42,7 @@ public abstract class Colors {
         int red = glToByte(rgb[0]);
         int green = glToByte(rgb[1]);
         int blue = glToByte(rgb[2]);
-        return Color.rgb(red, green, blue);
+        return (0xFF << 24 | red << 16 | green << 8 | blue);
     }
 
     public static float[] toColors(int color) {

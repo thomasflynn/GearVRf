@@ -15,7 +15,6 @@
 
 package org.gearvrf;
 
-import static android.opengl.GLES20.*;
 
 import org.gearvrf.utility.Log;
 
@@ -30,8 +29,6 @@ import org.gearvrf.utility.Log;
  */
 public class GVRCompressedTexture extends GVRImage
 {
-    private static final String TAG = Log.tag(GVRCompressedTexture.class);
-
     /**
      * The speed/quality parameter passed to
      * {@link GVRAssetLoader#loadTexture(GVRAndroidResource, GVRAndroidResource.TextureCallback, GVRTextureParameters, int, int)}

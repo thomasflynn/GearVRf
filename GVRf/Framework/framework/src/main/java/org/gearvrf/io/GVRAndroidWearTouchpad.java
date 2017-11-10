@@ -16,6 +16,7 @@
 
 package org.gearvrf.io;
 
+/*
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.MotionEvent;
+*/
 
 import org.gearvrf.GVRActivity;
 import org.gearvrf.GVRContext;
@@ -34,7 +36,6 @@ import org.gearvrf.GVREventListeners.ActivityEvents;
 import org.gearvrf.GVREventManager;
 
 class GVRAndroidWearTouchpad {
-    private static final String TAG = GVRAndroidWearTouchpad.class.getSimpleName();
     private static final String WEAR_INPUT_SERVICE_CLASS = "org.gearvrf.weartouchpad" +
             ".WearInputService";
     private static final String WEAR_INPUT_SERVICE_PACKAGE = "org.gearvrf.weartouchpad";
@@ -43,8 +44,8 @@ class GVRAndroidWearTouchpad {
     private static final int MSG_CONNECTION_UNSUCCESFUL = 3;
     private static final int MSG_TOUCH_EVENT = 4;
 
-    private Messenger sendMessenger = null;
-    private Messenger receiveMessenger = null;
+//    private Messenger sendMessenger = null;
+//    private Messenger receiveMessenger = null;
     private GVRContext gvrContext;
     private GVRActivity activity;
     private GVREventManager eventManager;
@@ -59,6 +60,7 @@ class GVRAndroidWearTouchpad {
         connectToWatch();
     }
 
+    /*
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -90,12 +92,14 @@ class GVRAndroidWearTouchpad {
             boundToService = false;
         }
     }
+    */
 
     boolean isConnectedToWatch() {
         return connectedToWatch;
     }
 
     private void connectToWatch() {
+        /*
         if (!boundToService) {
             Intent i = new Intent();
             i.setComponent(new ComponentName(WEAR_INPUT_SERVICE_PACKAGE, WEAR_INPUT_SERVICE_CLASS));
@@ -106,8 +110,10 @@ class GVRAndroidWearTouchpad {
             }
             receiveMessenger = new Messenger(new IncomingMsgHandler());
         }
+        */
     }
 
+    /*
     private class IncomingMsgHandler extends Handler {
 
         IncomingMsgHandler() {
@@ -140,12 +146,13 @@ class GVRAndroidWearTouchpad {
             }
         }
     }
+    */
 
     private class ActivityPauseEvent extends ActivityEvents {
         @Override
         public void onPause() {
             super.onPause();
-            disconnectFromWatch();
+     //       disconnectFromWatch();
         }
     }
 }

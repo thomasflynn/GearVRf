@@ -15,7 +15,6 @@
 
 package org.gearvrf;
 
-import android.view.MotionEvent;
 
 /**
  * Interface definition for a callback to be invoked when a touch event is dispatched
@@ -30,5 +29,5 @@ public interface ITouchEvents extends IEvents {
      * @param event The MotionEvent object containing full information about the event.
      * @param hitLocation Hit location.
      */
-    void onTouch(GVRSceneObject sceneObject, MotionEvent event, float[] hitLocation);
+//    void onTouch(GVRSceneObject sceneObject, MotionEvent event, float[] hitLocation);
 }

@@ -20,9 +20,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.graphics.BitmapFactory;
-import android.opengl.GLES20;
-
 import org.gearvrf.GVRCompressedTexture;
 
 /**

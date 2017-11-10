@@ -15,13 +15,6 @@
 
 package org.gearvrf.io;
 
-import android.os.Handler;
-import android.os.Handler.Callback;
-import android.os.HandlerThread;
-import android.os.Message;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-
 import org.gearvrf.GVRContext;
 import org.gearvrf.GVRDrawFrameListener;
 import org.gearvrf.GVRScene;
@@ -29,6 +22,7 @@ import org.gearvrf.GVRTransform;
 import org.joml.Vector3f;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.ArrayList;
 
 final class GVRGazeCursorController extends GVRBaseController implements GVRDrawFrameListener {
     private static final int TAP_TIMEOUT = 60;
@@ -48,7 +42,7 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
     
     // Saves the relative position of the cursor with respect to the camera.
     private final Vector3f setPosition;
-    private EventHandlerThread thread;
+//    private EventHandlerThread thread;
 
     GVRGazeCursorController(GVRContext context,
                                    GVRControllerType controllerType, String name, int vendorId,
@@ -57,7 +51,7 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
         this.context = context;
         gazeDirection = new Vector3f();
         setPosition = new Vector3f();
-        thread = new EventHandlerThread();
+//        thread = new EventHandlerThread();
         isEnabled = isEnabled();
     }
 
@@ -73,10 +67,12 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
     }
 
     private void start(){
+        /*
         if (!thread.isAlive()) {
             thread.start();
             thread.await();
         }
+        */
         context.registerDrawFrameListener(this);
     }
 
@@ -103,20 +99,25 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
 
     @Override
     protected synchronized void setScene(GVRScene scene) {
+        /*
         if (!thread.isAlive()) {
             super.setScene(scene);
         } else {
             thread.setScene(scene);
         }
+        */
     }
 
     @Override
     public synchronized void invalidate() {
+        /*
         if (thread.isAlive()) {
             thread.sendInvalidate();
         }
+        */
     }
 
+        /*
     @Override
     synchronized boolean dispatchKeyEvent(KeyEvent event) {
         if (thread.isAlive()) {
@@ -124,7 +125,9 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
         }
         return true;
     }
+        */
 
+        /*
     @Override
     synchronized boolean dispatchMotionEvent(MotionEvent event) {
         if(!thread.isAlive()){
@@ -173,6 +176,7 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
         setMotionEvent(clone);
         return true;
     }
+        */
 
     @Override
     public synchronized void setEnable(boolean enable) {
@@ -180,13 +184,13 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
             isEnabled = true;
             if (referenceCount > 0) {
                 start();
-                thread.setEnabled(true);
+                //thread.setEnabled(true);
             }
 
         } else if (isEnabled && !enable) {
             isEnabled = false;
             if (referenceCount > 0) {
-                thread.setEnabled(false);
+                //thread.setEnabled(false);
                 stop();
             }
         }
@@ -201,7 +205,7 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
     @Override
     public void setPosition(float x, float y, float z) {
         setPosition.set(x, y, z);
-        thread.setPosition(x, y, z);
+        //thread.setPosition(x, y, z);
     }
 
     @Override
@@ -210,7 +214,7 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
             setPosition.mulDirection(context.getMainScene().getMainCameraRig()
                     .getHeadTransform().getModelMatrix4f(), gazeDirection);
         }
-        thread.setPosition(gazeDirection.x, gazeDirection.y, gazeDirection.z);
+        //thread.setPosition(gazeDirection.x, gazeDirection.y, gazeDirection.z);
     }
 
     void close() {
@@ -218,11 +222,14 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
             context.unregisterDrawFrameListener(this);
             referenceCount = 0;
         }
+        /*
         if (thread.isAlive()) {
             thread.quitSafely();
         }
+        */
     }
 
+    /*
     private final class EventHandlerThread extends HandlerThread {
         private static final String THREAD_NAME = "GVRGazeEventHandlerThread";
         public static final int SET_POSITION = 0;
@@ -337,4 +344,5 @@ final class GVRGazeCursorController extends GVRBaseController implements GVRDraw
             }
         }
     }
+    */
 }

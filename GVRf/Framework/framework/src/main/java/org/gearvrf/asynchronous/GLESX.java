@@ -15,13 +15,12 @@
 
 package org.gearvrf.asynchronous;
 
-import android.opengl.GLES30;
 
 /**
  * Primarily declarations for the GL_KHR_texture_compression_astc_ldr (and
  * GL_KHR_texture_compression_astc_hdr?) extension(s).
  */
-abstract class GLESX extends GLES30 {
+abstract class GLESX {
 
     /**
      * If {@code glGetString(GL_EXTENSIONS)} does not contain
