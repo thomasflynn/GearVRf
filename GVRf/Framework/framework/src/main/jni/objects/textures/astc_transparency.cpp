@@ -35,7 +35,7 @@ namespace gvr {
  * Any 'section', 'table' or 'figure' referenced will be referring to that URL.
  *
  */
-
+#define EXTRA_VERBOSE_LOGGING 0
 #define MAX_WEIGHTS 64     // found from Section C.2.24 Illegal Encodings
 #define MIN_WEIGHT_BITS 24 // found from Section C.2.24 Illegal Encodings
 #define MAX_WEIGHT_BITS 96 // found from Section C.2.24 Illegal Encodings
@@ -299,12 +299,14 @@ void decode_block(uint32_t block_mode, decoded_block_t *decoded_block)
     decoded_block->num_weights = decoded_block->width * decoded_block->height * (D+1);
     decoded_block->is_dual_plane = D;
 
+#if EXTRA_VERBOSE_LOGGING
     LOGD("width: %0X\n", decoded_block->width);
     LOGD("height: %0X\n", decoded_block->height);
     LOGD("D: %0X\n", D);
 
     LOGD("num_weights: %0X\n", decoded_block->num_weights);
     LOGD("is_dual_plane: %0X\n", decoded_block->is_dual_plane);
+#endif
 
     int trits;
     int quints;
@@ -315,11 +317,14 @@ void decode_block(uint32_t block_mode, decoded_block_t *decoded_block)
     // The 'R' value determines how many bits are used for weights.
     int full_R_value = r0 | (r1 << 1) | (r2 << 2);
     decode_r_value(full_R_value, H, &trits, &quints, &bits);
+
+#if EXTRA_VERBOSE_LOGGING
     LOGD("full_R_value: %0X\n", full_R_value);
     LOGD("H: %0X\n", H);
     LOGD("trits: %0X\n", trits);
     LOGD("quints: %0X\n", quints);
     LOGD("bits: %0X\n", bits);
+#endif
 
     if(trits)
     {
@@ -333,7 +338,9 @@ void decode_block(uint32_t block_mode, decoded_block_t *decoded_block)
     {
         num_weight_bits = bits * decoded_block->num_weights;
     }
+#if EXTRA_VERBOSE_LOGGING
     LOGD("num_weight_bits: %0X\n", num_weight_bits);
+#endif
 
     decoded_block->weight_bits = num_weight_bits;
 
@@ -356,10 +363,13 @@ int extract_color_endpoint_mode_upper_bits(uint64_t input[], int offset, int siz
     uint64_t input0 = input[0];
     uint64_t input1 = input[1];
 
+#if EXTRA_VERBOSE_LOGGING
     LOGD("extract_color_endpoint_mode_upper_bits...\n");
     LOGD("  input[0] = %" PRIx64 "\n", input0);
     LOGD("  input[1] = %" PRIx64 "\n", input1);
     LOGD("  offset = %d, size = %d\n", offset, size);
+#endif
+
     int bitsmask = (1 << size) - 1;
     int shift_upper = 0;
     int shift_lower = offset;
@@ -368,14 +378,18 @@ int extract_color_endpoint_mode_upper_bits(uint64_t input[], int offset, int siz
 
     if((offset + size) < 64)
     {
+#if EXTRA_VERBOSE_LOGGING
     LOGD("  lower\n");
+#endif
         lowerbits = size;
         upperbits = 0;
         input0 = 0;
     }
     else if((offset + size) > (64 + size))
     {
+#if EXTRA_VERBOSE_LOGGING
     LOGD("  upper\n");
+#endif
         lowerbits = 0;
         input1 = 0;
         upperbits = size;
@@ -383,16 +397,20 @@ int extract_color_endpoint_mode_upper_bits(uint64_t input[], int offset, int siz
     }
     else
     {
+#if EXTRA_VERBOSE_LOGGING
     LOGD("  straddle\n");
+#endif
         shift_upper = 0;
         upperbits = (offset + size) - 64;
         lowerbits = size - upperbits;
     }
 
+#if EXTRA_VERBOSE_LOGGING
     LOGD("  upperbits = %d\n", upperbits);
     LOGD("  lowerbits = %d\n", lowerbits);
     LOGD("  shift_upper = %d\n", shift_upper);
     LOGD("  shift_lower = %d\n", shift_lower);
+#endif
 
     int upperbitsmask = (1 << upperbits) - 1;
     int lowerbitsmask = (1 << lowerbits) - 1;
@@ -400,12 +418,16 @@ int extract_color_endpoint_mode_upper_bits(uint64_t input[], int offset, int siz
     int output_upper = (input0 >> shift_upper) & 0xFFFF;
     int output_lower = (input1 >> shift_lower) & 0xFFFF;
 
+#if EXTRA_VERBOSE_LOGGING
     LOGD("  output_upper = %0X\n", output_upper);
     LOGD("  output_lower = %0X\n", output_lower);
+#endif
     int output = ((output_upper << lowerbits) | output_lower) & bitsmask;
+#if EXTRA_VERBOSE_LOGGING
     LOGD("  output = %0X\n", output);
 
     LOGD("done extract_color_endpoint_mode_upper_bits\n");
+#endif
 
     return output;
 }
@@ -440,9 +462,11 @@ bool detectAlpha(void *data, int datasize)
     int y = header.blockdim_y;
     int z = header.blockdim_z;
 
+#if EXTRA_VERBOSE_LOGGING
     LOGD("x = %d\n", x);
     LOGD("y = %d\n", y);
     LOGD("z = %d\n", z);
+#endif
 
     int xsize = header.xsize[0] |
                 header.xsize[1] << 8 |
@@ -451,8 +475,10 @@ bool detectAlpha(void *data, int datasize)
                 header.ysize[1] << 8 |
                 header.ysize[2] << 16;
 
+#if EXTRA_VERBOSE_LOGGING
     LOGD("xsize = %d\n", xsize);
     LOGD("ysize = %d\n", ysize);
+#endif
 
     int num_blocks = 0;
     int block_size = 16;
@@ -460,17 +486,21 @@ bool detectAlpha(void *data, int datasize)
 
     for(block_offset = block_size; block_offset < datasize; block_offset += block_size) {
         memcpy(&block, (uint8_t*)data+block_offset, block_size);
+#if EXTRA_VERBOSE_LOGGING
         LOGD("\nblock number: %d\n", num_blocks);
+#endif
 
         // The block mode is the first 10 bits of information in the block.
         // For overall block layout, see Figure C.1 - Block Layout Overview.
         // "Block Mode" itself is covered in section C.2.10
         int block_mode = block[0] & 0x07FF;
+#if EXTRA_VERBOSE_LOGGING
         LOGD("block_mode = %0X\n", block_mode);
         LOGD("block[3]: 0x%08X\n", block[3]);
         LOGD("block[2]: 0x%08X\n", block[2]);
         LOGD("block[1]: 0x%08X\n", block[1]);
         LOGD("block[0]: 0x%08X\n", block[0]);
+#endif
 
 #ifdef HAS_128BIT
         // Some compilers appear to support an unsigned 128 bit type.
@@ -499,14 +529,20 @@ bool detectAlpha(void *data, int datasize)
         // So we just need to check if the alpha is less than that value.
         if((block_mode & 0x01FC) == 0x01FC)
         {
+#if EXTRA_VERBOSE_LOGGING
             LOGD("void-extent block!!\n");
+#endif
 
             uint16_t alpha = (block[3] & 0xFFFF0000) >> 16;
+#if EXTRA_VERBOSE_LOGGING
             LOGD("alpha component: 0x%02X\n", alpha);
+#endif
             if(alpha < 0xFFFF)
             {
+#if EXTRA_VERBOSE_LOGGING
                 LOGD("hasAlpha = true\n");
                 LOGD("at block number = %d\n", num_blocks);
+#endif
                 return 0;
             }
         }
@@ -528,7 +564,9 @@ bool detectAlpha(void *data, int datasize)
 
         if(!decoded_block.is_valid_block)
         {
-        LOGD("decode: error_block = 1\n");
+#if EXTRA_VERBOSE_LOGGING
+            LOGD("decode: error_block = 1\n");
+#endif
             continue;
         }
 
@@ -538,7 +576,9 @@ bool detectAlpha(void *data, int datasize)
         //  the 'below weights position' is used when determining the color endpoint modes when
         //  the number of partitions is > 1.
         int below_weights = 128 - decoded_block.weight_bits;
+#if EXTRA_VERBOSE_LOGGING
         LOGD("below_weights = %0X\n", below_weights);
+#endif
 
         // Partitions is how ASTC handles multiple, very-different colors inside a single block.
         // This is described in Section C.2.4 - Block Encoding.
@@ -546,7 +586,9 @@ bool detectAlpha(void *data, int datasize)
         // Anyway, we need to know how many partitions there are and that is stored in bits
         // 11 and 12.  See Figure C.1 - Block Layout Overview
         int num_partitions = ((block[0] >> 11) & 0x0003) + 1;
+#if EXTRA_VERBOSE_LOGGING
         LOGD("partitions = %d\n", num_partitions);
+#endif
 
         // The "Color Endpoint Mode" tells us what format the endpoints of the block are in.
         // For example:  RGB, RGBA, etc.
@@ -560,12 +602,15 @@ bool detectAlpha(void *data, int datasize)
         {
             // read color endpoint mode
             color_endpoint_mode = (block[0] >> 13) & 0x0F;
-            //LOGD("cem = %d\n", color_endpoint_mode);
+#if EXTRA_VERBOSE_LOGGING
             LOGD("decode: color_formats[0] = %d\n", color_endpoint_mode);
+#endif
             if(hasAlpha(color_endpoint_mode))
             {
+#if EXTRA_VERBOSE_LOGGING
                 LOGD("hasAlpha = true\n");
                 LOGD("at block number = %d\n", num_blocks);
+#endif
                 return 0;
             }
         }
@@ -604,23 +649,29 @@ bool detectAlpha(void *data, int datasize)
             // that off the position of where the end of the weights are located.  This will
             // allow us to get M0..M3 (color_endpoint_mode_upper_bits):
             int color_endpoint_mode_upper_bits_pos = below_weights - num_bits_of_M;
+#if EXTRA_VERBOSE_LOGGING
             LOGD("color_endpoint_mode_upper_bits_pos = 0x%0X\n", color_endpoint_mode_upper_bits_pos);
+#endif
 
             int M_mask = (1 << num_bits_of_M) - 1;
             int color_endpoint_mode_upper_bits = 0;
 
 #ifdef HAS_128BIT
             color_endpoint_mode_upper_bits = (u128_block >> color_endpoint_mode_upper_bits_pos) & M_mask;
+#if EXTRA_VERBOSE_LOGGING
             LOGD("color_endpoint_mode_upper_bits = 0x%0X\n", (uint32_t)((u128_block >> color_endpoint_mode_upper_bits_pos) & 0xFFFF));
+#endif
 #else
             color_endpoint_mode_upper_bits = extract_color_endpoint_mode_upper_bits(u64_block, color_endpoint_mode_upper_bits_pos, num_bits_of_M);
 #endif
  
 
 
+#if EXTRA_VERBOSE_LOGGING
             LOGD("M_mask = 0x%0X\n", M_mask);
             LOGD("color_endpoint_mode_upper_bits = 0x%0X\n", color_endpoint_mode_upper_bits);
             LOGD("b4 color_endpoint_mode = 0x%0X\n", color_endpoint_mode);
+#endif
             // reconstruct the color endpoint mode.  note we still have the two selector bits
             // as part of this.  that'll be dealt with shortly.
             color_endpoint_mode |= (color_endpoint_mode_upper_bits << 6);
@@ -640,8 +691,10 @@ bool detectAlpha(void *data, int datasize)
             }
             else // the selector is > 0
             {
+#if EXTRA_VERBOSE_LOGGING
                 LOGD("color_endpoint_mode = 0x%0X\n", color_endpoint_mode);
                 LOGD("color_endpoint_mode_selector = 0x%0X\n", color_endpoint_mode_selector);
+#endif
 
                 // See Figure C.4 - Multi-Partition Color Endpoint Modes
                 // We need to reconstruct the color endpoint mode for each paritition
@@ -664,12 +717,15 @@ bool detectAlpha(void *data, int datasize)
             // reconstructed at this point.  Let's check them for an Alpha component:
             for(int i=0; i<num_partitions; i++)
             {
-                //LOGD("cem[%d] = %d\n", i, cem[i]);
+#if EXTRA_VERBOSE_LOGGING
                 LOGD("decode: color_formats[%d] = %d\n", i, cem[i]);
+#endif
                 if(hasAlpha(cem[i]))
                 {
+#if EXTRA_VERBOSE_LOGGING
                     LOGD("hasAlpha = true\n");
                     LOGD("at block number = %d\n", num_blocks);
+#endif
                     return 0;
                 }
             }
@@ -677,7 +733,9 @@ bool detectAlpha(void *data, int datasize)
         num_blocks++;
     }
 
+#if EXTRA_VERBOSE_LOGGING
     LOGD("num_blocks = %d\n", num_blocks);
+#endif
 
 }
 
