@@ -24,32 +24,32 @@ import org.gearvrf.utility.VrAppSettings;
 /**
  * {@inheritDoc}
  */
-final class OvrActivityDelegate implements GVRActivity.GVRActivityDelegate {
+final class MonoscopicActivityDelegate implements GVRActivity.GVRActivityDelegate {
     private GVRActivity mActivity;
-    private OvrViewManager mActiveViewManager;
-    private OvrActivityNative mActivityNative;
+    private MonoscopicViewManager mActiveViewManager;
+    private MonoscopicActivityNative mActivityNative;
 
     @Override
     public void onCreate(GVRActivity activity) {
         mActivity = activity;
 
-        mActivityNative = new OvrActivityNative(mActivity, mActivity.getAppSettings());
-        mActivityHandler = new OvrVrapiActivityHandler(activity, mActivityNative);
+        mActivityNative = new MonoscopicActivityNative(mActivity, mActivity.getAppSettings());
+        mActivityHandler = new MonoscopicVrapiActivityHandler(activity, mActivityNative);
     }
 
     @Override
-    public OvrActivityNative getActivityNative() {
+    public MonoscopicActivityNative getActivityNative() {
         return mActivityNative;
     }
 
     @Override
     public GVRViewManager makeViewManager() {
-        return new OvrViewManager(mActivity, mActivity.getMain(), mXmlParser);
+        return new MonoscopicViewManager(mActivity, mActivity.getMain(), mXmlParser);
     }
 
     @Override
-    public GVRViewManager makeMonoscopicViewManager() {
-        throw new UnsupportedOperationException();
+    public MonoscopicViewManager makeMonoscopicViewManager() {
+        return new MonoscopicViewManager(mActivity, mActivity.getMain(), mXmlParser);
     }
 
     @Override
@@ -59,12 +59,12 @@ final class OvrActivityDelegate implements GVRActivity.GVRActivityDelegate {
 
     @Override
     public GVRConfigurationManager makeConfigurationManager(GVRActivity activity) {
-        return new OvrConfigurationManager(activity);
+        return new MonoscopicConfigurationManager(activity);
     }
 
     @Override
     public void parseXmlSettings(AssetManager assetManager, String dataFilename) {
-        mXmlParser = new OvrXMLParser(assetManager, dataFilename, mActivity.getAppSettings());
+        mXmlParser = new MonoscopicXMLParser(assetManager, dataFilename, mActivity.getAppSettings());
     }
 
     @Override
@@ -103,7 +103,7 @@ final class OvrActivityDelegate implements GVRActivity.GVRActivityDelegate {
 
     @Override
     public void setViewManager(GVRViewManager viewManager) {
-        mActiveViewManager = (OvrViewManager)viewManager;
+        mActiveViewManager = (MonoscopicViewManager)viewManager;
         mActivityHandler.setViewManager(mActiveViewManager);
     }
 
@@ -113,7 +113,7 @@ final class OvrActivityDelegate implements GVRActivity.GVRActivityDelegate {
 
     @Override
     public VrAppSettings makeVrAppSettings() {
-        return new OvrVrAppSettings();
+        return new MonoscopicVrAppSettings();
     }
 
     @Override
@@ -131,6 +131,6 @@ final class OvrActivityDelegate implements GVRActivity.GVRActivityDelegate {
         return false;
     }
 
-    private OvrXMLParser mXmlParser;
-    private OvrActivityHandler mActivityHandler;
+    private MonoscopicXMLParser mXmlParser;
+    private MonoscopicActivityHandler mActivityHandler;
 }
