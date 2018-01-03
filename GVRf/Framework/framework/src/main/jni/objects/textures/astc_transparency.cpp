@@ -444,6 +444,18 @@ bool detectAlpha(void *data, int datasize)
     uint64_t u64_block[2];
 #endif
 
+    if(data == NULL)
+    {
+        LOGE("data     = %p\n", data);
+        LOGE("datasize = %d\n", datasize);
+        LOGE("No data to work with, returning false\n");
+        return false;
+    }
+
+    // the size passed in does not include the header.
+    // we'll need the size that includes the header for our processing.
+    datasize += sizeof(astc_header_t);
+
     memcpy(&header, data, sizeof(astc_header_t));
 
     if(memcmp((void *)&header.magic, (void *)&MAGIC_NUMBER, 4) != 0)
@@ -543,7 +555,7 @@ bool detectAlpha(void *data, int datasize)
                 LOGD("hasAlpha = true\n");
                 LOGD("at block number = %d\n", num_blocks);
 #endif
-                return 0;
+                return true;
             }
         }
 
@@ -611,7 +623,7 @@ bool detectAlpha(void *data, int datasize)
                 LOGD("hasAlpha = true\n");
                 LOGD("at block number = %d\n", num_blocks);
 #endif
-                return 0;
+                return true;
             }
         }
         else // there are multiple partitions...
@@ -726,7 +738,7 @@ bool detectAlpha(void *data, int datasize)
                     LOGD("hasAlpha = true\n");
                     LOGD("at block number = %d\n", num_blocks);
 #endif
-                    return 0;
+                    return true;
                 }
             }
         }
@@ -737,6 +749,7 @@ bool detectAlpha(void *data, int datasize)
     LOGD("num_blocks = %d\n", num_blocks);
 #endif
 
+    return false;
 }
 
 

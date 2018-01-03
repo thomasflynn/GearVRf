@@ -104,11 +104,14 @@ void BitmapImage::update(JNIEnv *env, int width, int height, int imageSize,
     mIsCompressed = true;
     mImageSize = imageSize;
     setDataOffsets(dataOffsets, levels);
-    set_transparency(hasAlpha(mFormat));
     if (data != NULL)
     {
         mData = static_cast<jbyteArray>(env->NewGlobalRef(data));
+        mPixels = env->GetByteArrayElements(mData, 0);
         LOGV("Texture: BitmapImage::update(byteArray, offsets)");
+        set_transparency(hasAlpha(mFormat));
+        env->ReleaseByteArrayElements(mData, mPixels, 0);
+        mPixels = NULL;
         signalUpdate();
     }
 }
@@ -165,7 +168,7 @@ bool BitmapImage::hasAlpha(int format) {
         case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
         case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
         case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
-            return astc_has_transparency(mData, mImageSize);
+            return astc_has_transparency(mPixels, mImageSize);
             break;
         default:
             return false;
