@@ -5,17 +5,9 @@ import android.graphics.PointF;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-
 class MonoscopicControllerReader implements org.gearvrf.io.GearCursorController.ControllerReader {
 
-    private FloatBuffer readbackBuffer;
-    private final long mPtr;
-
-    MonoscopicControllerReader(long ptrActivityNative) {
-        mPtr = ptrActivityNative;
+    MonoscopicControllerReader() {
     }
 
     @Override

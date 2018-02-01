@@ -25,30 +25,22 @@ import org.gearvrf.utility.VrAppSettings;
  * {@inheritDoc}
  */
 final class MonoscopicActivityDelegate implements GVRActivity.GVRActivityDelegate {
-    private GVRActivity mActivity;
-    private MonoscopicViewManager mActiveViewManager;
-    private MonoscopicActivityNative mActivityNative;
-
     @Override
     public void onCreate(GVRActivity activity) {
-        mActivity = activity;
+        if (null == activity) {
+            throw new IllegalArgumentException();
+        }
 
-        mActivityNative = new MonoscopicActivityNative(mActivity, mActivity.getAppSettings());
-        mActivityHandler = new MonoscopicVrapiActivityHandler(activity, mActivityNative);
+        mActivity = activity;
     }
 
     @Override
-    public MonoscopicActivityNative getActivityNative() {
-        return mActivityNative;
+    public IActivityNative getActivityNative() {
+        return null;
     }
 
     @Override
     public GVRViewManager makeViewManager() {
-        return new MonoscopicViewManager(mActivity, mActivity.getMain(), mXmlParser);
-    }
-
-    @Override
-    public MonoscopicViewManager makeMonoscopicViewManager() {
         return new MonoscopicViewManager(mActivity, mActivity.getMain(), mXmlParser);
     }
 
@@ -69,24 +61,15 @@ final class MonoscopicActivityDelegate implements GVRActivity.GVRActivityDelegat
 
     @Override
     public boolean onBackPress() {
-        if (null != mActivityHandler) {
-            return mActivityHandler.onBack();
-        }
-        return false;
+        return true;
     }
 
     @Override
     public void onPause() {
-        if (null != mActivityHandler) {
-            mActivityHandler.onPause();
-        }
     }
 
     @Override
     public void onResume() {
-        if (null != mActivityHandler) {
-            mActivityHandler.onResume();
-        }
     }
 
     @Override
@@ -95,16 +78,11 @@ final class MonoscopicActivityDelegate implements GVRActivity.GVRActivityDelegat
 
     @Override
     public boolean setMain(GVRMain gvrMain, String dataFileName) {
-        if (null != mActivityHandler) {
-            mActivityHandler.onSetScript();
-        }
         return true;
     }
 
     @Override
     public void setViewManager(GVRViewManager viewManager) {
-        mActiveViewManager = (MonoscopicViewManager)viewManager;
-        mActivityHandler.setViewManager(mActiveViewManager);
     }
 
     @Override
@@ -131,6 +109,8 @@ final class MonoscopicActivityDelegate implements GVRActivity.GVRActivityDelegat
         return false;
     }
 
+    private GVRActivity mActivity;
     private MonoscopicXMLParser mXmlParser;
-    private MonoscopicActivityHandler mActivityHandler;
+
+    private static final String TAG = "MonoscopicActivityDelegate";
 }

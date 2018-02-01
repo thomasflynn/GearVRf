@@ -29,17 +29,7 @@ endif
 
 include $(CLEAR_VARS)
 
-ifndef OVR_MOBILE_SDK
-	OVR_MOBILE_SDK=../../../../../ovr_sdk_mobile
-endif
-
-$(info OVR_MOBILE_SDK is set to $(OVR_MOBILE_SDK))
-include $(OVR_MOBILE_SDK)/cflags.mk
-
 LOCAL_MODULE := gvrf-monoscopic
-
-LOCAL_C_INCLUDES += $(OVR_MOBILE_SDK)/VrApi/Include
-LOCAL_C_INCLUDES += $(OVR_MOBILE_SDK)/VrAppSupport/SystemUtils/Include
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../../framework/src/main/jni/
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../../../framework/src/main/jni/util
@@ -61,8 +51,6 @@ LOCAL_SRC_FILES += $(FILE_LIST:$(LOCAL_PATH)/%=%)
 FILE_LIST := $(wildcard $(LOCAL_PATH)/monoscopic/*.cpp)
 LOCAL_SRC_FILES += $(FILE_LIST:$(LOCAL_PATH)/%=%)
 
-LOCAL_SHARED_LIBRARIES += vrapi
-
 ## CPP flags are already defined in cflags.mk.
 #LOCAL_CPPFLAGS += -fexceptions -frtti -std=c++11 -D__GXX_EXPERIMENTAL_CXX0X__ -mhard-float -D_NDK_MATH_NO_SOFTFP=1
 #for NO_RTTI and softFP
@@ -75,6 +63,3 @@ ifeq ($(LIBGVRF_EXISTS),1)
 endif
 
 include $(BUILD_SHARED_LIBRARY)
-
-$(call import-add-path, $(OVR_MOBILE_SDK))
-$(call import-module,VrApi/Projects/AndroidPrebuilt/jni)

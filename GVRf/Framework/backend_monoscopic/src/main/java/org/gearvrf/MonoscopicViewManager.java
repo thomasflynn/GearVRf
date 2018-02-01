@@ -15,9 +15,6 @@
 
 package org.gearvrf;
 
-import org.gearvrf.utility.Log;
-import org.gearvrf.utility.VrAppSettings;
-
 import android.app.Activity;
 import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
@@ -27,6 +24,7 @@ import org.gearvrf.debug.GVRFPSTracer;
 import org.gearvrf.debug.GVRMethodCallTracer;
 import org.gearvrf.debug.GVRStatsLine;
 import org.gearvrf.io.GearCursorController;
+import org.gearvrf.utility.Log;
 
 /*
  * This is the most important part of gvrf.
@@ -67,6 +65,10 @@ import org.gearvrf.io.GearCursorController;
  */
 class MonoscopicViewManager extends GVRViewManager implements MonoscopicRotationSensorListener {
 
+    static {
+        System.loadLibrary("gvrf-monoscopic");
+    }
+
     private static final String TAG = Log.tag(MonoscopicViewManager.class);
     protected MonoscopicRotationSensor mRotationSensor;
     protected MonoscopicLensInfo mLensInfo;
@@ -87,7 +89,7 @@ class MonoscopicViewManager extends GVRViewManager implements MonoscopicRotation
 
 
     private MonoscopicSurfaceView mView;
-    private int mViewportX, mViewportY, mViewportWidth, mViewportHeight, sampleCount;
+    private int mViewportWidth, mViewportHeight, sampleCount;
     private GVRRenderTarget mRenderTarget[] = new GVRRenderTarget[3];
     private boolean isVulkanInstance = false;
     volatile boolean  activeFlag = true;
@@ -161,20 +163,11 @@ class MonoscopicViewManager extends GVRViewManager implements MonoscopicRotation
 
         float aspect = (float) fboWidth / (float) fboHeight;
         GVRPerspectiveCamera.setDefaultAspectRatio(aspect);
-        mViewportX = 0;
-        mViewportY = 0;
         mViewportWidth = fboWidth;
         mViewportHeight = fboHeight;
 
         mLensInfo.setFBOWidth(mViewportWidth);
         mLensInfo.setFBOHeight(mViewportHeight);
-
-        if (fboWidth != screenWidthPixels) {
-            mViewportX = (screenWidthPixels / 2) - (fboWidth / 2);
-        }
-        if (fboHeight != screenHeightPixels) {
-            mViewportY = (screenHeightPixels / 2) - (fboHeight / 2);
-        }
 
         sampleCount = gvrActivity.getAppSettings().getEyeBufferParams().getMultiSamples();
 
@@ -340,88 +333,6 @@ class MonoscopicViewManager extends GVRViewManager implements MonoscopicRotation
         return (isVulkanInstance ? mRenderTarget[NativeVulkanCore.getSwapChainIndexToRender()] : mRenderTarget[0]);
     }
 
-
-
-    /**
-     * Called from the native side
-     * @param eye
-     */
-    void onDrawEye(int eye, int swapChainIndex, boolean use_multiview) {
-        mCurrentEye = eye;
-        if (!(mSensoredScene == null || !mMainScene.equals(mSensoredScene))) {
-            GVRCameraRig mainCameraRig = mMainScene.getMainCameraRig();
-
-            if (use_multiview) {
-
-                if (DEBUG_STATS) {
-                    mTracerDrawEyes1.enter(); // this eye is drawn first
-                    mTracerDrawEyes2.enter();
-                }
-                GVRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.MULTIVIEW, swapChainIndex);
-                GVRCamera camera = mMainScene.getMainCameraRig().getCenterCamera();
-                GVRCamera left_camera = mMainScene.getMainCameraRig().getLeftCamera();
-                renderTarget.cullFromCamera(mMainScene, camera,mRenderBundle.getMaterialShaderManager());
-
-                captureCenterEye(renderTarget, true);
-                capture3DScreenShot(renderTarget, true);
-
-                renderTarget.render(mMainScene, left_camera, mRenderBundle.getMaterialShaderManager(),mRenderBundle.getPostEffectRenderTextureA(),
-                        mRenderBundle.getPostEffectRenderTextureB());
-
-                captureRightEye(renderTarget, true);
-                captureLeftEye(renderTarget, true);
-
-                captureFinish();
-
-                if (DEBUG_STATS) {
-                    mTracerDrawEyes1.leave();
-                    mTracerDrawEyes2.leave();
-                }
-
-
-            } else {
-
-                if (eye == 1) {
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes1.enter();
-                    }
-
-                    GVRCamera rightCamera = mainCameraRig.getRightCamera();
-                    GVRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.RIGHT, swapChainIndex);
-                    renderTarget.render(mMainScene, rightCamera, mRenderBundle.getMaterialShaderManager(), mRenderBundle.getPostEffectRenderTextureA(),
-                            mRenderBundle.getPostEffectRenderTextureB());
-
-                    captureRightEye(renderTarget, false);
-
-                    captureFinish();
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes1.leave();
-                        mTracerDrawEyes.leave();
-                    }
-                } else {
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes.enter(); // this eye is drawn first
-                        mTracerDrawEyes2.enter();
-                    }
-                    GVRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.LEFT, swapChainIndex);
-                    GVRCamera leftCamera = mainCameraRig.getLeftCamera();
-
-                    capture3DScreenShot(renderTarget, false);
-
-                    renderTarget.cullFromCamera(mMainScene, mainCameraRig.getCenterCamera(), mRenderBundle.getMaterialShaderManager());
-                    captureCenterEye(renderTarget, false);
-                    renderTarget.render(mMainScene, leftCamera, mRenderBundle.getMaterialShaderManager(), mRenderBundle.getPostEffectRenderTextureA(), mRenderBundle.getPostEffectRenderTextureB());
-
-                    captureLeftEye(renderTarget, false);
-
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes2.leave();
-                    }
-                }
-            }
-        }
-    }
-
     /*
      * GL life cycle
      */
@@ -460,8 +371,7 @@ class MonoscopicViewManager extends GVRViewManager implements MonoscopicRotation
         mGearController = mInputManager.getGearController();
         if (mGearController != null)
         {
-            mGearController.attachReader(
-                    new MonoscopicControllerReader(mActivity.getActivityNative().getNative()));
+            mGearController.attachReader(new MonoscopicControllerReader());
         }
     }
 
