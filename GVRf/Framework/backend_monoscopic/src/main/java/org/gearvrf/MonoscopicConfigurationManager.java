@@ -22,13 +22,12 @@ final class MonoscopicConfigurationManager extends GVRConfigurationManager {
     }
 
     @Override
-    public boolean isHmtConnected() {
-
-        final GVRActivity activity = (GVRActivity) mActivity.get();
-        if (null == activity) {
-            return false;
-        }
-        return true;  // should this be hard-coded to true or false?
+    public boolean isDockListenerRequired() {
+        return false;
     }
 
+    @Override
+    public boolean isHmtConnected() {
+        return false;
+    }
 }
